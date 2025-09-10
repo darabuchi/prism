@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prism/core/internal/config"
 	"github.com/prism/core/internal/core"
-	"github.com/prism/core/pkg/logger"
 )
 
 // Server API 服务器
@@ -26,7 +25,7 @@ func NewServer(cfg *config.Config, proxyCore *core.ProxyCore) *Server {
 	}
 
 	engine := gin.New()
-	
+
 	// 中间件
 	engine.Use(gin.Recovery())
 	engine.Use(LoggerMiddleware())
@@ -114,9 +113,9 @@ func (s *Server) Error(c *gin.Context, code int, message string) {
 func (s *Server) getSystemStatus(c *gin.Context) {
 	status := map[string]interface{}{
 		"version":        "1.0.0", // TODO: 从构建信息获取
-		"uptime":         0,        // TODO: 计算运行时间
-		"memory_usage":   0,        // TODO: 获取内存使用
-		"cpu_usage":      0,        // TODO: 获取 CPU 使用
+		"uptime":         0,       // TODO: 计算运行时间
+		"memory_usage":   0,       // TODO: 获取内存使用
+		"cpu_usage":      0,       // TODO: 获取 CPU 使用
 		"proxy_status":   "running",
 		"total_upload":   0,
 		"total_download": 0,
@@ -129,11 +128,11 @@ func (s *Server) getSystemStatus(c *gin.Context) {
 func (s *Server) getSystemConfig(c *gin.Context) {
 	// 返回安全的配置信息（不包含敏感信息）
 	config := map[string]interface{}{
-		"api_port":    s.config.API.Port,
-		"proxy_port":  s.config.Proxy.Port,
-		"allow_lan":   s.config.Proxy.AllowLAN,
-		"proxy_mode":  s.config.Proxy.Mode,
-		"log_level":   s.config.Log.Level,
+		"api_port":   s.config.API.Port,
+		"proxy_port": s.config.Proxy.Port,
+		"allow_lan":  s.config.Proxy.AllowLAN,
+		"proxy_mode": s.config.Proxy.Mode,
+		"log_level":  s.config.Log.Level,
 	}
 
 	s.Success(c, config)

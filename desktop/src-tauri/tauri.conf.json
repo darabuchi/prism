@@ -1,7 +1,7 @@
 {
   "build": {
-    "beforeDevCommand": "npm run vite:dev",
-    "beforeBuildCommand": "npm run vite:build",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
     "devPath": "http://localhost:1420",
     "distDir": "../dist",
     "withGlobalTauri": false
@@ -17,49 +17,37 @@
         "all": false,
         "open": true
       },
-      "http": {
-        "all": true,
-        "request": true,
-        "scope": ["http://localhost:9090/**", "https://**"]
-      },
-      "notification": {
-        "all": true
-      },
-      "systemTray": {
-        "all": true
-      },
       "window": {
         "all": false,
         "close": true,
         "hide": true,
         "maximize": true,
         "minimize": true,
+        "show": true,
         "unmaximize": true,
-        "unminimize": true,
-        "show": true,
-        "startDragging": true,
-        "print": false
-      },
-      "app": {
-        "all": false,
-        "show": true,
-        "hide": true
-      },
-      "path": {
-        "all": true
+        "unminimize": true
       },
       "fs": {
         "all": false,
         "readFile": true,
         "writeFile": true,
         "readDir": true,
-        "copyFile": true,
         "createDir": true,
         "removeDir": true,
         "removeFile": true,
-        "renameFile": true,
-        "exists": true,
-        "scope": ["$APPDATA/*", "$LOCALDATA/*", "$DOWNLOAD/*"]
+        "renameFile": true
+      },
+      "http": {
+        "all": true,
+        "request": true
+      },
+      "notification": {
+        "all": true
+      },
+      "dialog": {
+        "all": false,
+        "open": true,
+        "save": true
       }
     },
     "bundle": {
@@ -73,35 +61,40 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
+      "longDescription": "Prism 是一个现代化的代理管理工具，支持多种协议和智能节点选择。",
+      "shortDescription": "代理管理工具",
+      "category": "Utility",
+      "copyright": "Copyright © 2024 Prism Team",
+      "licenseFile": "../LICENSE",
       "resources": [],
       "externalBin": [],
-      "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
-      "deb": {
-        "depends": []
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
       },
       "macOS": {
         "frameworks": [],
         "minimumSystemVersion": "",
         "exceptionDomain": "",
         "signingIdentity": null,
+        "providerShortName": null,
         "entitlements": null
       },
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+      "deb": {
+        "depends": []
       }
     },
     "security": {
       "csp": null
     },
-    "systemTray": {
-      "iconPath": "icons/icon.png",
-      "iconAsTemplate": true,
-      "menuOnLeftClick": false
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://releases.prism.com/{{target}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": ""
     },
     "windows": [
       {
@@ -110,16 +103,21 @@
         "title": "Prism",
         "width": 1200,
         "height": 800,
-        "minWidth": 800,
+        "minWidth": 1000,
         "minHeight": 600,
-        "center": true,
-        "x": null,
-        "y": null,
-        "visible": false,
         "decorations": true,
+        "transparent": false,
+        "center": true,
         "alwaysOnTop": false,
-        "skipTaskbar": false
+        "skipTaskbar": false,
+        "visible": true
       }
-    ]
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false,
+      "tooltip": "Prism"
+    }
   }
 }

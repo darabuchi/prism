@@ -245,17 +245,21 @@ Content-Type: application/json
 
 ### 4. 节点管理
 
-#### 3.1 获取节点列表
+#### 4.1 获取节点列表
 ```http
-GET /nodepools/{pool_id}/nodes
+GET /nodes
 ```
 
 **查询参数:**
 - `page`: 页码，默认 1
 - `size`: 每页大小，默认 20
+- `subscription_id`: 按订阅过滤
+- `node_pool_id`: 按节点池过滤
 - `country`: 按国家过滤
 - `protocol`: 按协议过滤
-- `status`: 按状态过滤
+- `status`: 按状态过滤 (online/offline/testing/unknown)
+- `sort`: 排序字段 (delay/upload_speed/download_speed/last_test)
+- `order`: 排序方向 (asc/desc)
 
 **响应示例:**
 ```json
@@ -268,71 +272,205 @@ GET /nodepools/{pool_id}/nodes
     "size": 20,
     "nodes": [
       {
-        "id": "node-1",
-        "name": "香港 HK01",
+        "id": 1,
+        "subscription_id": 1,
+        "node_pool_id": 1,
+        "name": "🇭🇰 香港 HK01",
+        "hash": "1a2b3c4d5e6f...",
         "server": "hk01.example.com",
-        "port": 8080,
+        "port": 443,
         "protocol": "vmess",
-        "country": "HK", 
+        "country": "HK",
+        "country_name": "Hong Kong",
         "city": "Hong Kong",
+        "isp": "HKT",
         "delay": 50,
-        "upload_speed": 100.5,
-        "download_speed": 150.2,
+        "upload_speed": 104857600,
+        "download_speed": 157286400,
+        "loss_rate": 0.5,
         "status": "online",
-        "last_test": "2024-01-10T10:00:00Z"
+        "last_test": "2024-01-15T10:00:00Z",
+        "last_online": "2024-01-15T09:55:00Z",
+        "continuous_failures": 0,
+        "streaming_unlock": {
+          "netflix": {"available": true, "region": "HK"},
+          "youtube": {"available": true, "region": "HK"},
+          "chatgpt": {"available": true}
+        },
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-15T10:00:00Z"
       }
     ]
   }
 }
 ```
 
-#### 3.2 测试节点延迟
+#### 4.2 获取节点详情
 ```http
-POST /nodepools/{pool_id}/nodes/{node_id}/test
+GET /nodes/{node_id}
 ```
 
-#### 3.3 批量测试节点
+#### 4.3 测试单个节点
 ```http
-POST /nodepools/{pool_id}/nodes/batch-test
+POST /nodes/{node_id}/test
 Content-Type: application/json
 
 {
-  "node_ids": ["node-1", "node-2", "node-3"],
-  "test_url": "http://www.gstatic.com/generate_204",
-  "timeout": 5000
+  "test_types": ["delay", "speed", "streaming"],
+  "test_config": {
+    "delay_url": "http://www.gstatic.com/generate_204",
+    "timeout": 5000,
+    "streaming_services": ["netflix", "youtube", "chatgpt"]
+  }
 }
 ```
 
-### 4. 订阅管理
-
-#### 4.1 获取订阅列表
+#### 4.4 批量测试节点
 ```http
-GET /subscriptions
-```
-
-#### 4.2 添加订阅
-```http
-POST /subscriptions
+POST /nodes/batch-test
 Content-Type: application/json
 
 {
-  "name": "订阅名称",
-  "url": "https://example.com/subscribe",
-  "user_agent": "clash",
-  "auto_update": true,
-  "update_interval": 3600,
-  "node_pool_id": "pool-1"
+  "node_ids": [1, 2, 3],
+  "test_types": ["delay", "speed"],
+  "test_config": {
+    "delay_url": "http://www.gstatic.com/generate_204",
+    "timeout": 5000,
+    "concurrent": 10
+  }
 }
 ```
 
-#### 4.3 更新订阅
-```http
-PUT /subscriptions/{subscription_id}/update
+**响应示例:**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "task_id": "test-task-12345",
+    "total_nodes": 3,
+    "status": "running"
+  }
+}
 ```
 
-### 5. 规则管理
+#### 4.5 获取测试任务状态
+```http
+GET /nodes/test-tasks/{task_id}
+```
 
-#### 5.1 获取规则列表
+#### 4.6 获取节点测试历史
+```http
+GET /nodes/{node_id}/test-history
+```
+
+**查询参数:**
+- `test_type`: 测试类型过滤
+- `start_time`: 开始时间
+- `end_time`: 结束时间
+- `limit`: 返回数量限制
+
+#### 4.7 智能节点选择
+```http
+GET /nodes/best-selection
+```
+
+**查询参数:**
+- `node_pool_id`: 节点池限制
+- `country`: 国家偏好
+- `protocol`: 协议偏好
+- `streaming`: 流媒体解锁需求
+- `count`: 返回节点数量，默认1
+
+**响应示例:**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "node": {
+        "id": 1,
+        "name": "🇭🇰 香港 HK01",
+        "delay": 45,
+        "score": 95.5
+      },
+      "selection_reason": {
+        "delay_score": 90,
+        "speed_score": 95,
+        "stability_score": 98,
+        "streaming_score": 100
+      }
+    }
+  ]
+}
+```
+
+### 5. 统计和分析
+
+#### 5.1 获取整体统计
+```http
+GET /stats/overview
+```
+
+**响应示例:**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "total_subscriptions": 10,
+    "active_subscriptions": 8,
+    "total_node_pools": 5,
+    "total_nodes": 500,
+    "active_nodes": 450,
+    "overall_survival_rate": 90.0,
+    "total_tests_today": 1200,
+    "successful_tests_today": 1080
+  }
+}
+```
+
+#### 5.2 获取地区分布统计
+```http
+GET /stats/geo-distribution
+```
+
+#### 5.3 获取协议分布统计
+```http
+GET /stats/protocol-distribution
+```
+
+#### 5.4 获取性能趋势
+```http
+GET /stats/performance-trend
+```
+
+**查询参数:**
+- `period`: 时间周期 (hour/day/week/month)
+- `node_pool_id`: 节点池过滤
+- `country`: 国家过滤
+
+### 6. 自动化任务
+
+#### 6.1 获取自动更新任务状态
+```http
+GET /tasks/auto-update
+```
+
+#### 6.2 立即执行自动更新
+```http
+POST /tasks/auto-update/trigger
+```
+
+#### 6.3 获取定时测试任务状态
+```http
+GET /tasks/scheduled-test
+```
+
+### 7. 规则管理
+
+#### 7.1 获取规则列表
 ```http
 GET /rules
 ```

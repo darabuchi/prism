@@ -1,0 +1,34 @@
+# Prism Core 配置文件
+
+# 服务器配置
+server:
+  host: "0.0.0.0"
+  port: 9090
+
+# 数据库配置
+database:
+  driver: "sqlite"           # 数据库驱动: sqlite/mysql/postgres/gaussdb
+  dsn: "data/prism.db"       # 数据库连接字符串
+  debug: false               # 是否启用调试模式
+  
+  # 连接池配置
+  max_open_conns: 25         # 最大打开连接数
+  max_idle_conns: 5          # 最大空闲连接数
+  conn_max_lifetime: "5m"    # 连接最大生存时间
+
+# 日志配置
+log:
+  level: "info"              # 日志级别: debug/info/warn/error
+  format: "text"             # 日志格式: text/json
+
+# MySQL 配置示例（注释掉的配置）
+# database:
+#   driver: "mysql"
+#   dsn: "user:password@tcp(localhost:3306)/prism?charset=utf8mb4&parseTime=True&loc=Local"
+#   debug: false
+
+# PostgreSQL 配置示例（注释掉的配置）
+# database:
+#   driver: "postgres"
+#   dsn: "host=localhost user=prism password=prism dbname=prism port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+#   debug: false

@@ -17,19 +17,19 @@ type Config struct {
 
 // APIConfig API 配置
 type APIConfig struct {
-	Port         int    `mapstructure:"port" yaml:"port"`
-	Host         string `mapstructure:"host" yaml:"host"`
+	Port         int      `mapstructure:"port" yaml:"port"`
+	Host         string   `mapstructure:"host" yaml:"host"`
 	AllowOrigins []string `mapstructure:"allow_origins" yaml:"allow_origins"`
-	Secret       string `mapstructure:"secret" yaml:"secret"`
+	Secret       string   `mapstructure:"secret" yaml:"secret"`
 }
 
 // ProxyConfig 代理配置
 type ProxyConfig struct {
-	Port      int    `mapstructure:"port" yaml:"port"`
-	Host      string `mapstructure:"host" yaml:"host"`
-	AllowLAN  bool   `mapstructure:"allow_lan" yaml:"allow_lan"`
-	Mode      string `mapstructure:"mode" yaml:"mode"`
-	LogLevel  string `mapstructure:"log_level" yaml:"log_level"`
+	Port     int    `mapstructure:"port" yaml:"port"`
+	Host     string `mapstructure:"host" yaml:"host"`
+	AllowLAN bool   `mapstructure:"allow_lan" yaml:"allow_lan"`
+	Mode     string `mapstructure:"mode" yaml:"mode"`
+	LogLevel string `mapstructure:"log_level" yaml:"log_level"`
 }
 
 // LogConfig 日志配置

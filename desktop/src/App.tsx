@@ -1,44 +1,33 @@
-import React, { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { ConfigProvider, theme } from 'antd'
-import zhCN from 'antd/locale/zh_CN'
-import { useAppStore } from './store/useAppStore'
-import Layout from './components/Layout'
-import Dashboard from './pages/Dashboard'
-import NodePools from './pages/NodePools'
-import Rules from './pages/Rules'
-import Settings from './pages/Settings'
-import './App.css'
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { Layout } from 'antd';
+
+import Sidebar from './components/Sidebar';
+import Dashboard from './pages/Dashboard';
+import Subscriptions from './pages/Subscriptions';
+import Nodes from './pages/Nodes';
+import Settings from './pages/Settings';
+
+const { Header, Sider, Content } = Layout;
 
 const App: React.FC = () => {
-  const { isDarkMode, initializeApp } = useAppStore()
-
-  useEffect(() => {
-    initializeApp()
-  }, [initializeApp])
-
   return (
-    <ConfigProvider
-      locale={zhCN}
-      theme={{
-        algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
-        token: {
-          colorPrimary: '#1890ff',
-        },
-      }}
-    >
-      <Router>
-        <Layout>
+    <Layout className="full-height">
+      <Sider width={200} theme="light">
+        <Sidebar />
+      </Sider>
+      <Layout>
+        <Content style={{ margin: 0, minHeight: '100vh' }}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/nodepools" element={<NodePools />} />
-            <Route path="/rules" element={<Rules />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/nodes" element={<Nodes />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
-        </Layout>
-      </Router>
-    </ConfigProvider>
-  )
-}
+        </Content>
+      </Layout>
+    </Layout>
+  );
+};
 
-export default App
+export default App;

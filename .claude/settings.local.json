@@ -4,7 +4,18 @@
       "Bash(npm create:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(make:*)",
+      "Bash(go mod:*)",
+      "Bash(go test:*)",
+      "Bash(CGO_ENABLED=1 go test -v -short ./internal/storage/...)",
+      "Bash(CGO_ENABLED=1 go test -v -short ./internal/service/...)",
+      "Bash(./test_suite.sh:*)",
+      "Bash(CGO_ENABLED=0 go test -v ./internal/service -run TestNodeService_GetByID)",
+      "Bash(CGO_ENABLED=0 go test ./internal/service/...)",
+      "Bash(CGO_ENABLED=0 go test -v ./internal/service -run TestStatsService_GetOverview)",
+      "Bash(CGO_ENABLED=0 go test -v ./internal/service -run TestSubscriptionService_UpdateSubscription)",
+      "Bash(CGO_ENABLED=0 go test ./internal/api/handler/...)"
     ],
     "deny": [],
     "ask": []
