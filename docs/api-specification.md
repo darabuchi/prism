@@ -61,9 +61,113 @@ Content-Type: application/json
 }
 ```
 
-### 2. 节点池管理
+### 2. 订阅管理
 
-#### 2.1 获取节点池列表
+#### 2.1 获取订阅列表
+```http
+GET /subscriptions
+```
+
+**查询参数:**
+- `page`: 页码，默认 1
+- `size`: 每页大小，默认 20
+- `status`: 按状态过滤 (active/inactive/error)
+- `auto_update`: 按自动更新状态过滤
+
+**响应示例:**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "total": 10,
+    "page": 1,
+    "size": 20,
+    "subscriptions": [
+      {
+        "id": 1,
+        "name": "高速订阅",
+        "url": "https://example.com/subscribe",
+        "user_agent": "clash",
+        "auto_update": true,
+        "update_interval": 3600,
+        "total_nodes": 50,
+        "active_nodes": 45,
+        "unique_new_nodes": 5,
+        "status": "active",
+        "last_update": "2024-01-15T10:00:00Z",
+        "last_success": "2024-01-15T10:00:00Z",
+        "error_count": 0,
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-15T10:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+#### 2.2 创建订阅
+```http
+POST /subscriptions
+Content-Type: application/json
+
+{
+  "name": "新订阅",
+  "url": "https://example.com/subscribe",
+  "user_agent": "clash",
+  "auto_update": true,
+  "update_interval": 3600,
+  "node_pool_ids": [1, 2]
+}
+```
+
+#### 2.3 更新订阅
+```http
+PUT /subscriptions/{subscription_id}
+Content-Type: application/json
+
+{
+  "name": "更新的订阅名称",
+  "auto_update": false,
+  "update_interval": 7200
+}
+```
+
+#### 2.4 手动更新订阅
+```http
+POST /subscriptions/{subscription_id}/update
+```
+
+**响应示例:**
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "total_fetched": 60,
+    "valid_nodes": 55,
+    "new_nodes": 8,
+    "global_new_nodes": 3,
+    "updated_nodes": 2,
+    "removed_nodes": 1,
+    "duration": 2350
+  }
+}
+```
+
+#### 2.5 获取订阅统计
+```http
+GET /subscriptions/{subscription_id}/stats
+```
+
+#### 2.6 获取订阅更新日志
+```http
+GET /subscriptions/{subscription_id}/logs
+```
+
+### 3. 节点池管理
+
+#### 3.1 获取节点池列表
 ```http
 GET /nodepools
 ```
@@ -75,20 +179,23 @@ GET /nodepools
   "message": "success", 
   "data": [
     {
-      "id": "pool-1",
+      "id": 1,
       "name": "高速节点池",
       "description": "优质高速节点",
-      "node_count": 50,
-      "active_nodes": 45,
+      "total_subscriptions": 3,
+      "total_nodes": 150,
+      "active_nodes": 128,
+      "survival_rate": 85.33,
+      "enabled": true,
+      "priority": 1,
       "created_at": "2024-01-01T00:00:00Z",
-      "updated_at": "2024-01-10T00:00:00Z",
-      "status": "active"
+      "updated_at": "2024-01-10T00:00:00Z"
     }
   ]
 }
 ```
 
-#### 2.2 创建节点池
+#### 3.2 创建节点池
 ```http
 POST /nodepools
 Content-Type: application/json
@@ -96,31 +203,47 @@ Content-Type: application/json
 {
   "name": "新节点池",
   "description": "节点池描述",
-  "subscription_urls": [
-    "https://example.com/subscribe1",
-    "https://example.com/subscribe2"  
-  ],
-  "auto_update": true,
-  "update_interval": 3600
+  "enabled": true,
+  "priority": 1
 }
 ```
 
-#### 2.3 获取节点池详情
+#### 3.3 获取节点池详情
 ```http
 GET /nodepools/{pool_id}
 ```
 
-#### 2.4 更新节点池
+#### 3.4 更新节点池
 ```http
 PUT /nodepools/{pool_id}
+Content-Type: application/json
+
+{
+  "name": "更新的节点池",
+  "description": "新描述",
+  "enabled": true,
+  "priority": 2
+}
 ```
 
-#### 2.5 删除节点池
+#### 3.5 删除节点池
 ```http
 DELETE /nodepools/{pool_id}
 ```
 
-### 3. 节点管理
+#### 3.6 关联订阅到节点池
+```http
+POST /nodepools/{pool_id}/subscriptions
+Content-Type: application/json
+
+{
+  "subscription_ids": [1, 2, 3],
+  "enabled": true,
+  "priority": 1
+}
+```
+
+### 4. 节点管理
 
 #### 3.1 获取节点列表
 ```http
