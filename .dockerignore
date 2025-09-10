@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# 文档
+*.md
+docs/
+
+# 临时文件
+*.tmp
+*.log
+*.swp
+*.swo
+*~
+
+# 构建产物
+dist/
+target/
+build/
+node_modules/
+
+# IDE 文件
+.vscode/
+.idea/
+*.iml
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 测试覆盖率
+coverage.out
+*.test
+
+# 配置文件中的敏感信息
+.env
+.env.local
+.env.production
+
+# 运行时数据
+data/
+logs/
+*.db
+*.sqlite
+
+# 其他平台文件
+desktop/
+android/
+cli/
+scripts/
+.github/

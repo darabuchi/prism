@@ -1,0 +1,40 @@
+{
+  "name": "prism-desktop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Prism 桌面客户端",
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "preview": "vite preview",
+    "vite:dev": "vite",
+    "vite:build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.0",
+    "antd": "^5.12.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.1",
+    "zustand": "^4.4.7",
+    "axios": "^1.6.2",
+    "recharts": "^2.8.0",
+    "@ant-design/icons": "^5.2.6"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.0",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react": "^4.0.3",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.4"
+  }
+}

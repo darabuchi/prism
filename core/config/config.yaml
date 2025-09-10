@@ -1,0 +1,46 @@
+# Prism Core 配置文件
+
+# API 配置
+api:
+  port: 9090
+  host: "127.0.0.1"
+  allow_origins:
+    - "*"
+  secret: "prism-secret-key-change-in-production"
+
+# 代理配置
+proxy:
+  port: 7890
+  host: "127.0.0.1"
+  allow_lan: false
+  mode: "rule"  # rule, global, direct
+  log_level: "info"
+
+# 日志配置
+log:
+  level: "info"    # debug, info, warn, error
+  format: "text"   # text, json
+  output: "stdout" # stdout, file
+
+# 数据库配置
+db:
+  driver: "sqlite"
+  dsn: "data/prism.db"
+
+# 节点池配置
+nodepools:
+  auto_update: true
+  update_interval: 3600  # 秒
+  test_timeout: 5000     # 毫秒
+  test_url: "http://www.gstatic.com/generate_204"
+
+# 规则配置
+rules:
+  enable_custom: true
+  default_policy: "PROXY"  # PROXY, DIRECT, REJECT
+
+# 订阅配置
+subscriptions:
+  user_agent: "clash"
+  timeout: 30000  # 毫秒
+  retry_count: 3

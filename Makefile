@@ -36,7 +36,7 @@ doctor: ## 检查开发环境是否满足要求
 	@$(MAKE) -s check-docker
 	@$(MAKE) -s check-git
 	@echo ""
-	@echo "$(GREEN)✅ 环境检查完成！$(RESET)"
+	@$(MAKE) -s doctor-summary
 
 check-system: ## 检查系统信息
 	@echo "$(YELLOW)📋 系统信息:$(RESET)"
@@ -179,6 +179,193 @@ check-git: ## 检查 Git 环境
 	else \
 		echo "  $(RED)✗$(RESET) Git 未安装"; \
 	fi
+
+doctor-summary: ## 生成问题检查单和修复建议
+	@echo "$(BLUE)📋 环境检查总结$(RESET)"
+	@echo "========================================"
+	@echo ""
+	@echo "$(YELLOW)🔍 问题检查单:$(RESET)"
+	@echo ""
+	@ERRORS_FOUND=0; \
+	WARNINGS_FOUND=0; \
+	if ! command -v go >/dev/null 2>&1; then \
+		echo "  $(RED)❌ 严重问题$(RESET): Go 未安装"; \
+		ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+	else \
+		GO_VERSION=$$(go version | grep -o 'go[0-9]\+\.[0-9]\+' | sed 's/go//'); \
+		if [ "$$(printf '%s\n' "1.21" "$$GO_VERSION" | sort -V | head -n1)" != "1.21" ]; then \
+			echo "  $(RED)❌ 严重问题$(RESET): Go 版本过低 (当前: $$GO_VERSION, 需要: >= 1.21)"; \
+			ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+		fi; \
+	fi; \
+	if ! command -v node >/dev/null 2>&1; then \
+		echo "  $(RED)❌ 严重问题$(RESET): Node.js 未安装"; \
+		ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+	else \
+		NODE_VERSION=$$(node --version | sed 's/v//'); \
+		if [ "$$(printf '%s\n' "18.0.0" "$$NODE_VERSION" | sort -V | head -n1)" != "18.0.0" ]; then \
+			echo "  $(RED)❌ 严重问题$(RESET): Node.js 版本过低 (当前: $$NODE_VERSION, 需要: >= 18.0.0)"; \
+			ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+		fi; \
+	fi; \
+	if ! command -v npm >/dev/null 2>&1; then \
+		echo "  $(RED)❌ 严重问题$(RESET): npm 未安装"; \
+		ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+	fi; \
+	if ! command -v rustc >/dev/null 2>&1; then \
+		echo "  $(RED)❌ 严重问题$(RESET): Rust 未安装"; \
+		ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+	fi; \
+	if ! command -v cargo >/dev/null 2>&1; then \
+		echo "  $(RED)❌ 严重问题$(RESET): Cargo 未安装"; \
+		ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+	fi; \
+	if ! command -v git >/dev/null 2>&1; then \
+		echo "  $(RED)❌ 严重问题$(RESET): Git 未安装"; \
+		ERRORS_FOUND=$$((ERRORS_FOUND + 1)); \
+	fi; \
+	if ! command -v tauri >/dev/null 2>&1; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): Tauri CLI 未安装 (桌面客户端开发需要)"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	fi; \
+	if [ -z "$$ANDROID_HOME" ]; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): ANDROID_HOME 未设置 (Android 开发需要)"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	fi; \
+	if ! command -v adb >/dev/null 2>&1; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): ADB 未安装 (Android 开发需要)"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	fi; \
+	if ! command -v java >/dev/null 2>&1; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): Java 未安装 (Android 开发需要)"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	fi; \
+	if ! command -v docker >/dev/null 2>&1; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): Docker 未安装 (容器化部署需要)"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	elif ! docker info >/dev/null 2>&1; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): Docker 服务未运行"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	fi; \
+	if ! command -v docker-compose >/dev/null 2>&1; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): Docker Compose 未安装"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	fi; \
+	if command -v git >/dev/null 2>&1; then \
+		if ! git config user.name >/dev/null 2>&1; then \
+			echo "  $(YELLOW)⚠️  一般问题$(RESET): Git 用户名未配置"; \
+			WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+		fi; \
+		if ! git config user.email >/dev/null 2>&1; then \
+			echo "  $(YELLOW)⚠️  一般问题$(RESET): Git 邮箱未配置"; \
+			WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+		fi; \
+	fi; \
+	if ! command -v golangci-lint >/dev/null 2>&1; then \
+		echo "  $(YELLOW)⚠️  一般问题$(RESET): golangci-lint 未安装 (代码质量检查工具)"; \
+		WARNINGS_FOUND=$$((WARNINGS_FOUND + 1)); \
+	fi; \
+	echo ""; \
+	if [ $$ERRORS_FOUND -eq 0 ] && [ $$WARNINGS_FOUND -eq 0 ]; then \
+		echo "$(GREEN)🎉 恭喜！没有发现任何问题，开发环境配置完美！$(RESET)"; \
+	else \
+		echo "$(BLUE)📊 问题统计:$(RESET)"; \
+		echo "  严重问题: $(RED)$$ERRORS_FOUND$(RESET) 个"; \
+		echo "  一般问题: $(YELLOW)$$WARNINGS_FOUND$(RESET) 个"; \
+		echo ""; \
+		echo "$(YELLOW)🔧 修复建议:$(RESET)"; \
+		echo ""; \
+		if [ $$ERRORS_FOUND -gt 0 ]; then \
+			echo "$(RED)🚨 请优先解决严重问题，这些会阻止项目正常构建：$(RESET)"; \
+			echo ""; \
+			if ! command -v go >/dev/null 2>&1; then \
+				echo "  $(RED)Go 安装:$(RESET)"; \
+				echo "    macOS:     brew install go"; \
+				echo "    Ubuntu:    sudo apt update && sudo apt install golang-go"; \
+				echo "    Windows:   winget install GoLang.Go"; \
+				echo "    或访问:    https://golang.org/dl/"; \
+				echo ""; \
+			fi; \
+			if ! command -v node >/dev/null 2>&1; then \
+				echo "  $(RED)Node.js 安装:$(RESET)"; \
+				echo "    macOS:     brew install node"; \
+				echo "    Ubuntu:    sudo apt update && sudo apt install nodejs npm"; \
+				echo "    Windows:   winget install OpenJS.NodeJS"; \
+				echo "    或访问:    https://nodejs.org/"; \
+				echo ""; \
+			fi; \
+			if ! command -v rustc >/dev/null 2>&1; then \
+				echo "  $(RED)Rust 安装:$(RESET)"; \
+				echo "    所有平台:  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"; \
+				echo "    Windows:   也可使用 winget install Rustlang.Rustup"; \
+				echo "    安装后执行: source ~/.cargo/env"; \
+				echo ""; \
+			fi; \
+			if ! command -v git >/dev/null 2>&1; then \
+				echo "  $(RED)Git 安装:$(RESET)"; \
+				echo "    macOS:     brew install git"; \
+				echo "    Ubuntu:    sudo apt update && sudo apt install git"; \
+				echo "    Windows:   winget install Git.Git"; \
+				echo ""; \
+			fi; \
+		fi; \
+		if [ $$WARNINGS_FOUND -gt 0 ]; then \
+			echo "$(YELLOW)💡 可选改进 (提升开发体验)：$(RESET)"; \
+			echo ""; \
+			if ! command -v tauri >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1; then \
+				echo "  $(YELLOW)Tauri CLI 安装 (桌面客户端开发):$(RESET)"; \
+				echo "    cargo install tauri-cli"; \
+				echo ""; \
+			fi; \
+			if [ -z "$$ANDROID_HOME" ]; then \
+				echo "  $(YELLOW)Android 开发环境配置:$(RESET)"; \
+				echo "    1. 下载 Android Studio: https://developer.android.com/studio"; \
+				echo "    2. 安装 Android SDK"; \
+				echo "    3. 设置环境变量:"; \
+				echo "       export ANDROID_HOME=$$HOME/Android/Sdk"; \
+				echo "       export PATH=$$PATH:$$ANDROID_HOME/tools:$$ANDROID_HOME/platform-tools"; \
+				echo ""; \
+			fi; \
+			if ! command -v docker >/dev/null 2>&1; then \
+				echo "  $(YELLOW)Docker 安装 (容器化部署):$(RESET)"; \
+				echo "    macOS:     brew install --cask docker"; \
+				echo "    Ubuntu:    sudo apt update && sudo apt install docker.io"; \
+				echo "    Windows:   winget install Docker.DockerDesktop"; \
+				echo "    安装后启动 Docker 服务"; \
+				echo ""; \
+			fi; \
+			if command -v git >/dev/null 2>&1; then \
+				if ! git config user.name >/dev/null 2>&1; then \
+					echo "  $(YELLOW)配置 Git 用户名:$(RESET)"; \
+					echo "    git config --global user.name \"Your Name\""; \
+					echo ""; \
+				fi; \
+				if ! git config user.email >/dev/null 2>&1; then \
+					echo "  $(YELLOW)配置 Git 邮箱:$(RESET)"; \
+					echo "    git config --global user.email \"your.email@example.com\""; \
+					echo ""; \
+				fi; \
+			fi; \
+			if ! command -v golangci-lint >/dev/null 2>&1; then \
+				echo "  $(YELLOW)golangci-lint 安装 (Go 代码检查):$(RESET)"; \
+				echo "    go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; \
+				echo ""; \
+			fi; \
+		fi; \
+		echo "$(BLUE)🚀 快速开始:$(RESET)"; \
+		echo ""; \
+		if [ $$ERRORS_FOUND -eq 0 ]; then \
+			echo "  环境配置良好！可以开始开发："; \
+			echo "    make setup-dev    # 安装项目依赖"; \
+			echo "    make dev          # 启动开发环境"; \
+		else \
+			echo "  请先解决严重问题，然后运行："; \
+			echo "    make doctor       # 重新检查环境"; \
+			echo "    make setup-dev    # 安装项目依赖"; \
+		fi; \
+		echo ""; \
+	fi; \
+	echo "========================================"
 
 ##@ 依赖管理
 
