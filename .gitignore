@@ -86,3 +86,5 @@ local.properties
 .gradle/
 android/app/build/
 android/build/
+
+core/pkg/mihomo
