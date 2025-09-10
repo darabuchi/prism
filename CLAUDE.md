@@ -9,10 +9,10 @@ This is the "prism" project - a proxy core system based on mihomo/clash with mul
 ## Technology Stack
 
 ### Backend (Go)
-**Framework**: Fiber (high-performance, Express-like API)
+**Framework**: GoFiber v2 (high-performance, Express-style, zero memory allocation routing)
 **Database**: Multi-database support (SQLite default, MySQL, PostgreSQL, GaussDB)
 **Cache**: Embedded key-value stores (BoltDB/LevelDB - choose based on scenario)
-**ORM**: GORM (multi-database support)
+**ORM**: GORM (perfect integration with GoFiber)
 
 **Required Package Preferences**:
 - **Logging**: `github.com/lazygophers/log` (REQUIRED - use this over other logging libraries)
@@ -77,10 +77,12 @@ prism/
 - NO Redis - use embedded key-value stores only
 
 ### API Development
-- Use Fiber framework for all HTTP services
-- Implement proper middleware for logging, authentication, and error handling
-- Use WebSocket for real-time features (node testing, traffic monitoring)
-- Follow RESTful conventions
+- Use GoFiber v2 framework for all HTTP services
+- Leverage GoFiber middleware ecosystem (cors, compress, recover, limiter)
+- Use GoFiber WebSocket (github.com/gofiber/websocket/v2) for real-time features
+- Implement fiber/jwt middleware for authentication
+- Follow RESTful conventions with GoFiber routing groups
+- Use GoFiber's fast JSON serialization and context handling
 
 ### Testing Requirements
 - Use Testify for all Go tests

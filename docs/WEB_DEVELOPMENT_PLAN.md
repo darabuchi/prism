@@ -23,12 +23,13 @@ Web 版本作为 Prism 项目的第一阶段，将提供完整的代理核心管
 ### 后端技术栈
 ```go
 // 核心技术选择
-Framework: Fiber (高性能、Express-like API)
+Framework: GoFiber v2 (高性能、Express风格、零内存分配)
 Database: SQLite(默认) / MySQL / PostgreSQL / GaussDB
 Cache: BoltDB / LevelDB (嵌入式键值存储)
-ORM: GORM (支持多数据库)
-Auth: JWT Token
-WebSocket: Fiber WebSocket
+ORM: GORM (与GoFiber完美集成)
+Auth: JWT Token (fiber/jwt中间件)
+WebSocket: GoFiber WebSocket (github.com/gofiber/websocket/v2)
+Middleware: GoFiber官方中间件生态 (cors, logger, recover, compress)
 Config: Viper (配置管理)
 Logging: github.com/lazygophers/log
 Utils: github.com/lazygophers/utils (json, stringx, xtime, bufiox, randx, anyx, candy)
@@ -37,18 +38,25 @@ Testing: Testify
 ```
 
 ### 前端技术栈
-```json
-{
-  "framework": "React 18 + TypeScript",
-  "stateManagement": "Zustand",
-  "uiLibrary": "Ant Design",
-  "buildTool": "Vite",
-  "styling": "Tailwind CSS",
-  "charts": "ECharts",
-  "http": "Axios",
-  "websocket": "native WebSocket API",
-  "testing": "Jest + React Testing Library"
-}
+```typescript
+// 核心技术选择
+Framework: React 18 + TypeScript (强类型、现代化React)
+StateManagement: Zustand (轻量级状态管理)
+UILibrary: Ant Design 5.x (企业级UI组件)
+BuildTool: Vite (极速构建工具)
+Styling: 
+  - Tailwind CSS (原子化CSS)
+  - CSS Modules (模块化样式)
+  - Ant Design主题定制
+Routing: React Router v6 (最新路由系统)
+HTTPClient: Axios (HTTP请求)
+WebSocket: native WebSocket API (实时通信)
+Charts: ECharts (数据可视化)
+Forms: React Hook Form + Yup (表单管理和验证)
+DateHandling: dayjs (日期处理)
+Icons: Ant Design Icons + Lucide React
+Testing: Jest + React Testing Library (单元测试)
+DevTools: React DevTools + Redux DevTools
 ```
 
 ## 开发阶段规划
@@ -60,13 +68,14 @@ Testing: Testify
 **负责人**: 后端开发
 
 **任务清单**:
-- [ ] Go 项目结构搭建
-- [ ] Fiber 框架集成和中间件配置
+- [ ] Go 项目结构搭建 (标准 Go 布局)
+- [ ] GoFiber v2 框架集成和中间件配置
 - [ ] 多数据库支持设计 (SQLite/MySQL/PostgreSQL/GaussDB) 和 GORM 集成
-- [ ] JWT 认证中间件实现
-- [ ] 基础 API 路由定义
+- [ ] JWT 认证中间件实现 (使用 fiber/jwt)
+- [ ] GoFiber 路由系统设计和 API 端点定义
 - [ ] lazygophers/log 日志系统集成
 - [ ] lazygophers/utils 工具包集成
+- [ ] GoFiber 中间件配置 (CORS, Logger, Recover, Compress)
 - [ ] Docker 化配置
 
 **交付物**:
@@ -93,14 +102,16 @@ prism/
 **负责人**: 前端开发
 
 **任务清单**:
-- [ ] React + TypeScript 项目初始化
-- [ ] Vite 构建配置优化
-- [ ] Ant Design 主题定制
-- [ ] 路由系统设计 (React Router)
-- [ ] Zustand 状态管理配置
-- [ ] Axios HTTP 客户端封装
-- [ ] 基础组件库建立
-- [ ] 响应式布局框架
+- [ ] React 18 + TypeScript 项目初始化 (使用 create-vite)
+- [ ] Vite 构建配置优化 (环境变量、代理、分包)
+- [ ] Ant Design 5.x 集成和主题定制
+- [ ] React Router v6 路由系统设计
+- [ ] Zustand 状态管理架构设计
+- [ ] Axios HTTP 客户端封装 (拦截器、错误处理)
+- [ ] TypeScript 类型定义建立
+- [ ] 基础组件库和 Hooks 建立
+- [ ] Tailwind CSS + CSS Modules 样式系统
+- [ ] 响应式布局框架 (移动端适配)
 
 **交付物**:
 ```
@@ -153,91 +164,115 @@ type CoreService interface {
     GetConnections() []*Connection
 }
 
-// 使用 Fiber 框架的API处理器示例
-func setupNodeAPI(app *fiber.App) {
-    api := app.Group("/api")
+// 使用 GoFiber v2 的完整API示例
+func SetupAPI(app *fiber.App) {
+    // 全局中间件
+    app.Use(cors.New(cors.Config{
+        AllowOrigins: "*",
+        AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
+        AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+    }))
     
-    // 使用原子计数器
-    var requestCounter atomic.Int64
+    app.Use(compress.New())
+    app.Use(recover.New())
     
-    // 中间件 - 请求计数和日志
-    api.Use(func(c *fiber.Ctx) error {
-        count := requestCounter.Inc()
+    // 自定义日志中间件
+    app.Use(func(c *fiber.Ctx) error {
+        start := xtime.Now()
         
-        // 使用 lazygophers/log 记录请求
-        log.Info("API请求", 
+        err := c.Next()
+        
+        duration := xtime.Since(start)
+        log.Info("HTTP请求", 
             log.String("method", c.Method()),
             log.String("path", c.Path()),
-            log.Int64("count", count),
+            log.Int("status", c.Response().StatusCode()),
+            log.Duration("duration", duration),
             log.String("ip", c.IP()),
+            log.String("userAgent", c.Get("User-Agent")),
         )
         
-        return c.Next()
+        return err
     })
     
-    // 节点管理端点
-    api.Get("/nodes", func(c *fiber.Ctx) error {
-        // 使用 stringx 进行参数处理
-        pageStr := c.Query("page", "1")
-        if !stringx.IsNumeric(pageStr) {
-            return c.Status(400).JSON(fiber.Map{
-                "error": "页码参数无效",
-            })
-        }
-        
-        nodes, err := nodeService.GetNodes(c.Context())
-        if err != nil {
-            log.Error("获取节点失败", log.Error(err))
-            return c.Status(500).JSON(fiber.Map{
-                "error": "内部服务器错误",
-            })
-        }
-        
-        // 使用 lazygophers/utils/json 进行JSON操作
-        response := fiber.Map{
-            "data": nodes,
-            "timestamp": xtime.Now().Unix(),
-            "count": len(nodes),
-        }
-        
-        return c.JSON(response)
-    })
+    // API 路由组
+    api := app.Group("/api/v1")
     
-    // 节点测速端点
-    api.Post("/nodes/:id/test", func(c *fiber.Ctx) error {
-        nodeID := c.Params("id")
-        if stringx.IsEmpty(nodeID) {
-            return c.Status(400).JSON(fiber.Map{
-                "error": "节点ID不能为空",
+    // JWT 中间件保护的路由
+    protected := api.Use(jwtware.New(jwtware.Config{
+        SigningKey: []byte("your-secret-key"),
+        ContextKey: "jwt",
+        ErrorHandler: func(c *fiber.Ctx, err error) error {
+            return c.Status(401).JSON(fiber.Map{
+                "error": "未授权访问",
+                "code": "UNAUTHORIZED",
             })
-        }
-        
-        // 异步测速
-        go func() {
-            start := xtime.Now()
-            delay, err := testNodeDelay(nodeID)
-            duration := xtime.Since(start)
-            
-            if err != nil {
-                log.Error("节点测速失败",
-                    log.String("nodeId", nodeID),
-                    log.Error(err),
-                    log.Duration("duration", duration),
-                )
-                return
-            }
-            
-            log.Info("节点测速完成",
-                log.String("nodeId", nodeID), 
-                log.Int64("delay", delay),
-                log.Duration("testDuration", duration),
-            )
-        }()
-        
-        return c.JSON(fiber.Map{
-            "message": "测速任务已启动",
-            "nodeId": nodeID,
+        },
+    }))
+    
+    // 节点管理路由
+    nodes := protected.Group("/nodes")
+    nodes.Get("/", handlers.GetNodeList)           // 获取节点列表
+    nodes.Post("/", handlers.CreateNode)           // 创建节点
+    nodes.Get("/:id", handlers.GetNode)            // 获取单个节点
+    nodes.Put("/:id", handlers.UpdateNode)         // 更新节点
+    nodes.Delete("/:id", handlers.DeleteNode)     // 删除节点
+    nodes.Post("/:id/test", handlers.TestNode)    // 测试节点
+    nodes.Post("/batch", handlers.BatchOperation) // 批量操作
+    
+    // 订阅管理路由
+    subs := protected.Group("/subscriptions")
+    subs.Get("/", handlers.GetSubscriptionList)
+    subs.Post("/", handlers.CreateSubscription)
+    subs.Put("/:id", handlers.UpdateSubscription)
+    subs.Delete("/:id", handlers.DeleteSubscription)
+    subs.Post("/:id/update", handlers.UpdateSubscriptionNodes)
+    
+    // WebSocket 路由 (实时数据推送)
+    app.Get("/ws", websocket.New(func(c *websocket.Conn) {
+        handlers.HandleWebSocket(c)
+    }))
+}
+
+// 节点列表处理器示例
+func GetNodeList(c *fiber.Ctx) error {
+    // 分页参数
+    page := c.QueryInt("page", 1)
+    size := c.QueryInt("size", 20)
+    
+    // 过滤参数
+    filter := &models.NodeFilter{
+        Type:        c.Query("type"),
+        CountryCode: c.Query("country"),
+        Status:      c.Query("status"),
+        Enabled:     c.QueryBool("enabled", true),
+    }
+    
+    // 排序参数
+    sort := c.Query("sort", "created_at")
+    order := c.Query("order", "desc")
+    
+    // 调用服务层
+    result, err := services.NodeService.GetNodes(c.Context(), page, size, filter, sort, order)
+    if err != nil {
+        log.Error("获取节点列表失败", log.Error(err))
+        return c.Status(500).JSON(fiber.Map{
+            "error": "内部服务器错误",
+            "code":  "INTERNAL_ERROR",
         })
+    }
+    
+    return c.JSON(fiber.Map{
+        "code":    200,
+        "message": "获取成功",
+        "data":    result.Data,
+        "pagination": fiber.Map{
+            "page":       page,
+            "size":       size,
+            "total":      result.Total,
+            "totalPages": (result.Total + int64(size) - 1) / int64(size),
+        },
+        "timestamp": xtime.Now().Unix(),
     })
 }
 
@@ -264,104 +299,127 @@ POST /api/core/reload       # 重载配置
 GET  /api/core/status       # 获取运行状态
 ```
 
-#### 2.2 节点管理系统 (Week 4-5)
-**主要目标**: 实现节点的增删改查和批量管理
-
-**后端任务**:
-- [ ] 节点数据模型设计
-- [ ] 节点 CRUD API 实现
-- [ ] 节点测速功能
-- [ ] 节点健康检查
-- [ ] 订阅链接解析
-
-```go
-type Node struct {
-    ID       string    `json:"id"`
-    Name     string    `json:"name"`
-    Type     string    `json:"type"`     // vmess, vless, trojan, ss
-    Server   string    `json:"server"`
-    Port     int       `json:"port"`
-    Config   NodeConfig `json:"config"`
-    Delay    int64     `json:"delay"`
-    Status   string    `json:"status"`   // active, error, testing
-    UpdateAt time.Time `json:"update_at"`
-}
-```
-
-**前端任务**:
-- [ ] 节点列表页面开发
-- [ ] 节点添加/编辑表单
-- [ ] 节点测速和状态显示
-- [ ] 批量操作功能
-- [ ] 搜索和过滤功能
-
-**API 端点**:
-```
-GET    /api/nodes              # 获取节点列表
-POST   /api/nodes              # 添加节点
-GET    /api/nodes/{id}         # 获取单个节点
-PUT    /api/nodes/{id}         # 更新节点
-DELETE /api/nodes/{id}         # 删除节点
-POST   /api/nodes/{id}/test    # 测试节点延迟
-POST   /api/nodes/batch        # 批量操作
-```
-
-#### 2.3 订阅管理系统 (Week 5-6)
-**主要目标**: 支持订阅链接管理和自动更新
+#### 2.2 订阅管理系统 (Week 4-5)
+**主要目标**: 实现订阅的自动抓取和节点管理
 
 **后端任务**:
 - [ ] 订阅数据模型设计
-- [ ] 订阅链接解析引擎
-- [ ] 自动更新调度器
-- [ ] 订阅内容缓存
-- [ ] 错误处理和重试机制
+- [ ] 订阅 CRUD API 实现
+- [ ] 订阅链接解析引擎 (支持Clash、V2Ray、SS等格式)
+- [ ] 自动抓取和更新机制
+- [ ] 节点去重和合并逻辑
+- [ ] 多对多关系管理
 
 ```go
 type Subscription struct {
-    ID          string    `json:"id"`
-    Name        string    `json:"name"`
-    URL         string    `json:"url"`
-    UpdatedAt   time.Time `json:"updated_at"`
-    NodeCount   int       `json:"node_count"`
-    Status      string    `json:"status"`
-    AutoUpdate  bool      `json:"auto_update"`
-    UpdateInterval int    `json:"update_interval"` // 小时
+    ID                  string    `json:"id"`
+    Name                string    `json:"name"`
+    URL                 string    `json:"url"`
+    Type                string    `json:"type"`     // clash, v2ray, ss
+    NodeCount           int       `json:"node_count"`
+    LastUpdateAt        time.Time `json:"last_update_at"`
+    UpdateIntervalHours int       `json:"update_interval_hours"`
+    AutoUpdate          bool      `json:"auto_update"`
+    Status              string    `json:"status"`   // active, error, updating
+    Nodes               []Node    `json:"nodes"`    // 多对多关系
 }
 ```
 
 **前端任务**:
-- [ ] 订阅管理页面
-- [ ] 订阅添加和配置
-- [ ] 订阅更新状态监控
-- [ ] 订阅节点预览
-- [ ] 自动更新设置
+- [ ] 订阅列表页面开发
+- [ ] 订阅添加/编辑表单
+- [ ] 订阅更新状态显示
+- [ ] 关联节点管理界面
+- [ ] 自动更新配置
 
-#### 2.4 规则配置系统 (Week 6-7)
-**主要目标**: 实现灵活的路由规则配置
+**API 端点**:
+```
+GET    /api/subscriptions           # 获取订阅列表
+POST   /api/subscriptions           # 添加订阅
+GET    /api/subscriptions/{id}      # 获取单个订阅
+PUT    /api/subscriptions/{id}      # 更新订阅
+DELETE /api/subscriptions/{id}      # 删除订阅
+POST   /api/subscriptions/{id}/update # 手动更新订阅
+GET    /api/subscriptions/{id}/nodes  # 获取订阅关联的节点
+```
+
+#### 2.3 节点管理系统 (Week 5-6)
+**主要目标**: 实现节点的测速、监控和多对多关系管理
 
 **后端任务**:
-- [ ] 规则数据模型和存储
-- [ ] 规则引擎集成
-- [ ] 预设规则模板
-- [ ] 规则验证和测试
-- [ ] 规则优先级管理
+- [ ] 节点测速引擎开发
+- [ ] 节点状态监控
+- [ ] 多订阅节点去重逻辑
+- [ ] 节点地理信息识别
+- [ ] 性能统计和成功率计算
 
 ```go
-type Rule struct {
-    ID       string `json:"id"`
-    Type     string `json:"type"`      // DOMAIN, DOMAIN-SUFFIX, IP-CIDR
-    Payload  string `json:"payload"`   // 规则内容
-    Proxy    string `json:"proxy"`     // 代理策略
-    Priority int    `json:"priority"`
+type ProxyNode struct {
+    ID            string        `json:"id"`
+    Name          string        `json:"name"`
+    Type          string        `json:"type"`     // vmess, vless, trojan, ss
+    Server        string        `json:"server"`
+    Port          int           `json:"port"`
+    DelayMS       int           `json:"delay_ms"`
+    Status        string        `json:"status"`   // online, offline, testing
+    SuccessRate   float64       `json:"success_rate"`
+    Subscriptions []Subscription `json:"subscriptions"` // 多对多关系
 }
 ```
 
 **前端任务**:
-- [ ] 规则管理页面
+- [ ] 节点列表页面（支持多订阅显示）
+- [ ] 节点测速和状态显示
+- [ ] 节点详情页面（显示所属订阅）
+- [ ] 批量测速功能
+- [ ] 地理位置和性能图表
+
+**API 端点**:
+```
+GET    /api/nodes                # 获取节点列表
+GET    /api/nodes/{id}          # 获取单个节点
+POST   /api/nodes/{id}/test     # 测试节点延迟
+POST   /api/nodes/batch-test    # 批量测试节点
+GET    /api/nodes/{id}/subscriptions # 获取节点所属订阅
+```
+
+#### 2.4 规则文件系统 (Week 6-7)
+**主要目标**: 实现基于文件的规则存储和管理
+
+**后端任务**:
+- [ ] 规则文件读写管理
+- [ ] 规则编译和生成
+- [ ] 内置规则预设
+- [ ] 远程规则同步
+- [ ] 规则文件热重载
+
+```go
+type RuleService struct {
+    rulesDir string
+}
+
+type Rules struct {
+    Direct []string `json:"direct"`
+    Proxy  []string `json:"proxy"`
+    Reject []string `json:"reject"`
+}
+```
+
+**前端任务**:
+- [ ] 规则文件管理界面
 - [ ] 规则编辑器（支持语法高亮）
 - [ ] 规则模板选择
-- [ ] 规则测试工具
-- [ ] 拖拽排序功能
+- [ ] 规则导入导出
+- [ ] 规则预览和测试
+
+**文件结构**:
+```
+data/rules/
+├── builtin/     # 内置规则
+├── custom/      # 自定义规则
+├── remote/      # 远程规则缓存
+└── compiled/    # 编译后的规则
+```
 
 #### 2.5 实时监控系统 (Week 7-8)
 **主要目标**: 实现流量监控和连接状态展示
@@ -394,22 +452,22 @@ type Rule struct {
 - [ ] 快捷键支持
 - [ ] 可访问性改进
 
-#### 3.2 用户认证和权限 (Week 10-11)
-**主要目标**: 实现安全的用户认证系统
+#### 3.2 系统设置和配置 (Week 10-11)
+**主要目标**: 实现系统配置和参数管理
 
 **后端任务**:
-- [ ] 用户认证中间件
-- [ ] 权限控制系统
-- [ ] 密码安全处理
-- [ ] 会话管理
-- [ ] API 访问控制
+- [ ] 系统设置数据模型
+- [ ] 配置文件管理
+- [ ] 参数验证和类型转换
+- [ ] 配置热重载
+- [ ] 默认配置预设
 
 **前端任务**:
-- [ ] 登录/注册页面
-- [ ] 用户设置页面
-- [ ] 权限状态管理
-- [ ] 自动登录和记住密码
-- [ ] 退出登录处理
+- [ ] 系统设置页面
+- [ ] 配置表单和验证
+- [ ] 参数分类管理
+- [ ] 配置导入导出
+- [ ] 重置默认设置
 
 ### 🔧 阶段 4: 系统完善和优化 (Week 12-14)
 
@@ -512,55 +570,129 @@ interface ConnectionInfo {
 
 ## 数据库设计
 
-### 表结构设计
-```sql
--- 节点表
-CREATE TABLE nodes (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    server VARCHAR(255) NOT NULL,
-    port INTEGER NOT NULL,
-    config TEXT NOT NULL,
-    delay INTEGER DEFAULT -1,
-    status VARCHAR(20) DEFAULT 'inactive',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+**详细设计请参考**: [数据库设计文档 (最小化版)](./DATABASE_DESIGN_MINIMAL.md)
 
--- 订阅表
-CREATE TABLE subscriptions (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    url TEXT NOT NULL,
-    updated_at DATETIME,
-    node_count INTEGER DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'pending',
-    auto_update BOOLEAN DEFAULT true,
-    update_interval INTEGER DEFAULT 24,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+### 最小化架构概述
 
--- 规则表
-CREATE TABLE rules (
-    id VARCHAR(36) PRIMARY KEY,
-    type VARCHAR(50) NOT NULL,
-    payload TEXT NOT NULL,
-    proxy VARCHAR(255) NOT NULL,
-    priority INTEGER DEFAULT 0,
-    enabled BOOLEAN DEFAULT true,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+基于代理客户端性能优先的考虑，数据库采用**最小化设计**，只保留3个核心表，移除所有可能影响代理性能的日志、统计和监控表。
 
--- 用户表
-CREATE TABLE users (
-    id VARCHAR(36) PRIMARY KEY,
-    username VARCHAR(100) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) DEFAULT 'user',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    last_login DATETIME
-);
+#### 🎯 核心表结构 (仅3个表)
+- **subscriptions**: 订阅管理，自动抓取和更新节点
+- **proxy_nodes**: 代理节点，支持多协议和基本性能信息
+- **subscription_nodes**: 订阅节点关联表（多对多关系）
+
+#### ❌ 移除的表 (性能考虑)
+- ~~subscription_logs~~ → 改用文件日志
+- ~~node_tests~~ → 改用内存/BoltDB缓存
+- ~~traffic_stats~~ → 改用LevelDB缓存
+- ~~connection_logs~~ → 改用文件日志
+- ~~system_settings~~ → 改用YAML配置文件
+- ~~operation_logs~~ → 改用文件日志
+
+#### 📁 替代存储方案
+- **文件日志**: app.log, subscription.log, node_test.log, proxy.log
+- **内存缓存**: BoltDB (节点测试) + LevelDB (流量统计)
+- **配置文件**: settings.yaml 系统配置管理
+- **规则文件**: builtin、custom、remote、compiled 分类管理
+
+#### ⚡ 性能优势
+- **启动时间**: 减少 80%+ (3个表 vs 15个表)
+- **内存占用**: 减少 60%+ (无大量日志数据)
+- **数据库操作**: 减少 90%+ (最小化写入操作)
+- **代理延迟**: 几乎无影响 (无实时统计写入)
+
+### GORM 模型示例 (最小化版)
+```go
+// 使用推荐的包
+import (
+    "gorm.io/gorm"
+    "github.com/lazygophers/utils/xtime"
+    "github.com/google/uuid"
+)
+
+// BaseModel 基础模型
+type BaseModel struct {
+    ID        string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
+    CreatedAt xtime.Time     `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt xtime.Time     `gorm:"autoUpdateTime" json:"updated_at"`  
+    DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+}
+
+// Subscription 订阅模型 (简化版)
+type Subscription struct {
+    BaseModel
+    Name                string     `gorm:"size:255;not null" json:"name"`
+    URL                 string     `gorm:"type:text;not null" json:"url"`
+    Type                string     `gorm:"size:50;not null;default:clash" json:"type"`
+    UpdateIntervalHours int        `gorm:"not null;default:24" json:"update_interval_hours"`
+    AutoUpdate          bool       `gorm:"not null;default:true" json:"auto_update"`
+    Enabled             bool       `gorm:"not null;default:true" json:"enabled"`
+    LastUpdateAt        *xtime.Time `json:"last_update_at"`
+    NextUpdateAt        *xtime.Time `json:"next_update_at"`
+    Status              string     `gorm:"size:20;not null;default:pending" json:"status"`
+    NodeCount           int        `gorm:"not null;default:0" json:"node_count"`
+    
+    // 多对多关系
+    Nodes []ProxyNode `gorm:"many2many:subscription_nodes" json:"nodes,omitempty"`
+}
+
+// ProxyNode 代理节点模型 (简化版)
+type ProxyNode struct {
+    BaseModel
+    Name        string     `gorm:"size:255;not null" json:"name"`
+    Type        string     `gorm:"size:50;not null" json:"type"`
+    Server      string     `gorm:"size:255;not null" json:"server"`
+    Port        int        `gorm:"not null" json:"port"`
+    Config      string     `gorm:"type:text;not null" json:"config"`
+    CountryCode string     `gorm:"size:10" json:"country_code"`
+    DelayMS     int        `gorm:"default:-1" json:"delay_ms"`
+    LastTestAt  *xtime.Time `json:"last_test_at"`
+    Status      string     `gorm:"size:20;not null;default:unknown" json:"status"`
+    Enabled     bool       `gorm:"not null;default:true" json:"enabled"`
+    SortOrder   int        `gorm:"not null;default:0" json:"sort_order"`
+    
+    // 多对多关系
+    Subscriptions []Subscription `gorm:"many2many:subscription_nodes" json:"subscriptions,omitempty"`
+}
+
+// SubscriptionNode 关联表模型 (最小化)
+type SubscriptionNode struct {
+    BaseModel
+    SubscriptionID string `gorm:"size:36;not null" json:"subscription_id"`
+    NodeID         string `gorm:"size:36;not null" json:"node_id"`
+    NodeIndex      int    `gorm:"not null" json:"node_index"`
+    IsPrimary      bool   `gorm:"not null;default:false" json:"is_primary"`
+}
+```
+
+### 多数据库配置
+```go
+// 数据库配置支持
+type DatabaseConfig struct {
+    Type     string // sqlite, mysql, postgres, gaussdb
+    Host     string
+    Port     int
+    Database string
+    Username string
+    Password string
+    SSLMode  string
+}
+
+// 自动适配数据库方言
+func NewDatabase(config *DatabaseConfig) (*gorm.DB, error) {
+    switch config.Type {
+    case "sqlite":
+        return gorm.Open(sqlite.Open(config.Database), &gorm.Config{})
+    case "mysql":
+        dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+            config.Username, config.Password, config.Host, config.Port, config.Database)
+        return gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    case "postgres":
+        dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=Asia/Shanghai",
+            config.Host, config.Username, config.Password, config.Database, config.Port, config.SSLMode)
+        return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    }
+}
 ```
 
 ## 前端组件设计

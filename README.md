@@ -9,16 +9,27 @@ Prism 是一个现代化的代理核心解决方案，旨在为节点池用户�
 ### 核心特性
 
 - 🔥 基于成熟的 mihomo/clash 核心
-- 🌐 优先支持 Web 界面管理
+- 🌐 简洁直观的 Web 管理界面
 - 📱 计划支持多平台客户端 (macOS, Windows, Linux, Android)
-- 🎯 专为节点池用户优化
-- ⚡ 高性能代理转发
-- 🔧 灵活的配置管理
-- 📊 详细的连接统计
+- 🎯 专为节点池用户优化，无复杂用户管理
+- ⚡ 高性能代理转发和智能负载均衡
+- 🔄 订阅自动抓取和节点多对多关系管理
+- 📄 规则文件化存储，灵活配置代理规则
+- 📊 详细的流量统计和节点性能监控
+
+### 设计理念
+
+- **性能优先**: 作为代理客户端，性能是第一优先级
+- **最小化数据库**: 仅3个核心表，移除影响性能的日志和统计表
+- **简化优先**: 去除用户管理和代理组，专注核心功能
+- **订阅中心**: 以订阅为核心，自动管理节点池
+- **多对多关系**: 节点可属于多个订阅，订阅可包含多个节点
+- **文件存储**: 规则和日志文件化存储，缓存使用BoltDB/LevelDB
+- **自动化**: 订阅自动更新，节点自动测速
 
 ### 目标平台
 
-- **第一阶段**: Web 管理界面
+- **第一阶段**: Web 管理界面 (简化架构)
 - **第二阶段**: 桌面客户端 (macOS, Windows, Linux)
 - **第三阶段**: 移动端应用 (Android)
 
@@ -26,39 +37,54 @@ Prism 是一个现代化的代理核心解决方案，旨在为节点池用户�
 
 ### 核心引擎
 - **代理核心**: mihomo/clash (Go)
-- **API 服务**: Go + Gin/Echo
-- **配置管理**: YAML + JSON
+- **API 服务**: Go + GoFiber v2 (高性能、零内存分配)
+- **数据库**: SQLite/MySQL/PostgreSQL/GaussDB (多数据库支持)
+- **缓存**: BoltDB/LevelDB (嵌入式键值存储)
 
 ### Web 界面
-- **前端框架**: React/Vue.js (待定)
-- **状态管理**: Redux/Vuex
-- **UI 组件**: Material-UI/Ant Design
-- **构建工具**: Vite/Webpack
+- **前端框架**: React 18 + TypeScript
+- **状态管理**: Zustand (轻量级)
+- **UI 组件**: Ant Design 5.x
+- **构建工具**: Vite
+- **样式**: Tailwind CSS + CSS Modules
 
 ### 跨平台客户端
 - **桌面端**: Tauri + Rust + Web 技术
-- **移动端**: Flutter/React Native (待定)
+- **移动端**: Flutter (计划)
 
 ## 项目结构
 
 ```
 prism/
-├── core/           # 代理核心 (基于 mihomo/clash)
-├── api/            # RESTful API 服务
-├── web/            # Web 管理界面
-├── desktop/        # 桌面客户端 (未来)
-├── mobile/         # 移动端应用 (未来)
+├── cmd/            # 应用入口点
+├── internal/       # 私有应用代码
+│   ├── api/        # GoFiber API 处理器
+│   ├── core/       # 代理核心集成
+│   ├── models/     # 数据模型
+│   ├── service/    # 业务逻辑层
+│   └── database/   # 数据库操作
+├── web/            # React + TypeScript Web界面
+├── data/           # 数据文件
+│   ├── rules/      # 规则文件存储
+│   ├── configs/    # 配置文件
+│   └── logs/       # 日志文件
 ├── docs/           # 项目文档
-└── scripts/        # 构建和部署脚本
+├── scripts/        # 构建和部署脚本
+└── migrations/     # 数据库迁移文件
 ```
 
 ## 开发状态
 
 🚧 项目处于早期规划阶段
 
-- [x] 项目初始化
-- [ ] 核心架构设计
-- [ ] Web 版本开发
+- [x] 项目初始化和架构设计
+- [x] 数据库设计 (简化版)
+- [x] GoFiber API 框架设计
+- [x] React + TypeScript 前端架构
+- [ ] 订阅管理系统开发
+- [ ] 节点管理和测速系统
+- [ ] 规则文件管理系统
+- [ ] Web 版本完整开发
 - [ ] 桌面客户端开发
 - [ ] 移动端应用开发
 

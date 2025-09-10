@@ -76,26 +76,40 @@ type ProxyCore interface {
 - 用户认证和权限控制
 
 **技术选型:**
-- **框架**: Fiber (高性能、Express-like API)
+- **Web框架**: GoFiber v2 (高性能、Express风格、零内存分配路由)
 - **数据库**: SQLite/MySQL/PostgreSQL/GaussDB (多数据库支持)
+- **ORM**: GORM (与GoFiber完美集成)
 - **缓存**: BoltDB/LevelDB (嵌入式键值存储，根据场景选择)
-- **认证**: JWT Token
-- **实时通信**: WebSocket (Fiber WebSocket)
+- **认证**: JWT Token (使用fiber/jwt中间件)
+- **实时通信**: GoFiber WebSocket (github.com/gofiber/websocket/v2)
+- **中间件**: GoFiber官方中间件生态 (cors, logger, recover, compress等)
 - **配置存储**: YAML/JSON 文件
 - **日志**: github.com/lazygophers/log
 - **工具包**: github.com/lazygophers/utils (json, stringx, xtime, bufiox, randx, anyx, candy)
 - **原子操作**: go.uber.org/atomic
 
-**API 设计:**
-```
-GET    /api/status              # 获取系统状态
-GET    /api/proxies             # 获取代理列表
-POST   /api/proxies/{name}/test # 测试代理延迟
-GET    /api/connections         # 获取连接信息
-POST   /api/config/reload       # 重载配置
-GET    /api/rules               # 获取规则列表
-POST   /api/subscriptions       # 管理订阅
-WebSocket /api/ws               # 实时数据推送
+**GoFiber API 设计:**
+```go
+// 使用 GoFiber 路由设计
+app := fiber.New(fiber.Config{
+    Prefork:       false,
+    CaseSensitive: true,
+    StrictRouting: true,
+    ServerHeader:  "Prism",
+})
+
+// API 路由
+api := app.Group("/api/v1")
+api.Get("/status", handlers.GetSystemStatus)              // 获取系统状态
+api.Get("/proxies", handlers.GetProxyList)               // 获取代理列表
+api.Post("/proxies/:name/test", handlers.TestProxyDelay) // 测试代理延迟
+api.Get("/connections", handlers.GetConnections)         // 获取连接信息
+api.Post("/config/reload", handlers.ReloadConfig)        // 重载配置
+api.Get("/rules", handlers.GetRuleList)                  // 获取规则列表
+api.Post("/subscriptions", handlers.ManageSubscription)   // 管理订阅
+
+// WebSocket 路由
+app.Get("/ws", websocket.New(handlers.WebSocketHandler))  // 实时数据推送
 ```
 
 ### 3. Web 界面层 (Frontend Layer)
