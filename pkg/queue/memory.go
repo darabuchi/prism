@@ -150,7 +150,7 @@ func (q *MemoryQueue[T]) Pop() (*Message[T], error) {
 }
 
 // Process 启动消费者处理队列消息
-func (q *MemoryQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
+func (q *MemoryQueue[T]) Process(concurrency int, handler func(*Message[T]) (*RetryInfo, error)) error {
 	if concurrency <= 0 {
 		return ErrInvalidConcurrency
 	}
@@ -169,7 +169,7 @@ func (q *MemoryQueue[T]) Process(concurrency int, handler func(*Message[T]) *Han
 }
 
 // worker 消息处理工作协程
-func (q *MemoryQueue[T]) worker(handler func(*Message[T]) *HandlerResult) {
+func (q *MemoryQueue[T]) worker(handler func(*Message[T]) (*RetryInfo, error)) {
 	defer q.processDone.Done()
 
 	for {
@@ -199,7 +199,7 @@ func (q *MemoryQueue[T]) worker(handler func(*Message[T]) *HandlerResult) {
 			q.metrics.activeTasks.Add(1)
 
 			// 处理消息
-			result := handler(msg)
+			retryInfo, err := handler(msg)
 
 			// 减少活跃任务计数
 			q.metrics.activeTasks.Add(-1)
@@ -208,13 +208,13 @@ func (q *MemoryQueue[T]) worker(handler func(*Message[T]) *HandlerResult) {
 			q.metrics.processed.Add(1)
 
 			// 记录错误信息（如果有）
-			if result != nil && result.Error != nil {
-				msg.LastError = result.Error
+			if err != nil {
+				msg.LastError = err
 				q.metrics.failed.Add(1)
 			}
 
 			// 检查是否需要重试
-			if result != nil && result.ShouldRetry() {
+			if retryInfo != nil && retryInfo.ShouldRetry {
 				msg.RetryCount++
 				q.metrics.retried.Add(1)
 
@@ -227,9 +227,9 @@ func (q *MemoryQueue[T]) worker(handler func(*Message[T]) *HandlerResult) {
 				}
 
 				// 计算下次重试时间
-				if result.RetryDelay > 0 {
+				if retryInfo.Delay > 0 {
 					// 使用自定义延迟
-					msg.NextRetryAt = time.Now().Add(result.RetryDelay)
+					msg.NextRetryAt = time.Now().Add(retryInfo.Delay)
 				} else {
 					// 使用策略计算延迟
 					msg.CalculateNextRetry(q.cfg.RetryPolicy)

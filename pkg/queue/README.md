@@ -33,7 +33,7 @@ type Queue[T any] interface {
 
     // 消费消息
     Pop() (*Message[T], error)
-    Process(concurrency int, handler func(*Message[T]) *HandlerResult) error
+    Process(concurrency int, handler func(*Message[T]) (*RetryInfo, error)) error
 
     // 队列信息
     Depth() int
@@ -84,26 +84,26 @@ err := q.BatchPush(messages)
 
 ```go
 // 使用 Process 启动消费者（推荐）
-err := q.Process(5, func(msg *queue.Message[string]) *queue.HandlerResult {
+err := q.Process(5, func(msg *queue.Message[string]) (*queue.RetryInfo, error) {
     fmt.Printf("Processing: %s\n", msg.Payload)
 
     // 处理成功
     if processSuccess() {
-        return queue.Success()
+        return nil, nil
     }
 
     // 处理失败，但不重试
     if shouldNotRetry() {
-        return queue.Fail(errors.New("permanent failure"))
+        return nil, errors.New("permanent failure")
     }
 
-    // 处理失败，需要重试
+    // 处理失败，需要重试（使用策略计算延迟）
     if needRetry() {
-        return queue.RetryWithError(errors.New("temporary failure"))
+        return queue.Retry(), errors.New("temporary failure")
     }
 
     // 处理失败，使用自定义延迟重试
-    return queue.RetryWithDelay(10*time.Second, errors.New("retry after 10s"))
+    return queue.RetryAfter(10*time.Second), errors.New("retry after 10s")
 })
 ```
 
@@ -193,40 +193,72 @@ q, _ := queue.New[Task](cfg)
 q.PushWithDelay(Task{ID: "1"}, 5*time.Second)
 
 // 自定义延迟重试
-q.Process(3, func(msg *queue.Message[Task]) *queue.HandlerResult {
+q.Process(3, func(msg *queue.Message[Task]) (*queue.RetryInfo, error) {
     if needRetryAfter10s() {
-        return queue.RetryWithDelay(10*time.Second, err)
+        return queue.RetryAfter(10*time.Second), err
     }
-    return queue.Success()
+    return nil, nil
 })
 ```
 
-## Handler 返回结果
+## Handler 返回值
 
-Handler 必须返回 `*HandlerResult` 明确指示处理结果：
+Handler 返回 `(*RetryInfo, error)` 明确指示处理结果：
 
 ```go
-type HandlerResult struct {
-    Retry      bool          // 是否需要重试
-    Error      error         // 错误信息（可选）
-    RetryDelay time.Duration // 自定义重试延迟（可选）
+type RetryInfo struct {
+    ShouldRetry bool          // 是否需要重试
+    Delay       time.Duration // 自定义重试延迟（可选，为 0 使用策略计算）
 }
 ```
 
-辅助函数：
+### 返回值组合
+
+| 返回值 | 含义 |
+|--------|------|
+| `(nil, nil)` | 处理成功 |
+| `(nil, error)` | 处理失败，不重试 |
+| `(Retry(), error)` | 处理失败，需要重试（使用策略计算延迟） |
+| `(RetryAfter(5*time.Second), error)` | 处理失败，5秒后重试 |
+| `(NoRetry(), error)` | 处理失败，明确不重试（同 nil） |
+
+### 辅助函数
 
 ```go
-// 成功
-queue.Success()
+// 不重试
+queue.NoRetry()
 
-// 失败但不重试
-queue.Fail(err)
+// 重试（使用策略计算延迟）
+queue.Retry()
 
-// 失败需要重试（使用策略计算延迟）
-queue.RetryWithError(err)
+// 自定义延迟重试
+queue.RetryAfter(5*time.Second)
+```
 
-// 失败需要重试（自定义延迟）
-queue.RetryWithDelay(5*time.Second, err)
+### 使用示例
+
+```go
+q.Process(5, func(msg *queue.Message[Task]) (*queue.RetryInfo, error) {
+    // 处理成功
+    if err := process(msg.Payload); err == nil {
+        return nil, nil
+    }
+
+    // 判断错误类型
+    if isPermanentError(err) {
+        // 永久错误，不重试
+        return nil, err
+    }
+
+    // 临时错误，需要重试
+    if isRateLimitError(err) {
+        // 速率限制，1分钟后重试
+        return queue.RetryAfter(time.Minute), err
+    }
+
+    // 其他临时错误，使用默认策略重试
+    return queue.Retry(), err
+})
 ```
 
 ## 数据库配置
@@ -294,16 +326,16 @@ func main() {
     q.PushWithDelay(Task{ID: "2", Payload: "delayed"}, 5*time.Second)
 
     // 启动消费者
-    q.Process(5, func(msg *queue.Message[Task]) *queue.HandlerResult {
+    q.Process(5, func(msg *queue.Message[Task]) (*queue.RetryInfo, error) {
         fmt.Printf("Processing task %s: %s (retry: %d)\n",
             msg.Payload.ID, msg.Payload.Payload, msg.RetryCount)
 
         // 模拟处理
         if err := processTask(msg.Payload); err != nil {
-            return queue.RetryWithError(err)
+            return queue.Retry(), err
         }
 
-        return queue.Success()
+        return nil, nil
     })
 
     // 运行一段时间
@@ -348,16 +380,16 @@ func main() {
     q.BatchPush(updates)
 
     // 处理更新
-    q.Process(10, func(msg *queue.Message[SubscriptionUpdate]) *queue.HandlerResult {
+    q.Process(10, func(msg *queue.Message[SubscriptionUpdate]) (*queue.RetryInfo, error) {
         update := msg.Payload
         fmt.Printf("Updating subscription %s: %s\n",
             update.SubscriptionID, update.Action)
 
         if err := updateSubscription(update); err != nil {
-            return queue.RetryWithError(err)
+            return queue.Retry(), err
         }
 
-        return queue.Success()
+        return nil, nil
     })
 
     select {}
@@ -397,17 +429,19 @@ func updateSubscription(update SubscriptionUpdate) error {
 3. **启用延时队列** - 对于需要延迟执行的场景
 4. **监控指标** - 定期检查队列健康状况
 5. **优雅关闭** - 确保 `Close()` 被调用
-6. **错误处理** - 区分可重试和不可重试错误
+6. **错误处理** - 区分可重试和不可重试错误（返回值明确区分）
 7. **并发控制** - 根据负载调整 `concurrency` 参数
 8. **日志记录** - 消息丢弃和超过重试次数会被记录
+9. **错误信息** - 在 error 中提供详细上下文，方便排查问题
 
 ## 注意事项
 
-1. **Handler 必须返回 HandlerResult** - 明确指示是否重试
-2. **消息丢弃会被记录** - 队列满时会记录警告日志
-3. **延时队列需显式启用** - 设置 `EnableDelayedQueue: true`
-4. **Worker 通过关闭 channel 停止** - 确保优雅退出
-5. **监控指标实时更新** - 使用 `Metrics()` 获取当前状态
+1. **Handler 返回 (RetryInfo, error)** - 更符合 Go 惯用法，错误和重试信息分离
+2. **返回 nil error 表示成功** - `(nil, nil)` 或 `(NoRetry(), nil)`
+3. **消息丢弃会被记录** - 队列满时会记录警告日志
+4. **延时队列需显式启用** - 设置 `EnableDelayedQueue: true`
+5. **Worker 通过关闭 channel 停止** - 确保优雅退出
+6. **监控指标实时更新** - 使用 `Metrics()` 获取当前状态
 
 ## 错误处理
 

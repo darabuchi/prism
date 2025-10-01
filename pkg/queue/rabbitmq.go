@@ -38,7 +38,7 @@ func (q *RabbitMQQueue[T]) Pop() (*Message[T], error) {
 	return nil, errors.New("not implemented")
 }
 
-func (q *RabbitMQQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
+func (q *RabbitMQQueue[T]) Process(concurrency int, handler func(*Message[T]) (*RetryInfo, error)) error {
 	return errors.New("not implemented")
 }
 

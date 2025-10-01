@@ -46,7 +46,7 @@ func (q *RedisQueue[T]) Pop() (*Message[T], error) {
 	return nil, errors.New("not implemented")
 }
 
-func (q *RedisQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
+func (q *RedisQueue[T]) Process(concurrency int, handler func(*Message[T]) (*RetryInfo, error)) error {
 	return errors.New("not implemented")
 }
 
