@@ -32,21 +32,20 @@
 ### mihomo/ - Mihomo 代理核心
 第三方代理核心模块（git submodule）。
 
-### node/ - 节点管理 ✅
-代理节点核心数据结构和操作方法。
+### node/ - 节点工具包 ✅
+节点相关的基础工具函数和常量定义。
 
 **已实现：**
-- 节点抽象和数据结构
-- 唯一标识生成（SHA256 + UniqueKey）
+- 常量定义（18+ 种协议类型、3 种熔断器状态）
+- ID 生成（基于 SHA256 哈希）
+- 唯一键生成（type://server:port 格式）
 - 配置编解码（Base64 JSON）
-- 状态管理（存活/启用/熔断器）
-- 测试结果结构（延迟/速度/解锁/地理）
 
 **核心特性：**
-- 18+ 种协议支持
-- 熔断器健康状态管理
-- 节点克隆和序列化
-- 无内部依赖
+- 严格遵循编码规范（使用 lazygophers 工具包）
+- 高度独立（无内部依赖）
+- 职责单一（只提供基础工具）
+- 规范的错误处理和日志记录
 
 详见：[node/README.md](node/README.md)
 
@@ -96,12 +95,12 @@ q.Process(5, func(msg *queue.Message[string]) (*queue.RetryInfo, error) {
 })
 ```
 
-### Node 节点管理
+### Node 节点工具
 
 ```go
 import "github.com/darabuchi/prism/pkg/node"
 
-// 创建节点
+// 节点配置
 config := map[string]any{
     "name":   "香港节点",
     "type":   "vmess",
@@ -110,18 +109,23 @@ config := map[string]any{
     "uuid":   "xxx-xxx-xxx",
 }
 
-n, err := node.New(config)
+// 生成节点 ID（SHA256 哈希）
+id, err := node.GenerateID(config)
 if err != nil {
-    log.Errorf("创建节点失败: %v", err)
+    log.Errorf("err:%v", err)
     return
 }
 
-log.Infof("节点 ID: %s", n.ID())
-log.Infof("节点地址: %s", n.Address())
+// 生成唯一键（type://server:port）
+uniqueKey, err := node.GenerateUniqueKey(config)
+if err != nil {
+    log.Errorf("err:%v", err)
+    return
+}
 
-// 设置状态
-n.SetAlive(true)
-n.SetEnabled(true)
+// 配置编解码
+encoded, err := node.EncodeConfig(config)
+decoded, err := node.DecodeConfig(encoded)
 ```
 
 ### Parser 订阅解析器
