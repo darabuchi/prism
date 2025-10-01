@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"errors"
 	"net"
 
 	"github.com/darabuchi/prism"
@@ -11,6 +12,11 @@ import (
 	"github.com/metacubex/mihomo/adapter"
 	"github.com/metacubex/mihomo/component/ca"
 	"github.com/metacubex/mihomo/constant"
+)
+
+// Error definitions
+var (
+	ErrUnsupportedSpeedTestURL = errors.New("unsupported speed test URL format")
 )
 
 func init() {
