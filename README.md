@@ -74,12 +74,14 @@ docker-compose up -d
 ### 核心包文档
 
 - [Queue 队列系统](pkg/queue/README.md) - 高性能消息队列
+- [Rules 规则分流](pkg/rules/README.md) - 强大的规则分流引擎
 - [多语言资源规范](resource/localize/README.md) - 7种语言支持（en, zh-CN, zh-TW, fr, ru, es, ar）
 
 ### 详细设计
 
 - [数据库访问层](docs/详细设计/数据库访问层.md)
 - [缓存系统](docs/详细设计/缓存系统.md)
+- [规则分流系统](docs/详细设计/规则分流系统.md)
 - [错误处理](docs/详细设计/错误处理.md)
 - [并发控制](docs/详细设计/并发控制.md)
 - [测试策略](docs/详细设计/测试策略.md)
