@@ -3,27 +3,30 @@ package queue
 import "errors"
 
 var (
-	// ErrUnsupportedQueueType indicates an unsupported queue type
+	// ErrUnsupportedQueueType 不支持的队列类型
 	ErrUnsupportedQueueType = errors.New("unsupported queue type")
 
-	// ErrQueueClosed indicates the queue is closed
+	// ErrQueueClosed 队列已关闭
 	ErrQueueClosed = errors.New("queue is closed")
 
-	// ErrTopicNotFound indicates the topic does not exist
-	ErrTopicNotFound = errors.New("topic not found")
+	// ErrQueueEmpty 队列为空
+	ErrQueueEmpty = errors.New("queue is empty")
 
-	// ErrMessageNotFound indicates the message does not exist
-	ErrMessageNotFound = errors.New("message not found")
+	// ErrQueueFull 队列已满
+	ErrQueueFull = errors.New("queue is full")
 
-	// ErrTimeout indicates an operation timeout
+	// ErrTimeout 操作超时
 	ErrTimeout = errors.New("operation timeout")
 
-	// ErrMaxRetriesExceeded indicates maximum retries exceeded
+	// ErrMaxRetriesExceeded 超过最大重试次数
 	ErrMaxRetriesExceeded = errors.New("maximum retries exceeded")
 
-	// ErrInvalidConfig indicates invalid configuration
+	// ErrInvalidConfig 无效的配置
 	ErrInvalidConfig = errors.New("invalid configuration")
 
-	// ErrConnectionFailed indicates connection failure
+	// ErrConnectionFailed 连接失败
 	ErrConnectionFailed = errors.New("connection failed")
+
+	// ErrInvalidConcurrency 无效的并发数
+	ErrInvalidConcurrency = errors.New("invalid concurrency")
 )

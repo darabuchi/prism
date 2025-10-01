@@ -1,74 +1,72 @@
 package queue
 
-import (
-	"context"
-	"errors"
-)
+import "errors"
 
-// RedisQueue implements a Redis-based message queue using Redis Streams
-type RedisQueue struct {
+// RedisQueue Redis队列实现（基于 Redis Streams）
+type RedisQueue[T any] struct {
 	cfg *Config
-	// TODO: Add Redis client
+	// TODO: 添加 Redis 客户端
+	// client *redis.Client
 }
 
-// NewRedisQueue creates a new Redis queue
-func NewRedisQueue(cfg *Config) (*RedisQueue, error) {
+// NewRedisQueue 创建 Redis 队列
+func NewRedisQueue[T any](cfg *Config) (*RedisQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
 	}
 
-	// TODO: Initialize Redis client
-	// Example: github.com/redis/go-redis/v9
+	// TODO: 初始化 Redis 客户端
+	// 依赖: github.com/redis/go-redis/v9
 
-	return &RedisQueue{
+	return &RedisQueue[T]{
 		cfg: cfg,
 	}, errors.New("Redis queue not yet implemented")
 }
 
-// Publish sends a message to the queue
-func (q *RedisQueue) Publish(ctx context.Context, topic string, payload []byte) error {
-	return q.PublishWithMetadata(ctx, topic, payload, nil)
-}
-
-// PublishWithMetadata sends a message with metadata
-func (q *RedisQueue) PublishWithMetadata(ctx context.Context, topic string, payload []byte, metadata map[string]string) error {
-	// TODO: Implement using XADD command
+// Push 推送单个消息到队列
+func (q *RedisQueue[T]) Push(payload T) error {
+	// TODO: 使用 XADD 命令推送消息
 	// redis.Client.XAdd(ctx, &redis.XAddArgs{
-	//     Stream: topic,
+	//     Stream: "queue_name",
 	//     Values: map[string]interface{}{
-	//         "payload": payload,
-	//         "metadata": metadata,
+	//         "payload": serialize(payload),
 	//     },
 	// })
 	return errors.New("not implemented")
 }
 
-// Subscribe subscribes to a topic and returns a channel for receiving messages
-func (q *RedisQueue) Subscribe(ctx context.Context, topic string) (<-chan *Message, error) {
-	// TODO: Implement using XREAD command
+// BatchPush 批量推送消息到队列
+func (q *RedisQueue[T]) BatchPush(payloads []T) error {
+	// TODO: 使用 Pipeline 批量推送
+	for _, payload := range payloads {
+		if err := q.Push(payload); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Pop 从队列中弹出一个消息
+func (q *RedisQueue[T]) Pop() (*Message[T], error) {
+	// TODO: 使用 XREAD 或 XREADGROUP 读取消息
 	return nil, errors.New("not implemented")
 }
 
-// Consume consumes messages from a topic with a handler function
-func (q *RedisQueue) Consume(ctx context.Context, topic string, handler func(*Message) error) error {
-	// TODO: Implement using consumer groups (XREADGROUP)
+// Process 启动消费者处理队列消息
+func (q *RedisQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+	// TODO: 使用 Consumer Group 实现并发消费
+	// 启动 concurrency 个 goroutine，每个使用 XREADGROUP 读取消息
 	return errors.New("not implemented")
 }
 
-// Ack acknowledges a message
-func (q *RedisQueue) Ack(ctx context.Context, msg *Message) error {
-	// TODO: Implement using XACK command
-	return errors.New("not implemented")
+// Depth 获取当前队列深度
+func (q *RedisQueue[T]) Depth() int {
+	// TODO: 使用 XLEN 命令获取队列长度
+	return 0
 }
 
-// Nack negatively acknowledges a message
-func (q *RedisQueue) Nack(ctx context.Context, msg *Message) error {
-	// TODO: Re-publish or use pending entries list
-	return errors.New("not implemented")
-}
-
-// Close closes the queue connection
-func (q *RedisQueue) Close() error {
-	// TODO: Close Redis client
+// Close 关闭队列连接
+func (q *RedisQueue[T]) Close() error {
+	// TODO: 关闭 Redis 客户端
 	return nil
 }

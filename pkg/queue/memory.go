@@ -1,175 +1,155 @@
 package queue
 
 import (
-	"context"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-// MemoryQueue implements an in-memory message queue
-type MemoryQueue struct {
-	mu         sync.RWMutex
-	topics     map[string]*topic
-	maxRetry   int
-	timeout    time.Duration
-	closed     bool
+// MemoryQueue 内存队列实现
+type MemoryQueue[T any] struct {
+	queue      chan *Message[T] // 消息队列
+	cfg        *Config          // 配置
+	closed     atomic.Bool      // 关闭标志
+	stopCh     chan struct{}    // 停止信号
+	processDone sync.WaitGroup  // Process goroutine 计数
 }
 
-type topic struct {
-	subscribers []chan *Message
-	mu          sync.RWMutex
+// NewMemoryQueue 创建内存队列
+func NewMemoryQueue[T any](cfg *Config) (*MemoryQueue[T], error) {
+	q := &MemoryQueue[T]{
+		queue:  make(chan *Message[T], cfg.MaxDepth),
+		cfg:    cfg,
+		stopCh: make(chan struct{}),
+	}
+	q.closed.Store(false)
+	return q, nil
 }
 
-// NewMemoryQueue creates a new in-memory queue
-func NewMemoryQueue(cfg *Config) (*MemoryQueue, error) {
-	return &MemoryQueue{
-		topics:   make(map[string]*topic),
-		maxRetry: cfg.MaxRetry,
-		timeout:  cfg.Timeout,
-	}, nil
-}
-
-// Publish sends a message to the queue
-func (q *MemoryQueue) Publish(ctx context.Context, topicName string, payload []byte) error {
-	return q.PublishWithMetadata(ctx, topicName, payload, nil)
-}
-
-// PublishWithMetadata sends a message with metadata
-func (q *MemoryQueue) PublishWithMetadata(ctx context.Context, topicName string, payload []byte, metadata map[string]string) error {
-	q.mu.RLock()
-	if q.closed {
-		q.mu.RUnlock()
+// Push 推送单个消息到队列
+func (q *MemoryQueue[T]) Push(payload T) error {
+	if q.closed.Load() {
 		return ErrQueueClosed
 	}
-	q.mu.RUnlock()
 
-	msg := &Message{
+	msg := &Message[T]{
 		ID:        uuid.New().String(),
-		Topic:     topicName,
 		Payload:   payload,
-		Metadata:  metadata,
 		Timestamp: time.Now(),
 		RetryCount: 0,
 	}
 
-	q.mu.Lock()
-	t, ok := q.topics[topicName]
-	if !ok {
-		t = &topic{
-			subscribers: make([]chan *Message, 0),
-		}
-		q.topics[topicName] = t
+	select {
+	case q.queue <- msg:
+		return nil
+	default:
+		return ErrQueueFull
 	}
-	q.mu.Unlock()
+}
 
-	// Send to all subscribers
-	t.mu.RLock()
-	defer t.mu.RUnlock()
+// BatchPush 批量推送消息到队列
+func (q *MemoryQueue[T]) BatchPush(payloads []T) error {
+	if q.closed.Load() {
+		return ErrQueueClosed
+	}
 
-	for _, sub := range t.subscribers {
-		select {
-		case sub <- msg:
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(q.timeout):
-			return ErrTimeout
+	for _, payload := range payloads {
+		if err := q.Push(payload); err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
 
-// Subscribe subscribes to a topic and returns a channel for receiving messages
-func (q *MemoryQueue) Subscribe(ctx context.Context, topicName string) (<-chan *Message, error) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-
-	if q.closed {
+// Pop 从队列中弹出一个消息
+func (q *MemoryQueue[T]) Pop() (*Message[T], error) {
+	if q.closed.Load() {
 		return nil, ErrQueueClosed
 	}
 
-	t, ok := q.topics[topicName]
-	if !ok {
-		t = &topic{
-			subscribers: make([]chan *Message, 0),
-		}
-		q.topics[topicName] = t
+	select {
+	case msg := <-q.queue:
+		return msg, nil
+	default:
+		return nil, ErrQueueEmpty
 	}
-
-	msgChan := make(chan *Message, 100)
-
-	t.mu.Lock()
-	t.subscribers = append(t.subscribers, msgChan)
-	t.mu.Unlock()
-
-	return msgChan, nil
 }
 
-// Consume consumes messages from a topic with a handler function
-func (q *MemoryQueue) Consume(ctx context.Context, topicName string, handler func(*Message) error) error {
-	msgChan, err := q.Subscribe(ctx, topicName)
-	if err != nil {
-		return err
+// Process 启动消费者处理队列消息
+func (q *MemoryQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+	if concurrency <= 0 {
+		return ErrInvalidConcurrency
 	}
 
-	go func() {
-		for {
-			select {
-			case msg := <-msgChan:
-				if err := handler(msg); err != nil {
-					// Retry logic
-					if msg.RetryCount < q.maxRetry {
-						msg.RetryCount++
-						// Re-publish for retry
-						_ = q.PublishWithMetadata(context.Background(), topicName, msg.Payload, msg.Metadata)
+	if q.closed.Load() {
+		return ErrQueueClosed
+	}
+
+	// 启动多个 worker goroutine
+	for i := 0; i < concurrency; i++ {
+		q.processDone.Add(1)
+		go q.worker(handler)
+	}
+
+	return nil
+}
+
+// worker 消息处理工作协程
+func (q *MemoryQueue[T]) worker(handler func(*Message[T]) error) {
+	defer q.processDone.Done()
+
+	for {
+		select {
+		case <-q.stopCh:
+			return
+		case msg := <-q.queue:
+			if msg == nil {
+				continue
+			}
+
+			// 处理消息
+			err := handler(msg)
+			if err != nil {
+				// 处理失败，检查是否需要重试
+				if msg.RetryCount < q.cfg.MaxRetry {
+					msg.RetryCount++
+					// 重新入队
+					select {
+					case q.queue <- msg:
+					case <-q.stopCh:
+						return
+					default:
+						// 队列满，丢弃消息
 					}
 				}
-			case <-ctx.Done():
-				return
 			}
 		}
-	}()
-
-	return nil
-}
-
-// Ack acknowledges a message (no-op for memory queue)
-func (q *MemoryQueue) Ack(ctx context.Context, msg *Message) error {
-	return nil
-}
-
-// Nack negatively acknowledges a message (triggers retry)
-func (q *MemoryQueue) Nack(ctx context.Context, msg *Message) error {
-	if msg.RetryCount >= q.maxRetry {
-		return ErrMaxRetriesExceeded
 	}
-
-	msg.RetryCount++
-	return q.PublishWithMetadata(ctx, msg.Topic, msg.Payload, msg.Metadata)
 }
 
-// Close closes the queue
-func (q *MemoryQueue) Close() error {
-	q.mu.Lock()
-	defer q.mu.Unlock()
+// Depth 获取当前队列深度
+func (q *MemoryQueue[T]) Depth() int {
+	return len(q.queue)
+}
 
-	if q.closed {
+// Close 关闭队列
+func (q *MemoryQueue[T]) Close() error {
+	if q.closed.Swap(true) {
+		// 已经关闭
 		return nil
 	}
 
-	q.closed = true
+	// 发送停止信号
+	close(q.stopCh)
 
-	// Close all subscriber channels
-	for _, t := range q.topics {
-		t.mu.Lock()
-		for _, sub := range t.subscribers {
-			close(sub)
-		}
-		t.subscribers = nil
-		t.mu.Unlock()
-	}
+	// 等待所有 worker 退出
+	q.processDone.Wait()
+
+	// 关闭队列 channel
+	close(q.queue)
 
 	return nil
 }

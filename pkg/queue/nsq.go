@@ -1,73 +1,72 @@
 package queue
 
-import (
-	"context"
-	"errors"
-)
+import "errors"
 
-// NSQQueue implements an NSQ-based message queue
-type NSQQueue struct {
+// NSQQueue NSQ队列实现
+type NSQQueue[T any] struct {
 	cfg *Config
-	// TODO: Add NSQ producer and consumer
+	// TODO: 添加 NSQ producer 和 consumer
 	// producer *nsq.Producer
-	// consumers map[string]*nsq.Consumer
+	// consumers []*nsq.Consumer
 }
 
-// NewNSQQueue creates a new NSQ queue
-func NewNSQQueue(cfg *Config) (*NSQQueue, error) {
+// NewNSQQueue 创建 NSQ 队列
+func NewNSQQueue[T any](cfg *Config) (*NSQQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
 	}
 
-	// TODO: Initialize NSQ producer
-	// Example: github.com/nsqio/go-nsq
+	// TODO: 初始化 NSQ producer
+	// 依赖: github.com/nsqio/go-nsq
 
-	return &NSQQueue{
+	return &NSQQueue[T]{
 		cfg: cfg,
 	}, errors.New("NSQ queue not yet implemented")
 }
 
-// Publish sends a message to the queue
-func (q *NSQQueue) Publish(ctx context.Context, topic string, payload []byte) error {
-	return q.PublishWithMetadata(ctx, topic, payload, nil)
-}
-
-// PublishWithMetadata sends a message with metadata
-func (q *NSQQueue) PublishWithMetadata(ctx context.Context, topic string, payload []byte, metadata map[string]string) error {
-	// TODO: Implement using NSQ producer
-	// Encode metadata with payload
+// Push 推送单个消息到队列
+func (q *NSQQueue[T]) Push(payload T) error {
+	// TODO: 使用 Producer.Publish() 推送消息
+	// body := serialize(payload)
+	// return q.producer.Publish(topic, body)
 	return errors.New("not implemented")
 }
 
-// Subscribe subscribes to a topic and returns a channel for receiving messages
-func (q *NSQQueue) Subscribe(ctx context.Context, topic string) (<-chan *Message, error) {
-	// TODO: Implement using NSQ consumer
-	return nil, errors.New("not implemented")
+// BatchPush 批量推送消息到队列
+func (q *NSQQueue[T]) BatchPush(payloads []T) error {
+	// TODO: 使用 Producer.MultiPublish() 批量推送
+	for _, payload := range payloads {
+		if err := q.Push(payload); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-// Consume consumes messages from a topic with a handler function
-func (q *NSQQueue) Consume(ctx context.Context, topic string, handler func(*Message) error) error {
-	// TODO: Implement NSQ consumer with handler
-	// consumer.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
-	//     return handler(convertMessage(message))
-	// }))
+// Pop 从队列中弹出一个消息
+func (q *NSQQueue[T]) Pop() (*Message[T], error) {
+	// NSQ 不支持 Pop 操作，必须使用 Process 消费
+	return nil, errors.New("NSQ does not support Pop operation, use Process instead")
+}
+
+// Process 启动消费者处理队列消息
+func (q *NSQQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+	// TODO: 创建 Consumer 并设置 concurrency
+	// consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(message *nsq.Message) error {
+	//     msg := deserialize[T](message.Body)
+	//     return handler(msg)
+	// }), concurrency)
 	return errors.New("not implemented")
 }
 
-// Ack acknowledges a message
-func (q *NSQQueue) Ack(ctx context.Context, msg *Message) error {
-	// TODO: Call message.Finish()
-	return errors.New("not implemented")
+// Depth 获取当前队列深度
+func (q *NSQQueue[T]) Depth() int {
+	// TODO: 通过 nsqd HTTP API 获取队列深度
+	return 0
 }
 
-// Nack negatively acknowledges a message
-func (q *NSQQueue) Nack(ctx context.Context, msg *Message) error {
-	// TODO: Call message.Requeue()
-	return errors.New("not implemented")
-}
-
-// Close closes the queue connection
-func (q *NSQQueue) Close() error {
-	// TODO: Stop producer and consumers
+// Close 关闭队列连接
+func (q *NSQQueue[T]) Close() error {
+	// TODO: 停止 producer 和所有 consumers
 	return nil
 }

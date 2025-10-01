@@ -1,73 +1,68 @@
 package queue
 
-import (
-	"context"
-	"errors"
-)
+import "errors"
 
-// ZeroMQQueue implements a ZeroMQ-based message queue
-type ZeroMQQueue struct {
+// ZeroMQQueue ZeroMQ队列实现
+type ZeroMQQueue[T any] struct {
 	cfg *Config
-	// TODO: Add ZeroMQ sockets
-	// publisher *zmq4.Socket
-	// subscribers map[string]*zmq4.Socket
+	// TODO: 添加 ZeroMQ sockets
+	// pushSocket *zmq4.Socket
+	// pullSocket *zmq4.Socket
 }
 
-// NewZeroMQQueue creates a new ZeroMQ queue
-func NewZeroMQQueue(cfg *Config) (*ZeroMQQueue, error) {
+// NewZeroMQQueue 创建 ZeroMQ 队列
+func NewZeroMQQueue[T any](cfg *Config) (*ZeroMQQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
 	}
 
-	// TODO: Initialize ZeroMQ context and sockets
-	// Example: github.com/pebbe/zmq4
+	// TODO: 初始化 ZeroMQ sockets
+	// 依赖: github.com/pebbe/zmq4
 
-	return &ZeroMQQueue{
+	return &ZeroMQQueue[T]{
 		cfg: cfg,
 	}, errors.New("ZeroMQ queue not yet implemented")
 }
 
-// Publish sends a message to the queue
-func (q *ZeroMQQueue) Publish(ctx context.Context, topic string, payload []byte) error {
-	return q.PublishWithMetadata(ctx, topic, payload, nil)
-}
-
-// PublishWithMetadata sends a message with metadata
-func (q *ZeroMQQueue) PublishWithMetadata(ctx context.Context, topic string, payload []byte, metadata map[string]string) error {
-	// TODO: Implement using ZeroMQ PUB socket
-	// Send topic frame followed by payload frame
-	// publisher.SendMessage(topic, payload, encodeMetadata(metadata))
+// Push 推送单个消息到队列
+func (q *ZeroMQQueue[T]) Push(payload T) error {
+	// TODO: 使用 PUSH socket 发送消息
+	// _, err := q.pushSocket.SendBytes(serialize(payload), 0)
 	return errors.New("not implemented")
 }
 
-// Subscribe subscribes to a topic and returns a channel for receiving messages
-func (q *ZeroMQQueue) Subscribe(ctx context.Context, topic string) (<-chan *Message, error) {
-	// TODO: Implement using ZeroMQ SUB socket
-	// subscriber.SetSubscribe(topic)
-	return nil, errors.New("not implemented")
-}
-
-// Consume consumes messages from a topic with a handler function
-func (q *ZeroMQQueue) Consume(ctx context.Context, topic string, handler func(*Message) error) error {
-	// TODO: Implement ZeroMQ SUB socket with handler
-	// Receive messages in goroutine
-	return errors.New("not implemented")
-}
-
-// Ack acknowledges a message (ZeroMQ doesn't have built-in ack)
-func (q *ZeroMQQueue) Ack(ctx context.Context, msg *Message) error {
-	// ZeroMQ is fire-and-forget, no ack needed
+// BatchPush 批量推送消息到队列
+func (q *ZeroMQQueue[T]) BatchPush(payloads []T) error {
+	// TODO: 批量推送消息
+	for _, payload := range payloads {
+		if err := q.Push(payload); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-// Nack negatively acknowledges a message (not supported in ZeroMQ)
-func (q *ZeroMQQueue) Nack(ctx context.Context, msg *Message) error {
-	// ZeroMQ doesn't support message ack/nack natively
-	return errors.New("not supported")
+// Pop 从队列中弹出一个消息
+func (q *ZeroMQQueue[T]) Pop() (*Message[T], error) {
+	// TODO: 使用 PULL socket 非阻塞接收
+	// bytes, err := q.pullSocket.RecvBytes(zmq4.DONTWAIT)
+	return nil, errors.New("not implemented")
 }
 
-// Close closes the queue connection
-func (q *ZeroMQQueue) Close() error {
-	// TODO: Close all sockets
+// Process 启动消费者处理队列消息
+func (q *ZeroMQQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+	// TODO: 启动 concurrency 个 goroutine，每个使用 PULL socket 接收消息
+	return errors.New("not implemented")
+}
+
+// Depth 获取当前队列深度
+func (q *ZeroMQQueue[T]) Depth() int {
+	// ZeroMQ 不支持查询队列深度
+	return 0
+}
+
+// Close 关闭队列连接
+func (q *ZeroMQQueue[T]) Close() error {
+	// TODO: 关闭所有 sockets
 	return nil
 }

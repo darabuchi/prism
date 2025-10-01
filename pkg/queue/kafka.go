@@ -1,79 +1,72 @@
 package queue
 
-import (
-	"context"
-	"errors"
-)
+import "errors"
 
-// KafkaQueue implements a Kafka-based message queue
-type KafkaQueue struct {
+// KafkaQueue Kafka队列实现
+type KafkaQueue[T any] struct {
 	cfg *Config
-	// TODO: Add Kafka producer and consumer
+	// TODO: 添加 Kafka producer 和 consumer
 	// producer sarama.SyncProducer
-	// consumers map[string]sarama.ConsumerGroup
+	// consumerGroup sarama.ConsumerGroup
 }
 
-// NewKafkaQueue creates a new Kafka queue
-func NewKafkaQueue(cfg *Config) (*KafkaQueue, error) {
+// NewKafkaQueue 创建 Kafka 队列
+func NewKafkaQueue[T any](cfg *Config) (*KafkaQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
 	}
 
-	// TODO: Initialize Kafka producer and consumer
-	// Example: github.com/IBM/sarama or github.com/segmentio/kafka-go
+	// TODO: 初始化 Kafka producer 和 consumer group
+	// 依赖: github.com/IBM/sarama
 
-	return &KafkaQueue{
+	return &KafkaQueue[T]{
 		cfg: cfg,
 	}, errors.New("Kafka queue not yet implemented")
 }
 
-// Publish sends a message to the queue
-func (q *KafkaQueue) Publish(ctx context.Context, topic string, payload []byte) error {
-	return q.PublishWithMetadata(ctx, topic, payload, nil)
-}
-
-// PublishWithMetadata sends a message with metadata
-func (q *KafkaQueue) PublishWithMetadata(ctx context.Context, topic string, payload []byte, metadata map[string]string) error {
-	// TODO: Implement using Kafka producer
-	// Convert metadata to headers
-	// producer.SendMessage(&sarama.ProducerMessage{
+// Push 推送单个消息到队列
+func (q *KafkaQueue[T]) Push(payload T) error {
+	// TODO: 使用 SyncProducer.SendMessage() 推送消息
+	// msg := &sarama.ProducerMessage{
 	//     Topic: topic,
-	//     Value: sarama.ByteEncoder(payload),
-	//     Headers: convertMetadataToHeaders(metadata),
-	// })
+	//     Value: sarama.ByteEncoder(serialize(payload)),
+	// }
+	// _, _, err := q.producer.SendMessage(msg)
 	return errors.New("not implemented")
 }
 
-// Subscribe subscribes to a topic and returns a channel for receiving messages
-func (q *KafkaQueue) Subscribe(ctx context.Context, topic string) (<-chan *Message, error) {
-	// TODO: Implement using Kafka consumer
-	return nil, errors.New("not implemented")
+// BatchPush 批量推送消息到队列
+func (q *KafkaQueue[T]) BatchPush(payloads []T) error {
+	// TODO: 使用 SyncProducer.SendMessages() 批量推送
+	for _, payload := range payloads {
+		if err := q.Push(payload); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-// Consume consumes messages from a topic with a handler function
-func (q *KafkaQueue) Consume(ctx context.Context, topic string, handler func(*Message) error) error {
-	// TODO: Implement Kafka consumer group
-	// consumer.Consume(ctx, []string{topic}, &consumerGroupHandler{
-	//     handler: handler,
-	// })
+// Pop 从队列中弹出一个消息
+func (q *KafkaQueue[T]) Pop() (*Message[T], error) {
+	// Kafka 不支持 Pop 操作，必须使用 Process 消费
+	return nil, errors.New("Kafka does not support Pop operation, use Process instead")
+}
+
+// Process 启动消费者处理队列消息
+func (q *KafkaQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+	// TODO: 使用 ConsumerGroup 实现并发消费
+	// 启动 consumer group，Kafka 会自动在 consumer 之间平衡分区
 	return errors.New("not implemented")
 }
 
-// Ack acknowledges a message
-func (q *KafkaQueue) Ack(ctx context.Context, msg *Message) error {
-	// TODO: Mark offset as committed
-	// session.MarkMessage(kafkaMsg, "")
-	return errors.New("not implemented")
+// Depth 获取当前队列深度
+func (q *KafkaQueue[T]) Depth() int {
+	// TODO: 计算所有分区的 lag 总和
+	return 0
 }
 
-// Nack negatively acknowledges a message
-func (q *KafkaQueue) Nack(ctx context.Context, msg *Message) error {
-	// TODO: Seek to previous offset or re-publish
-	return errors.New("not implemented")
-}
-
-// Close closes the queue connection
-func (q *KafkaQueue) Close() error {
-	// TODO: Close producer and consumers
+// Close 关闭队列连接
+func (q *KafkaQueue[T]) Close() error {
+	// TODO: 关闭 producer 和 consumer group
 	return nil
 }
