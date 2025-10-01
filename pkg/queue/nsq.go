@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// NSQQueue NSQž°
+// NSQQueue NSQï¿½ï¿½
 type NSQQueue[T any] struct {
 	cfg *Config
 }
 
-// NewNSQQueue ú NSQ 
+// NewNSQQueue ï¿½ NSQ 
 func NewNSQQueue[T any](cfg *Config) (*NSQQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
@@ -38,7 +38,7 @@ func (q *NSQQueue[T]) Pop() (*Message[T], error) {
 	return nil, errors.New("not implemented")
 }
 
-func (q *NSQQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+func (q *NSQQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
 	return errors.New("not implemented")
 }
 

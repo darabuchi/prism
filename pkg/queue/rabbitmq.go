@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// RabbitMQQueue RabbitMQž°
+// RabbitMQQueue RabbitMQï¿½ï¿½
 type RabbitMQQueue[T any] struct {
 	cfg *Config
 }
 
-// NewRabbitMQQueue ú RabbitMQ 
+// NewRabbitMQQueue ï¿½ RabbitMQ 
 func NewRabbitMQQueue[T any](cfg *Config) (*RabbitMQQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
@@ -38,7 +38,7 @@ func (q *RabbitMQQueue[T]) Pop() (*Message[T], error) {
 	return nil, errors.New("not implemented")
 }
 
-func (q *RabbitMQQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+func (q *RabbitMQQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
 	return errors.New("not implemented")
 }
 

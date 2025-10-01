@@ -23,8 +23,8 @@ type Queue[T any] interface {
 
 	// Process 启动消费者处理队列消息
 	// concurrency: 并发处理数量
-	// handler: 消息处理函数，返回 error 会触发重试
-	Process(concurrency int, handler func(*Message[T]) error) error
+	// handler: 消息处理函数，返回 HandlerResult 明确指示是否重试
+	Process(concurrency int, handler func(*Message[T]) *HandlerResult) error
 
 	// Depth 获取当前队列深度
 	Depth() int

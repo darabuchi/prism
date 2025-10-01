@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// ZeroMQQueue ZeroMQž°
+// ZeroMQQueue ZeroMQï¿½ï¿½
 type ZeroMQQueue[T any] struct {
 	cfg *Config
 }
 
-// NewZeroMQQueue ú ZeroMQ 
+// NewZeroMQQueue ï¿½ ZeroMQ 
 func NewZeroMQQueue[T any](cfg *Config) (*ZeroMQQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
@@ -38,7 +38,7 @@ func (q *ZeroMQQueue[T]) Pop() (*Message[T], error) {
 	return nil, errors.New("not implemented")
 }
 
-func (q *ZeroMQQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+func (q *ZeroMQQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
 	return errors.New("not implemented")
 }
 

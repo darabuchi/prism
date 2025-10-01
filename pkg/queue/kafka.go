@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// KafkaQueue Kafkaž°
+// KafkaQueue Kafkaï¿½ï¿½
 type KafkaQueue[T any] struct {
 	cfg *Config
 }
 
-// NewKafkaQueue ú Kafka 
+// NewKafkaQueue ï¿½ Kafka 
 func NewKafkaQueue[T any](cfg *Config) (*KafkaQueue[T], error) {
 	if cfg.Address == "" {
 		return nil, ErrInvalidConfig
@@ -38,7 +38,7 @@ func (q *KafkaQueue[T]) Pop() (*Message[T], error) {
 	return nil, errors.New("not implemented")
 }
 
-func (q *KafkaQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+func (q *KafkaQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
 	return errors.New("not implemented")
 }
 

@@ -119,7 +119,7 @@ func (q *MemoryQueue[T]) Pop() (*Message[T], error) {
 }
 
 // Process 启动消费者处理队列消息
-func (q *MemoryQueue[T]) Process(concurrency int, handler func(*Message[T]) error) error {
+func (q *MemoryQueue[T]) Process(concurrency int, handler func(*Message[T]) *HandlerResult) error {
 	if concurrency <= 0 {
 		return ErrInvalidConcurrency
 	}
@@ -138,7 +138,7 @@ func (q *MemoryQueue[T]) Process(concurrency int, handler func(*Message[T]) erro
 }
 
 // worker 消息处理工作协程
-func (q *MemoryQueue[T]) worker(handler func(*Message[T]) error) {
+func (q *MemoryQueue[T]) worker(handler func(*Message[T]) *HandlerResult) {
 	defer q.processDone.Done()
 
 	for {
@@ -158,26 +158,40 @@ func (q *MemoryQueue[T]) worker(handler func(*Message[T]) error) {
 			}
 
 			// 处理消息
-			err := handler(msg)
-			if err != nil {
-				// 处理失败，记录错误
-				msg.LastError = err
+			result := handler(msg)
+
+			// 记录错误信息（如果有）
+			if result != nil && result.Error != nil {
+				msg.LastError = result.Error
+			}
+
+			// 检查是否需要重试
+			if result != nil && result.ShouldRetry() {
 				msg.RetryCount++
 
-				// 判断是否需要重试
-				if msg.ShouldRetry(q.cfg.RetryPolicy) {
-					// 计算下次重试时间
-					msg.CalculateNextRetry(q.cfg.RetryPolicy)
-
-					// 重新入队（根据是否启用延时队列决定）
-					if q.cfg.EnableDelayedQueue && !msg.NextRetryAt.IsZero() {
-						q.pushDelayedMessage(msg)
-					} else {
-						q.requeueMessage(msg)
-					}
+				// 检查是否超过最大重试次数
+				if !msg.ShouldRetry(q.cfg.RetryPolicy) {
+					// 超过最大重试次数，丢弃消息
+					continue
 				}
-				// 超过重试次数，丢弃消息
+
+				// 计算下次重试时间
+				if result.RetryDelay > 0 {
+					// 使用自定义延迟
+					msg.NextRetryAt = time.Now().Add(result.RetryDelay)
+				} else {
+					// 使用策略计算延迟
+					msg.CalculateNextRetry(q.cfg.RetryPolicy)
+				}
+
+				// 重新入队（根据是否启用延时队列决定）
+				if q.cfg.EnableDelayedQueue && !msg.NextRetryAt.IsZero() {
+					q.pushDelayedMessage(msg)
+				} else {
+					q.requeueMessage(msg)
+				}
 			}
+			// 处理成功或不重试，消息完成
 		}
 	}
 }
