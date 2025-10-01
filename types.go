@@ -109,33 +109,33 @@ func (h HealthState) String() string {
 type GeoIP struct {
 	// IP 信息
 	IP        string `json:"ip,omitempty" maxminddb:"-"`        // IP 地址
-	IPVersion int    `json:"ip_version" maxminddb:"-"`          // IP 版本 (4 或 6)
+	IPVersion int    `json:"ip_version,omitempty" maxminddb:"-"` // IP 版本 (4 或 6)
 
 	// 地理位置信息
-	Country     string  `json:"country" maxminddb:"country>names>en"`           // 国家名称
-	CountryCode string  `json:"country_code" maxminddb:"country>iso_code"`      // 国家代码 (ISO 3166-1 alpha-2)
-	Region      string  `json:"region" maxminddb:"subdivisions>0>names>en"`     // 地区/省份名称
-	RegionCode  string  `json:"region_code" maxminddb:"subdivisions>0>iso_code"` // 地区/省份代码
-	City        string  `json:"city" maxminddb:"city>names>en"`                 // 城市名称
-	Latitude    float64 `json:"latitude" maxminddb:"location>latitude"`         // 纬度
-	Longitude   float64 `json:"longitude" maxminddb:"location>longitude"`       // 经度
-	Postal      string  `json:"postal" maxminddb:"postal>code"`                 // 邮政编码
-	Timezone    string  `json:"timezone" maxminddb:"location>time_zone"`        // 时区
+	Country     string  `json:"country,omitempty" maxminddb:"country>names>en"`           // 国家名称
+	CountryCode string  `json:"country_code,omitempty" maxminddb:"country>iso_code"`      // 国家代码 (ISO 3166-1 alpha-2)
+	Region      string  `json:"region,omitempty" maxminddb:"subdivisions>0>names>en"`     // 地区/省份名称
+	RegionCode  string  `json:"region_code,omitempty" maxminddb:"subdivisions>0>iso_code"` // 地区/省份代码
+	City        string  `json:"city,omitempty" maxminddb:"city>names>en"`                 // 城市名称
+	Latitude    float64 `json:"latitude,omitempty" maxminddb:"location>latitude"`         // 纬度
+	Longitude   float64 `json:"longitude,omitempty" maxminddb:"location>longitude"`       // 经度
+	Postal      string  `json:"postal,omitempty" maxminddb:"postal>code"`                 // 邮政编码
+	Timezone    string  `json:"timezone,omitempty" maxminddb:"location>time_zone"`        // 时区
 
 	// ASN 信息
-	ASN    int    `json:"asn" maxminddb:"traits>autonomous_system_number"`         // 自治系统号
-	ASName string `json:"as_name" maxminddb:"traits>autonomous_system_organization"` // 自治系统名称
-	AS     string `json:"as" maxminddb:"-"`                                        // AS 字符串表示 (如 "AS15169")
+	ASN    int    `json:"asn,omitempty" maxminddb:"traits>autonomous_system_number"`         // 自治系统号
+	ASName string `json:"as_name,omitempty" maxminddb:"traits>autonomous_system_organization"` // 自治系统名称
+	AS     string `json:"as,omitempty" maxminddb:"-"`                                        // AS 字符串表示 (如 "AS15169")
 
 	// ISP 信息
-	ISP string `json:"isp" maxminddb:"traits>isp"`          // 互联网服务提供商
-	Org string `json:"org" maxminddb:"traits>organization"` // 组织名称
+	ISP string `json:"isp,omitempty" maxminddb:"traits>isp"`          // 互联网服务提供商
+	Org string `json:"org,omitempty" maxminddb:"traits>organization"` // 组织名称
 
 	// 其他信息
-	Continent     string `json:"continent" maxminddb:"continent>names>en"`       // 大洲
-	ContinentCode string `json:"continent_code" maxminddb:"continent>code"`      // 大洲代码
-	Proxy         bool   `json:"proxy" maxminddb:"traits>is_anonymous_proxy"`    // 是否为代理/VPN
-	Hosting       bool   `json:"hosting" maxminddb:"traits>is_hosting_provider"` // 是否为托管服务器
+	Continent     string `json:"continent,omitempty" maxminddb:"continent>names>en"`       // 大洲
+	ContinentCode string `json:"continent_code,omitempty" maxminddb:"continent>code"`      // 大洲代码
+	Proxy         bool   `json:"proxy,omitempty" maxminddb:"traits>is_anonymous_proxy"`    // 是否为代理/VPN
+	Hosting       bool   `json:"hosting,omitempty" maxminddb:"traits>is_hosting_provider"` // 是否为托管服务器
 }
 
 // Location 返回格式化的地理位置字符串
