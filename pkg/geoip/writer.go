@@ -173,28 +173,28 @@ func geoIPToMMDBType(geo *prism.GeoIP) mmdbtype.DataType {
 		data[mmdbtype.String("country")] = mmdbtype.String(geo.Country)
 	}
 	if geo.CountryCode != "" {
-		data[mmdbtype.String("country_code")] = mmdbtype.String(geo.CountryCode)
+		data[mmdbtype.String("cc")] = mmdbtype.String(geo.CountryCode)
 	}
 	if geo.Region != "" {
 		data[mmdbtype.String("region")] = mmdbtype.String(geo.Region)
 	}
 	if geo.RegionCode != "" {
-		data[mmdbtype.String("region_code")] = mmdbtype.String(geo.RegionCode)
+		data[mmdbtype.String("rc")] = mmdbtype.String(geo.RegionCode)
 	}
 	if geo.City != "" {
 		data[mmdbtype.String("city")] = mmdbtype.String(geo.City)
 	}
 	if geo.Latitude != 0 {
-		data[mmdbtype.String("latitude")] = mmdbtype.Float64(geo.Latitude)
+		data[mmdbtype.String("lat")] = mmdbtype.Float64(geo.Latitude)
 	}
 	if geo.Longitude != 0 {
-		data[mmdbtype.String("longitude")] = mmdbtype.Float64(geo.Longitude)
+		data[mmdbtype.String("lon")] = mmdbtype.Float64(geo.Longitude)
 	}
 	if geo.Postal != "" {
 		data[mmdbtype.String("postal")] = mmdbtype.String(geo.Postal)
 	}
 	if geo.Timezone != "" {
-		data[mmdbtype.String("timezone")] = mmdbtype.String(geo.Timezone)
+		data[mmdbtype.String("tz")] = mmdbtype.String(geo.Timezone)
 	}
 
 	// ASN 信息
@@ -221,7 +221,7 @@ func geoIPToMMDBType(geo *prism.GeoIP) mmdbtype.DataType {
 		data[mmdbtype.String("continent")] = mmdbtype.String(geo.Continent)
 	}
 	if geo.ContinentCode != "" {
-		data[mmdbtype.String("continent_code")] = mmdbtype.String(geo.ContinentCode)
+		data[mmdbtype.String("ccode")] = mmdbtype.String(geo.ContinentCode)
 	}
 
 	// 布尔值
@@ -288,21 +288,21 @@ func mmdbTypeToGeoIP(data mmdbtype.DataType) *prism.GeoIP {
 	geo.IP = getString("ip")
 	geo.IPVersion = int(getUint64("ip_version"))
 	geo.Country = getString("country")
-	geo.CountryCode = getString("country_code")
+	geo.CountryCode = getString("cc")
 	geo.Region = getString("region")
-	geo.RegionCode = getString("region_code")
+	geo.RegionCode = getString("rc")
 	geo.City = getString("city")
-	geo.Latitude = getFloat64("latitude")
-	geo.Longitude = getFloat64("longitude")
+	geo.Latitude = getFloat64("lat")
+	geo.Longitude = getFloat64("lon")
 	geo.Postal = getString("postal")
-	geo.Timezone = getString("timezone")
+	geo.Timezone = getString("tz")
 	geo.ASN = int(getUint64("asn"))
 	geo.ASName = getString("as_name")
 	geo.AS = getString("as")
 	geo.ISP = getString("isp")
 	geo.Org = getString("org")
 	geo.Continent = getString("continent")
-	geo.ContinentCode = getString("continent_code")
+	geo.ContinentCode = getString("ccode")
 	geo.Proxy = getBool("proxy")
 	geo.Hosting = getBool("hosting")
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 
@@ -19,6 +20,8 @@ import (
 var (
 	forceUpdate bool
 	verbose     bool
+	profile     bool
+	profileDir  string
 )
 
 // DownloadedSource 已下载的数据源信息
@@ -38,6 +41,8 @@ func main() {
 
 	rootCmd.Flags().BoolVarP(&forceUpdate, "force", "f", false, "强制更新，忽略缓存")
 	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "详细输出")
+	rootCmd.Flags().BoolVar(&profile, "profile", false, "启用性能分析（CPU、内存、goroutine）")
+	rootCmd.Flags().StringVar(&profileDir, "profile-dir", "./profiles", "性能分析文件输出目录")
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -54,6 +59,18 @@ func runUpdate(cmd *cobra.Command, args []string) {
 
 	// 显示环境信息
 	showEnvironmentInfo(cfg)
+
+	// 优化内存和 CPU 设置
+	OptimizeMemory()
+	OptimizeGoroutines()
+
+	// 启动性能分析
+	profiler, err := NewProfiler(profile, profileDir)
+	if err != nil {
+		log.Errorf("启动性能分析失败: %v", err)
+		os.Exit(1)
+	}
+	defer profiler.Stop()
 
 	// 创建必要的目录
 	if err := os.MkdirAll(cfg.CacheDir, 0755); err != nil {
@@ -105,6 +122,10 @@ func runUpdate(cmd *cobra.Command, args []string) {
 
 	// 转换并合并为 Prism GeoIP 数据库
 	log.Infof("开始转换数据库格式...")
+
+	profiler.Checkpoint("开始转换")
+	LogMemoryStats("转换前")
+
 	converter, err := NewConverter()
 	if err != nil {
 		log.Errorf("创建转换器失败: %v", err)
@@ -112,8 +133,9 @@ func runUpdate(cmd *cobra.Command, args []string) {
 	}
 
 	// 按优先级处理所有数据源
-	for _, ds := range sortedSources {
-		log.Infof("转换: %s (类型: %s, 格式: %s)", ds.Name, ds.Source.Type, ds.Source.Format)
+	for i, ds := range sortedSources {
+		log.Infof("转换 [%d/%d]: %s (类型: %s, 格式: %s)",
+			i+1, len(sortedSources), ds.Name, ds.Source.Type, ds.Source.Format)
 
 		switch ds.Source.Type {
 		case SourceTypeMMDB:
@@ -141,6 +163,24 @@ func runUpdate(cmd *cobra.Command, args []string) {
 			log.Warnf("未知的数据源类型: %s", ds.Source.Type)
 			failCount++
 		}
+
+		// 处理完每个数据源后，压缩内存
+		if (i+1)%3 == 0 || i == len(sortedSources)-1 {
+			profiler.Checkpoint(fmt.Sprintf("完成数据源 %d/%d", i+1, len(sortedSources)))
+
+			var m runtime.MemStats
+			runtime.ReadMemStats(&m)
+			beforeGC := m.Alloc / 1024 / 1024 // MB
+
+			// 使用更激进的内存压缩
+			CompactMemory()
+
+			runtime.ReadMemStats(&m)
+			afterGC := m.Alloc / 1024 / 1024 // MB
+
+			log.Infof("已处理 %d/%d 个数据源，内存使用: %d MB -> %d MB (释放 %d MB)",
+				i+1, len(sortedSources), beforeGC, afterGC, beforeGC-afterGC)
+		}
 	}
 
 	// 写入最终数据库（先写入临时文件，再替换）
@@ -149,6 +189,9 @@ func runUpdate(cmd *cobra.Command, args []string) {
 	log.Infof("写入数据库")
 	log.Infof("=================================================")
 	log.Infof("")
+
+	profiler.Checkpoint("开始写入")
+	LogMemoryStats("写入前")
 
 	outputPath := filepath.Join(cfg.DataDir, "geoip.mmdb")
 	tempPath := outputPath + ".tmp"
@@ -195,6 +238,9 @@ func runUpdate(cmd *cobra.Command, args []string) {
 	sizeMB := float64(written) / (1024 * 1024)
 	log.Infof("")
 	log.Infof("✓ 数据库已生成: %s (%.2f MB)", filepath.Base(outputPath), sizeMB)
+
+	profiler.Checkpoint("写入完成")
+	LogMemoryStats("写入后")
 
 	// 显示备份信息
 	if backupInfo, err := os.Stat(backupPath); err == nil {
@@ -399,7 +445,7 @@ func convertTextSource(converter *Converter, ds DownloadedSource) error {
 			geo.Org = "Dr.Peng Network"
 		}
 
-		if err := converter.writer.InsertGeoIPRange(startIP, endIP, geo); err != nil {
+		if err := converter.inserter.Add(startIP, endIP, geo); err != nil {
 			errorCount++
 			log.Errorf("插入 CIDR 失败: %s - %v", line, err)
 			continue
@@ -414,6 +460,11 @@ func convertTextSource(converter *Converter, ds DownloadedSource) error {
 	if err := scanner.Err(); err != nil {
 		log.Errorf("读取文本文件失败: %s - %v", ds.Name, err)
 		return xerror.WrapError(err, ErrFileOperationFailed, "scan text file "+ds.Name+" failed")
+	}
+
+	// 刷新剩余批次
+	if err := converter.inserter.Flush(); err != nil {
+		return err
 	}
 
 	log.Infof("完成转换 %s: 成功 %d 条，跳过 %d 条，错误 %d 条", ds.Name, count, skipCount, errorCount)

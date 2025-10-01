@@ -1,0 +1,10 @@
+# 编译生成的二进制文件
+update-geoip
+
+# 性能分析文件
+profiles/
+*.prof
+
+# 测试生成的临时文件
+*.test
+test.csv

@@ -21,7 +21,8 @@ import (
 
 // Converter 数据转换器
 type Converter struct {
-	writer *geoip.Writer
+	writer   *geoip.Writer
+	inserter *BatchInserter
 }
 
 // NewConverter 创建转换器
@@ -33,7 +34,19 @@ func NewConverter() (*Converter, error) {
 	}
 
 	log.Debugf("转换器创建成功")
-	return &Converter{writer: writer}, nil
+
+	// 创建批量插入器，批大小为 5000
+	inserter := NewBatchInserter(writer, 5000)
+
+	return &Converter{
+		writer:   writer,
+		inserter: inserter,
+	}, nil
+}
+
+// Flush 刷新批量插入缓存
+func (c *Converter) Flush() error {
+	return c.inserter.Flush()
 }
 
 // ConvertMaxMindDB 从 MaxMind 数据库转换
@@ -74,8 +87,8 @@ func (c *Converter) ConvertMaxMindDB(dbPath string) error {
 		firstIP := subnet.IP
 		lastIP := getLastIP(subnet)
 
-		// 插入到数据库
-		err = c.writer.InsertGeoIPRange(firstIP.String(), lastIP.String(), geo)
+		// 使用批量插入
+		err = c.inserter.Add(firstIP.String(), lastIP.String(), geo)
 		if err != nil {
 			errorCount++
 			log.Errorf("插入 IP 范围失败 (第 %d 条)，范围: %s-%s, 错误: %v",
@@ -94,6 +107,11 @@ func (c *Converter) ConvertMaxMindDB(dbPath string) error {
 		log.Errorf("遍历网络记录失败，数据库: %s, 错误: %v", filepath.Base(dbPath), networks.Err())
 		return xerror.WrapError(networks.Err(), ErrConversionFailed,
 			"iterate networks in "+filepath.Base(dbPath)+" failed")
+	}
+
+	// 刷新剩余批次
+	if err := c.inserter.Flush(); err != nil {
+		return err
 	}
 
 	log.Infof("完成转换 %s: 成功 %d 条，跳过 %d 条，错误 %d 条",
@@ -163,7 +181,7 @@ func (c *Converter) ConvertCSV(csvPath string, converter func(record []string) (
 			continue
 		}
 
-		err = c.writer.InsertGeoIPRange(startIP, endIP, geo)
+		err = c.inserter.Add(startIP, endIP, geo)
 		if err != nil {
 			errorCount++
 			log.Errorf("插入 CSV 数据失败，文件: %s, 行号: %d, 范围: %s-%s, 错误: %v",
@@ -177,6 +195,11 @@ func (c *Converter) ConvertCSV(csvPath string, converter func(record []string) (
 		if count%10000 == 0 {
 			log.Infof("已处理 %d 条记录 (跳过 %d, 错误 %d)", count, skipCount, errorCount)
 		}
+	}
+
+	// 刷新剩余批次
+	if err := c.inserter.Flush(); err != nil {
+		return err
 	}
 
 	log.Infof("完成转换 %s: 成功 %d 条，跳过 %d 条，错误 %d 条",
