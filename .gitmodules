@@ -1,0 +1,4 @@
+[submodule "pkg/mihomo"]
+	path = pkg/mihomo
+	url = https://github.com/darabuchi/mihomo.git
+	branch = prism-dev
