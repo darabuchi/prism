@@ -73,8 +73,8 @@ docker-compose up -d
 
 ### 核心包文档
 
-- [i18n 国际化](pkg/i18n/README.md) - 多语言支持（7种语言）
 - [Queue 队列系统](pkg/queue/README.md) - 高性能消息队列
+- [多语言资源规范](resource/localize/README.md) - 7种语言支持（en, zh-CN, zh-TW, fr, ru, es, ar）
 
 ### 详细设计
 

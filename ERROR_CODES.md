@@ -43,19 +43,11 @@
 ### 1. 初始化系统
 
 ```go
-import (
-    "github.com/darabuchi/prism/pkg/i18n"
-    "github.com/lazygophers/lrpc/middleware/xerror"
-)
+import "github.com/lazygophers/lrpc/middleware/xerror"
 
 func main() {
-    // 加载多语言资源
-    if err := i18n.LoadFromDir("./resource/localize"); err != nil {
-        log.Fatal(err)
-    }
-
-    // 设置 xerror 的 i18n 实现
-    xerror.SetI18n(i18n.NewLocalizer())
+    // 如需多语言支持，实现 xerror.I18n 接口并调用
+    // xerror.SetI18n(yourI18nImplementation)
 }
 ```
 
@@ -148,16 +140,7 @@ func getHTTPStatus(code int32) int {
 }
 ```
 
-### 2. 更新 pkg/i18n/codes.go
-
-```go
-var keyToCodeMap = map[string]int32{
-    // ... 现有映射
-    "custom.error": 9000,
-}
-```
-
-### 3. 更新所有语言文件
+### 2. 更新所有语言文件
 
 **resource/localize/zh-CN.yaml:**
 ```yaml
@@ -173,7 +156,7 @@ custom:
 
 对其他 5 种语言重复此操作。
 
-### 4. 使用新错误码
+### 3. 使用新错误码
 
 ```go
 err := xerror.NewError(9000, "zh-CN")
@@ -191,6 +174,5 @@ err := xerror.NewError(9000, "zh-CN")
 
 ## 相关文档
 
-- [i18n 包文档](pkg/i18n/README.md) - 多语言实现细节
 - [多语言资源规范](resource/localize/README.md) - YAML 文件格式
 - [xerror 文档](https://github.com/lazygophers/lrpc/tree/main/middleware/xerror) - 错误处理库
