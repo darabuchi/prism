@@ -145,7 +145,7 @@ defer conn.Close()
 ```go
 import "github.com/darabuchi/prism/pkg/parser"
 
-// 解析订阅内容
+// 解析订阅内容（自动创建节点实例）
 data := []byte(`
 proxies:
   - name: "香港节点"
@@ -156,13 +156,16 @@ proxies:
     password: "password123"
 `)
 
-proxies, err := parser.Parse(data)
+nodes, err := parser.Parse(data)
 if err != nil {
     log.Errorf("解析失败: %v", err)
     return
 }
 
-log.Infof("解析到 %d 个节点", len(proxies))
+log.Infof("解析到 %d 个节点", len(nodes))
+for _, node := range nodes {
+    log.Infof("节点: %s, 类型: %s", node.Name(), node.ProxyType())
+}
 ```
 
 ## 图标说明

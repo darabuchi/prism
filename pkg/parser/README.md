@@ -9,7 +9,8 @@
 - **多格式支持**：自动识别并解析 Clash YAML、V2Ray Base64 链接、逐行 JSON 格式
 - **智能解析**：按优先级尝试不同格式，直到成功解析
 - **协议兼容**：支持 18+ 种代理协议（SS、SSR、VMess、VLess、Trojan、Hysteria 等）
-- **Mihomo 集成**：解析结果可直接用于 mihomo adapter.ParseProxy
+- **节点创建**：自动创建 node.Node 实例，包含 Mihomo 适配器
+- **容错处理**：跳过无效节点，继续解析其他节点
 
 ## 支持的格式
 
@@ -100,15 +101,15 @@ proxies:
 `)
 
 	// 解析订阅
-	proxies, err := parser.Parse(subscriptionData)
+	nodes, err := parser.Parse(subscriptionData)
 	if err != nil {
 		log.Errorf("解析失败: %v", err)
 		return
 	}
 
-	log.Infof("解析到 %d 个节点", len(proxies))
-	for _, proxy := range proxies {
-		log.Infof("节点: %v", proxy["name"])
+	log.Infof("解析到 %d 个节点", len(nodes))
+	for _, node := range nodes {
+		log.Infof("节点: %s", node.Name())
 	}
 }
 ```
@@ -117,48 +118,39 @@ proxies:
 
 ```go
 import (
+	"context"
 	"github.com/darabuchi/prism/pkg/parser"
-	"github.com/metacubex/mihomo/adapter"
+	"github.com/metacubex/mihomo/constant"
 )
 
-// 解析订阅并创建 mihomo 代理
-func ParseAndCreateProxies(data []byte) error {
-	// 解析订阅
-	proxies, err := parser.Parse(data)
+// 解析订阅并使用节点
+func ParseAndUseNodes(data []byte) error {
+	// 解析订阅（自动创建 mihomo adapter）
+	nodes, err := parser.Parse(data)
 	if err != nil {
 		return err
 	}
 
-	// 转换为 mihomo Proxy
-	for _, proxyMap := range proxies {
-		proxy, err := adapter.ParseProxy(proxyMap)
+	// 直接使用节点进行代理连接
+	for _, node := range nodes {
+		log.Infof("节点: %s, 类型: %s, 地址: %s:%d",
+			node.Name(), node.ProxyType(), node.Server(), node.Port())
+
+		// 使用节点建立连接
+		metadata := &constant.Metadata{
+			Host:    "example.com",
+			DstPort: 443,
+			NetWork: constant.TCP,
+		}
+		conn, err := node.DialContext(context.Background(), metadata)
 		if err != nil {
-			log.Warnf("代理解析失败: %v", err)
+			log.Warnf("连接失败: %v", err)
 			continue
 		}
-
-		// 使用 proxy...
-		log.Infof("创建代理: %s", proxy.Name())
+		conn.Close()
 	}
 
 	return nil
-}
-```
-
-### 验证代理类型
-
-```go
-import "github.com/darabuchi/prism/pkg/parser"
-
-func main() {
-	// 验证代理类型是否支持
-	if parser.ValidateProxyType("vmess") {
-		log.Info("VMess 协议已支持")
-	}
-
-	if !parser.ValidateProxyType("unknown") {
-		log.Warn("不支持的协议类型")
-	}
 }
 ```
 
@@ -173,7 +165,11 @@ func main() {
     ↓ (失败)
 尝试逐行 JSON 解析
     ↓
-返回 []map[string]any
+创建 node.Node 实例
+    ↓
+按唯一 ID 去重
+    ↓
+返回 []*node.Node
 ```
 
 ## API 文档
@@ -181,31 +177,23 @@ func main() {
 ### Parse
 
 ```go
-func Parse(data []byte) ([]map[string]any, error)
+func Parse(data []byte) ([]*node.Node, error)
 ```
 
-解析订阅数据，自动识别格式。
+解析订阅数据，自动识别格式并创建节点实例。
 
 **参数**：
 - `data`: 订阅内容字节数组
 
 **返回**：
-- `[]map[string]any`: 代理配置列表，可直接用于 mihomo adapter.ParseProxy
-- `error`: 解析错误
+- `[]*node.Node`: 节点列表（已自动创建 mihomo adapter，已去重）
+- `error`: 解析错误（仅当所有节点创建失败时返回错误）
 
-### ValidateProxyType
-
-```go
-func ValidateProxyType(proxyType string) bool
-```
-
-验证代理类型是否支持。
-
-**参数**：
-- `proxyType`: 代理类型字符串（如 "ss", "vmess"）
-
-**返回**：
-- `bool`: 是否支持该代理类型
+**特性**：
+- 自动识别格式（Clash YAML、V2Ray Base64、逐行 JSON）
+- 自动创建 mihomo 代理适配器
+- 按唯一 ID 去重
+- 跳过无效节点，记录警告但继续处理其他节点
 
 ## 设计原则
 
@@ -225,14 +213,19 @@ func ValidateProxyType(proxyType string) bool
 所有解析函数在失败时会记录 Debug 日志并返回错误。调用方应处理错误：
 
 ```go
-proxies, err := parser.Parse(data)
+nodes, err := parser.Parse(data)
 if err != nil {
 	log.Errorf("解析失败: %v", err)
 	return err
 }
 
-if len(proxies) == 0 {
+if len(nodes) == 0 {
 	log.Warn("未解析到任何节点")
+}
+
+// 使用节点
+for _, node := range nodes {
+	log.Infof("节点: %s, ID: %s", node.Name(), node.UniqueId())
 }
 ```
 

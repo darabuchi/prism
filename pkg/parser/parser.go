@@ -4,16 +4,40 @@ import (
 	"bufio"
 	"bytes"
 
+	"github.com/darabuchi/prism/pkg/node"
 	"github.com/lazygophers/log"
+	"github.com/lazygophers/lrpc/middleware/xerror"
+	"github.com/lazygophers/utils/candy"
 	"github.com/lazygophers/utils/json"
 	clashConvert "github.com/metacubex/mihomo/common/convert"
 	"gopkg.in/yaml.v3"
 )
 
 // Parse 解析订阅内容
-// 支持多种格式：Clash YAML、V2Ray Base64 链接、逐行 JSON
-// 返回 []map[string]any 可直接用于 mihomo adapter.ParseProxy
-func Parse(data []byte) ([]map[string]any, error) {
+//
+// 支持多种格式：
+//   - Clash YAML 格式
+//   - V2Ray Base64 链接格式
+//   - 逐行 JSON 格式
+//
+// 参数:
+//   - data: 订阅内容字节数组
+//
+// 返回:
+//   - []*node.Node: 解析后的节点列表
+//   - error: 解析失败时返回错误
+//
+// 示例:
+//
+//	data := []byte(`
+//	proxies:
+//	  - name: "香港节点"
+//	    type: ss
+//	    server: hk.example.com
+//	    port: 443
+//	`)
+//	nodes, err := Parse(data)
+func Parse(data []byte) ([]*node.Node, error) {
 	if len(data) == 0 {
 		return nil, nil
 	}
@@ -21,19 +45,58 @@ func Parse(data []byte) ([]map[string]any, error) {
 	reader := bytes.NewBuffer(data)
 
 	// 优先尝试 Clash YAML 格式
-	proxies, err := parseClash(reader)
-	if err == nil && len(proxies) > 0 {
-		return proxies, nil
+	configs, err := parseClash(reader)
+	if err == nil && len(configs) > 0 {
+		return createNodes(configs)
 	}
 
 	// 尝试 V2Ray 格式（Base64 编码的代理链接）
-	proxies, err = parseV2Ray(reader)
-	if err == nil && len(proxies) > 0 {
-		return proxies, nil
+	configs, err = parseV2Ray(reader)
+	if err == nil && len(configs) > 0 {
+		return createNodes(configs)
 	}
 
 	// 尝试逐行 JSON 格式
-	return parseLineByLine(reader)
+	configs, err = parseLineByLine(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return createNodes(configs)
+}
+
+// createNodes 从配置列表创建节点列表
+//
+// 将解析出的配置转换为 node.Node 实例
+// 跳过创建失败的节点，记录错误但不中断整个过程
+// 使用唯一 ID 进行去重
+func createNodes(configs []map[string]any) ([]*node.Node, error) {
+	if len(configs) == 0 {
+		return nil, nil
+	}
+
+	nodes := make([]*node.Node, 0, len(configs))
+	for i, config := range configs {
+		n, err := node.NewNode(config)
+		if err != nil {
+			// 记录错误但继续处理其他节点
+			log.Warnf("create node %d failed: %v, config: %+v", i, err, config)
+			continue
+		}
+		nodes = append(nodes, n)
+	}
+
+	// 如果所有节点都创建失败，返回错误
+	if len(nodes) == 0 {
+		return nil, xerror.New(xerror.ErrSystemError, "all nodes creation failed")
+	}
+
+	// 按照唯一 ID 去重
+	nodes = candy.UniqueUsing(nodes, func(n *node.Node) any {
+		return n.UniqueId()
+	})
+
+	return nodes, nil
 }
 
 // parseClash 解析 Clash YAML 格式
