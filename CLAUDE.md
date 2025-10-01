@@ -11,6 +11,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 4. Commit the changes to git with a clear message
 5. Confirm to the user that the information has been recorded
 
+## 编码规范强制要求
+
+**在进行任何代码开发、修改或审查之前，必须严格遵守以下编码规范文档：**
+
+1. **[数据库设计规范](docs/编码规范/数据库设计规范.md)** - 必须遵守
+   - 所有时间字段使用 TIMESTAMP 类型
+   - 所有索引包含 deleted_at 字段
+   - 禁止使用基本类型指针
+   - 表结构、字段命名、索引设计等规范
+
+2. **[API 设计规范](docs/编码规范/API设计规范.md)** - 必须遵守
+   - 所有接口使用 POST 方法
+   - 禁止路径变量，所有参数通过 Request Body 传递
+   - 统一响应格式、错误处理、认证方式等规范
+
+3. **[后端开发规范](docs/编码规范/后端开发规范.md)** - 必须遵守
+   - 必须使用指定的依赖包（LRPC、lazygophers）
+   - 错误处理、日志记录、数据验证等规范
+   - 代码组织、测试标准等规范
+
+**违规检查：**
+- 在提交代码前，必须对照各规范文档的"违规检查清单"进行自查
+- 任何违反规范的代码都不应被提交
+- 如发现已有代码违反规范，应立即修正
+
 ## Project Rules and Guidelines
 
 <!-- User-defined rules and memories will be added here -->
@@ -18,6 +43,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - [2025-01-01] **工作流程规则**：及时提交变更 - 完成任何有意义的修改后应立即commit，保持Git历史清晰
 - [2025-01-01] **文档维护规则**：文档相关的内容以及代码核心的内容需要及时更新到CLAUDE.md的相关索引中，保持文档与代码同步
+- [2025-10-01] **编码规范文档化**：所有编码规范已移至 `docs/编码规范/` 目录下的独立文档，必须严格遵守（详见上方"编码规范强制要求"）
 
 ---
 
@@ -177,6 +203,26 @@ Generate configurations:
 - **Mihomo kernel code** lives in `pkg/mihomo/` and should be treated as upstream dependency
 - **Prism application code** should be kept separate from mihomo core
 - The project uses Go 1.25.1 with go modules
+
+### Backend Dependencies
+
+**LRPC Middleware**:
+- `github.com/lazygophers/lrpc/middleware/storage/db` - Database middleware
+- `github.com/lazygophers/lrpc/middleware/xerror` - Error handling middleware
+- `github.com/lazygophers/lrpc/middleware/i18n` - Internationalization middleware
+- `github.com/lazygophers/lrpc/middleware/core` - Core middleware
+
+**Utility Packages**:
+- `github.com/lazygophers/log` - Logging
+- `github.com/lazygophers/utils/candy` - Utility functions
+- `github.com/lazygophers/utils/json` - JSON handling
+- `github.com/lazygophers/utils/xtime` - Time utilities
+- `github.com/lazygophers/utils/validator` - Data validation
+- `github.com/lazygophers/utils/cryptox` - Cryptography utilities
+- `github.com/lazygophers/utils/app` - Application utilities
+- `github.com/lazygophers/utils/wait` - Wait/synchronization utilities
+- `github.com/lazygophers/utils/runtime` - Runtime utilities
+- `github.com/lazygophers/utils/config` - Configuration management
 
 ### Important Patterns
 
