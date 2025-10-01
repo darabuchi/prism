@@ -48,13 +48,19 @@ func GenerateId(config map[string]any) string {
 	// 删除不影响节点唯一性的字段
 	// 这些字段只是元数据，不应该影响节点的身份识别
 	delete(m, "name")        // 节点名称（用户自定义，可变）
+
 	delete(m, "md5")         // MD5 哈希值（已弃用）
 	delete(m, "sha256")      // SHA256 哈希值（避免循环）
 	delete(m, "sha384")      // SHA384 哈希值（避免循环）
 	delete(m, "sha512")      // SHA512 哈希值（避免循环）
+	
 	delete(m, "unique_key")  // 旧版唯一键（已弃用）
 	delete(m, "unique_id")   // 唯一ID（已处理）
+
 	delete(m, "extra_info")  // 额外信息（元数据）
+
+	delete(m, "up")// 上行流量
+	delete(m, "down")// 下行流量
 
 	// deepField 递归处理各种类型的字段值，转换为字符串
 	var deepField func(v any) string
