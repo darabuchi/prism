@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- Format: Add new rules as bullet points with date stamp -->
 
 - [2025-01-01] MITM功能已添加到产品功能文档，系统需支持完整的HTTPS拦截和流量修改能力
+- [2025-01-01] **工作流程规则**：及时提交变更 - 完成任何有意义的修改后应立即commit，保持Git历史清晰
 
 ---
 
