@@ -16,6 +16,7 @@
 - **Node 结构体**：封装 Mihomo 代理适配器的节点管理结构
 - **ID 生成**：基于 URL 格式和 SHA256 的节点唯一标识生成
 - **配置管理**：支持 Clash 格式配置和 Base64 编码的原始配置
+- **延迟测试**：支持 HTTP、TCP、ICMP 延迟测试（通过代理）
 
 ## 类型定义
 
@@ -76,6 +77,43 @@ defer conn.Close()
 
 // 使用连接进行数据传输
 // ...
+```
+
+### 延迟测试
+
+```go
+import (
+	"context"
+	"time"
+	"github.com/darabuchi/prism/pkg/node"
+)
+
+// HTTP 延迟测试
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+
+httpDelay, err := n.DelayHTTP(ctx, "http://www.gstatic.com/generate_204")
+if err != nil {
+	log.Errorf("HTTP 延迟测试失败: %v", err)
+} else {
+	log.Infof("HTTP 延迟: %v", httpDelay)
+}
+
+// TCP 延迟测试
+tcpDelay, err := n.DelayTCP(ctx, "www.google.com:80")
+if err != nil {
+	log.Errorf("TCP 延迟测试失败: %v", err)
+} else {
+	log.Infof("TCP 延迟: %v", tcpDelay)
+}
+
+// ICMP 延迟测试（大多数代理协议不支持）
+icmpDelay, err := n.DelayICMP(ctx, "8.8.8.8")
+if err != nil {
+	log.Warnf("ICMP 延迟测试失败（可能不支持）: %v", err)
+} else {
+	log.Infof("ICMP 延迟: %v", icmpDelay)
+}
 ```
 
 ### 生成节点 ID
@@ -146,6 +184,12 @@ type Node struct {
 - `DialContextWithDialer(ctx, dialer, metadata) (Conn, error)` - 使用自定义拨号器建立 TCP 连接
 - `ListenPacketWithDialer(ctx, dialer, metadata) (PacketConn, error)` - 使用自定义拨号器建立 UDP 连接
 - `StreamConnContext(ctx, c, metadata) (net.Conn, error)` - 在现有连接上包装协议
+
+**延迟测试方法**：
+
+- `DelayHTTP(ctx, url) (time.Duration, error)` - 测试 HTTP 延迟（通过代理访问 URL）
+- `DelayTCP(ctx, addr) (time.Duration, error)` - 测试 TCP 连接延迟（通过代理建立连接）
+- `DelayICMP(ctx, addr) (time.Duration, error)` - 测试 ICMP 延迟（大多数协议不支持）
 
 **功能检查方法**：
 
