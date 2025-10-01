@@ -8,47 +8,130 @@
 resource/localize/
 ├── README.md         # 本规范文档
 ├── zh-CN.yaml        # 简体中文（默认语言）
-├── en-US.yaml        # 美国英语
+├── en-US.yaml        # 美式英语
 ├── zh-TW.yaml        # 繁体中文（可选）
-├── ja-JP.yaml        # 日语（可选）
+├── ja.yaml           # 日语（可选）
+├── ko.yaml           # 韩语（可选）
+├── pt-BR.yaml        # 巴西葡萄牙语（可选）
 └── ...               # 其他语言
 ```
 
 ## 语言代码规范
 
-使用 **BCP 47** 标准的语言标签格式：`language-REGION`
+本项目采用 **ISO 639-1**（语言代码）和 **ISO 3166-1**（国家/地区代码）组合的标准。
 
-### 常用语言代码
+参考规范：[Lingoes 语言代码表](http://www.lingoes.net/zh/translator/langcode.htm)
 
-| 语言代码 | 语言名称 | 说明 |
-|---------|---------|------|
-| `zh-CN` | 简体中文 | 中国大陆 |
-| `zh-TW` | 繁体中文 | 中国台湾 |
-| `zh-HK` | 繁体中文 | 中国香港 |
-| `en-US` | 英语 | 美国 |
-| `en-GB` | 英语 | 英国 |
-| `ja-JP` | 日语 | 日本 |
-| `ko-KR` | 韩语 | 韩国 |
-| `fr-FR` | 法语 | 法国 |
-| `de-DE` | 德语 | 德国 |
-| `es-ES` | 西班牙语 | 西班牙 |
-| `ru-RU` | 俄语 | 俄罗斯 |
+### 语言代码格式
+
+支持两种格式：
+
+1. **纯语言代码**（ISO 639-1）：`{language}`
+   - 适用于不需要区分地区变体的语言
+   - 例如：`ja`（日语）、`ko`（韩语）
+
+2. **语言-地区代码**（ISO 639-1 + ISO 3166-1）：`{language}-{REGION}`
+   - 适用于需要区分地区变体的语言
+   - 例如：`zh-CN`（简体中文）、`en-US`（美式英语）
+
+### 常用语言代码表
+
+#### 中文变体
+
+| 语言代码 | 语言名称 | ISO 639-1 | ISO 3166-1 | 说明 |
+|---------|---------|-----------|------------|------|
+| `zh` | 中文 | zh | - | 通用中文（不推荐，建议明确指定地区） |
+| `zh-CN` | 简体中文 | zh | CN | 中国大陆（**推荐作为默认**） |
+| `zh-TW` | 繁体中文 | zh | TW | 中国台湾 |
+| `zh-HK` | 繁体中文 | zh | HK | 中国香港 |
+| `zh-SG` | 简体中文 | zh | SG | 新加坡 |
+
+#### 英语变体
+
+| 语言代码 | 语言名称 | ISO 639-1 | ISO 3166-1 | 说明 |
+|---------|---------|-----------|------------|------|
+| `en` | 英语 | en | - | 通用英语 |
+| `en-US` | 美国英语 | en | US | 美国（**推荐**） |
+| `en-GB` | 英国英语 | en | GB | 英国 |
+| `en-AU` | 澳大利亚英语 | en | AU | 澳大利亚 |
+| `en-CA` | 加拿大英语 | en | CA | 加拿大 |
+
+#### 其他常用语言
+
+| 语言代码 | 语言名称 | ISO 639-1 | ISO 3166-1 | 说明 |
+|---------|---------|-----------|------------|------|
+| `ja` | 日语 | ja | - | 日本（单一语言，无需地区代码） |
+| `ko` | 韩语 | ko | - | 韩国（单一语言，无需地区代码） |
+| `fr` | 法语 | fr | - | 法国（也可用 `fr-FR`） |
+| `de` | 德语 | de | - | 德国（也可用 `de-DE`） |
+| `es` | 西班牙语 | es | - | 西班牙（也可用 `es-ES`） |
+| `pt` | 葡萄牙语 | pt | - | 葡萄牙 |
+| `pt-BR` | 巴西葡萄牙语 | pt | BR | 巴西 |
+| `ru` | 俄语 | ru | - | 俄罗斯 |
+| `ar` | 阿拉伯语 | ar | - | 阿拉伯语 |
+| `hi` | 印地语 | hi | - | 印度 |
+| `th` | 泰语 | th | - | 泰国 |
+| `vi` | 越南语 | vi | - | 越南 |
+| `id` | 印尼语 | id | - | 印度尼西亚 |
+| `ms` | 马来语 | ms | - | 马来西亚 |
+| `tr` | 土耳其语 | tr | - | 土耳其 |
+| `pl` | 波兰语 | pl | - | 波兰 |
+| `nl` | 荷兰语 | nl | - | 荷兰 |
+| `it` | 意大利语 | it | - | 意大利 |
+| `sv` | 瑞典语 | sv | - | 瑞典 |
+| `da` | 丹麦语 | da | - | 丹麦 |
+| `no` | 挪威语 | no | - | 挪威 |
+| `fi` | 芬兰语 | fi | - | 芬兰 |
+| `cs` | 捷克语 | cs | - | 捷克 |
+| `hu` | 匈牙利语 | hu | - | 匈牙利 |
+| `ro` | 罗马尼亚语 | ro | - | 罗马尼亚 |
+| `uk` | 乌克兰语 | uk | - | 乌克兰 |
+| `el` | 希腊语 | el | - | 希腊 |
+| `he` | 希伯来语 | he | - | 以色列 |
 
 ### 文件命名规范
 
-- **必须**使用 `{language-REGION}.yaml` 格式
-- **必须**使用小写字母和大写字母的标准组合
-- **不允许**使用其他分隔符（如下划线 `_`）
+**基本规则**：
 
-✅ 正确示例：
-- `zh-CN.yaml`
-- `en-US.yaml`
-- `ja-JP.yaml`
+- **必须**使用 `{language}.yaml` 或 `{language-REGION}.yaml` 格式
+- **语言代码**（ISO 639-1）使用**小写字母**（2个字符）
+- **地区代码**（ISO 3166-1）使用**大写字母**（2个字符）
+- 使用**连字符** `-` 分隔语言和地区
+- **不允许**使用下划线 `_` 或其他分隔符
 
-❌ 错误示例：
-- `zh_CN.yaml`（使用了下划线）
-- `zhcn.yaml`（缺少区域代码）
-- `zh-cn.yaml`（区域代码应大写）
+✅ **正确示例**：
+```
+zh-CN.yaml          # 简体中文（推荐）
+zh-TW.yaml          # 繁体中文
+en-US.yaml          # 美式英语（推荐）
+en-GB.yaml          # 英式英语
+ja.yaml             # 日语（无地区代码）
+ko.yaml             # 韩语（无地区代码）
+pt-BR.yaml          # 巴西葡萄牙语
+```
+
+❌ **错误示例**：
+```
+zh_CN.yaml          # ❌ 使用了下划线
+zh-cn.yaml          # ❌ 地区代码应大写
+ZH-CN.yaml          # ❌ 语言代码应小写
+zhcn.yaml           # ❌ 缺少分隔符
+chinese.yaml        # ❌ 应使用 ISO 639-1 代码
+zh_Hans.yaml        # ❌ 不符合标准格式
+```
+
+### 语言代码选择建议
+
+1. **中文**：明确使用 `zh-CN` 或 `zh-TW`，不要使用 `zh`
+2. **英语**：推荐使用 `en-US`，如需区分英式英语可使用 `en-GB`
+3. **单一语言**：如果语言没有明显的地区差异（如日语、韩语），可以只使用语言代码（`ja`, `ko`）
+4. **有地区差异的语言**：必须使用完整的语言-地区代码（如 `pt-BR` 巴西葡萄牙语）
+
+### 默认语言设置
+
+- **项目默认语言**：`zh-CN`（简体中文）
+- **备用语言**：`en-US`（美式英语）
+- **Fallback 顺序**：请求的语言 → 默认语言 → 键名本身
 
 ## YAML 文件结构
 
@@ -276,7 +359,12 @@ common:
 
 1. **创建新的 YAML 文件**
    ```bash
-   cp resource/localize/en-US.yaml resource/localize/ja-JP.yaml
+   # 根据需要选择合适的语言代码格式
+   # 示例1: 日语（无需地区代码）
+   cp resource/localize/en-US.yaml resource/localize/ja.yaml
+
+   # 示例2: 巴西葡萄牙语（需要地区代码）
+   cp resource/localize/en-US.yaml resource/localize/pt-BR.yaml
    ```
 
 2. **翻译所有键值**
@@ -287,19 +375,24 @@ common:
 3. **验证文件格式**
    ```bash
    # 使用 YAML 验证工具
-   yamllint resource/localize/ja-JP.yaml
+   yamllint resource/localize/ja.yaml
    ```
 
 4. **测试翻译**
    ```go
    // 在代码中测试
-   msg := errcode.T("ja-JP", "common.success")
+   msg := errcode.T("ja", "common.success")
    fmt.Println(msg) // 输出日语翻译
+
+   // 测试带地区代码的语言
+   msg = errcode.T("pt-BR", "common.success")
+   fmt.Println(msg) // 输出巴西葡萄牙语翻译
    ```
 
 5. **更新文档**
    - 在本 README 中添加新语言的说明
    - 更新支持的语言列表
+   - 如果是新的语言变体，更新常用语言代码表
 
 ## 使用示例
 
@@ -450,10 +543,24 @@ yamllint resource/localize/*.yaml
 
 ## 参考资料
 
-- [BCP 47 - Tags for Identifying Languages](https://tools.ietf.org/html/bcp47)
-- [YAML 1.2 规范](https://yaml.org/spec/1.2/spec.html)
-- [Go i18n 最佳实践](https://phrase.com/blog/posts/internationalization-i18n-go/)
-- [Unicode CLDR](http://cldr.unicode.org/)
+### 语言编码标准
+
+- **[Lingoes 语言代码表](http://www.lingoes.net/zh/translator/langcode.htm)** - 本项目采用的主要参考规范
+- **[ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1)** - 两字母语言代码标准
+- **[ISO 639-2](https://www.loc.gov/standards/iso639-2/)** - 三字母语言代码标准
+- **[ISO 3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)** - 两字母国家/地区代码标准
+- **[IANA Language Subtag Registry](https://www.iana.org/assignments/language-subtag-registry/)** - 语言标签注册表
+
+### 技术规范
+
+- **[YAML 1.2 规范](https://yaml.org/spec/1.2/spec.html)** - YAML 格式标准
+- **[Go i18n 最佳实践](https://phrase.com/blog/posts/internationalization-i18n-go/)** - Go 语言国际化指南
+- **[Unicode CLDR](http://cldr.unicode.org/)** - Unicode 通用语言数据仓库
+
+### 工具和资源
+
+- **[ISO 639 Language Codes](https://www.iso.org/iso-639-language-code)** - ISO 官方语言代码页面
+- **[Language Code Table](http://www.lingoes.net/en/translator/langcode.htm)** - Lingoes 英文版语言代码表
 
 ## 常见问题
 
