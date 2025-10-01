@@ -333,8 +333,7 @@ func (q *MemoryQueue[T]) delayedProcessor() {
 			return
 
 		case <-ticker.C:
-			now := time.Now()
-
+	
 			// 处理所有已到期的消息（堆顶）
 			for h.Len() > 0 {
 				msg := (*h)[0] // 查看堆顶元素

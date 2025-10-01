@@ -32,20 +32,20 @@
 ### mihomo/ - Mihomo 代理核心
 第三方代理核心模块（git submodule）。
 
-### node/ - 节点工具包 ✅
-节点相关的基础工具函数和常量定义。
+### node/ - 节点管理包 ✅
+节点管理的基础功能，包括节点结构体和 ID 生成算法。
 
 **已实现：**
-- 常量定义（18+ 种协议类型、3 种熔断器状态）
-- ID 生成（基于 SHA256 哈希）
-- 唯一键生成（type://server:port 格式）
-- 配置编解码（Base64 JSON）
+- Node 结构体（封装 Mihomo 适配器）
+- ID 生成（与 Fire 项目 CalculateClashHash 保持一致）
+- 配置管理（Clash 格式和 Base64 原始配置）
+- 类型定义移至项目根目录
 
 **核心特性：**
-- 严格遵循编码规范（使用 lazygophers 工具包）
-- 高度独立（无内部依赖）
-- 职责单一（只提供基础工具）
-- 规范的错误处理和日志记录
+- 与 Fire 项目算法一致
+- 严格遵循编码规范
+- 高度独立（可被外部引用）
+- 完善的代码注释
 
 详见：[node/README.md](node/README.md)
 
@@ -95,37 +95,49 @@ q.Process(5, func(msg *queue.Message[string]) (*queue.RetryInfo, error) {
 })
 ```
 
-### Node 节点工具
+### Node 节点管理
 
 ```go
-import "github.com/darabuchi/prism/pkg/node"
+import (
+    "context"
+    "github.com/darabuchi/prism"
+    "github.com/darabuchi/prism/pkg/node"
+    "github.com/metacubex/mihomo/constant"
+)
 
-// 节点配置
+// 从 Clash 配置创建节点（自动创建 Mihomo 适配器）
 config := map[string]any{
     "name":   "香港节点",
-    "type":   "vmess",
+    "type":   string(prism.TypeVMess),
     "server": "hk.example.com",
     "port":   443,
     "uuid":   "xxx-xxx-xxx",
 }
 
-// 生成节点 ID（SHA256 哈希）
-id, err := node.GenerateID(config)
+n, err := node.NewNode(config)
 if err != nil {
     log.Errorf("err:%v", err)
     return
 }
 
-// 生成唯一键（type://server:port）
-uniqueKey, err := node.GenerateUniqueKey(config)
+// 获取节点信息
+log.Infof("节点 ID: %s", n.UniqueId())
+log.Infof("节点名称: %s", n.Name())
+log.Infof("节点类型: %s", n.ProxyType())
+log.Infof("服务器: %s:%d", n.Server(), n.Port())
+
+// 使用节点建立代理连接
+metadata := &constant.Metadata{
+    Host:    "example.com",
+    DstPort: 443,
+    NetWork: constant.TCP,
+}
+conn, err := n.DialContext(context.Background(), metadata)
 if err != nil {
     log.Errorf("err:%v", err)
     return
 }
-
-// 配置编解码
-encoded, err := node.EncodeConfig(config)
-decoded, err := node.DecodeConfig(encoded)
+defer conn.Close()
 ```
 
 ### Parser 订阅解析器
