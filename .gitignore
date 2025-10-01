@@ -72,3 +72,5 @@ pkg/mihomo/*.zip
 # Data directories
 data/
 logs/
+
+coverage.html
