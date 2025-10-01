@@ -67,7 +67,7 @@ The project consists of two main layers:
    - Subscription management and automated updates
    - Multi-dimensional node testing (latency, speed, unlock detection, geo-location, route quality)
    - Intelligent node scoring and selection algorithms
-   - RESTful API and WebSocket event system
+   - RESTful API, WebSocket and SSE (Server-Sent Events) for real-time updates
    - Task queue for background operations
    - Database persistence (SQLite/MySQL + BBolt cache)
 
@@ -79,7 +79,7 @@ The project consists of two main layers:
 - Implements circuit breaker pattern for node health tracking
 - Maintains session persistence and blocklist for failed connections
 - Mixed port (HTTP + SOCKS5, default: 7899) and optional TUN interface
-- **MITM Support**: HTTP/HTTPS traffic interception with dynamic certificate generation, request/response modification, and JavaScript scripting API (see `docs/产品功能文档.md` Section 5.2)
+- **MITM Support**: HTTP/HTTPS traffic interception with dynamic certificate generation, request/response modification, and JavaScript scripting API (see `docs/产品设计文档.md` Section 5.2)
 
 **Routing Engine:**
 - Rule types: Domain, DomainSuffix, DomainKeyword, DomainRegex, GEOIP, IPCIDR, Process, ProcessPath
@@ -285,9 +285,9 @@ The system exposes comprehensive RESTful APIs for:
 - Configuration updates
 - Real-time connection monitoring
 - Rule matching simulation
-- WebSocket events for live updates
+- WebSocket and SSE (Server-Sent Events) for real-time updates
 
-See 产品功能文档.md sections 9.1-9.8 for detailed API documentation.
+See 产品设计文档.md sections 9.1-9.8 for detailed API documentation.
 
 ## Common Gotchas
 
@@ -302,4 +302,4 @@ See 产品功能文档.md sections 9.1-9.8 for detailed API documentation.
 
 - Mihomo Documentation: https://wiki.metacubex.one/
 - Mihomo Dashboard: https://github.com/MetaCubeX/metacubexd
-- Product Documentation: See 产品功能文档.md (Chinese) for comprehensive system behavior documentation
+- Product Documentation: See 产品设计文档.md (Chinese) for comprehensive platform support, deployment options and system behavior documentation
