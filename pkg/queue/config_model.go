@@ -2,37 +2,40 @@ package queue
 
 import (
 	"encoding/json"
+	"fmt"
+	"sync"
 	"time"
 )
 
-// QueueConfig 队列配置数据库模型
+// QueueConfig 队列配置数据库模型（无 ORM 依赖）
 type QueueConfig struct {
-	ID        int64     `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Name      string    `gorm:"column:name;uniqueIndex;type:varchar(100);not null" json:"name" validate:"required,min=1,max=100"`
-	Type      Type      `gorm:"column:type;type:varchar(20);not null" json:"type" validate:"required,oneof=memory redis nsq kafka rabbitmq zeromq"`
-	Address   string    `gorm:"column:address;type:varchar(500)" json:"address" validate:"required_unless=Type memory"`
-	Timeout   int       `gorm:"column:timeout;default:30" json:"timeout" validate:"min=1,max=300"`
-	MaxDepth  int       `gorm:"column:max_depth;default:10000" json:"max_depth" validate:"min=0"`
-	Enabled   bool      `gorm:"column:enabled;default:true" json:"enabled"`
+	ID        int64     `json:"id" db:"id"`
+	Name      string    `json:"name" db:"name" validate:"required,min=1,max=100"`
+	Type      Type      `json:"type" db:"type" validate:"required,oneof=memory redis nsq kafka rabbitmq zeromq"`
+	Address   string    `json:"address" db:"address"`
+	Timeout   int       `json:"timeout" db:"timeout" validate:"min=1,max=300"`
+	MaxDepth  int       `json:"max_depth" db:"max_depth" validate:"min=0"`
+	Enabled   bool      `json:"enabled" db:"enabled"`
 
 	// 重试策略（JSON 存储）
-	RetryPolicyJSON string `gorm:"column:retry_policy;type:text" json:"-"`
+	RetryPolicyJSON string `json:"-" db:"retry_policy"`
 
 	// 延时队列配置
-	EnableDelayedQueue bool `gorm:"column:enable_delayed_queue;default:false" json:"enable_delayed_queue"`
-	DelayCheckInterval int  `gorm:"column:delay_check_interval;default:1000" json:"delay_check_interval" validate:"min=100"`
+	EnableDelayedQueue bool `json:"enable_delayed_queue" db:"enable_delayed_queue"`
+	DelayCheckInterval int  `json:"delay_check_interval" db:"delay_check_interval" validate:"min=100"`
 
 	// 扩展配置（JSON 存储）
-	OptionsJSON string `gorm:"column:options;type:text" json:"-"`
+	OptionsJSON string `json:"-" db:"options"`
 
 	// 描述和元信息
-	Description string    `gorm:"column:description;type:varchar(500)" json:"description"`
-	CreatedAt   time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
+	Description string    `json:"description" db:"description" validate:"max=500"`
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 
-	// 运行时字段（不存储到数据库）
-	retryPolicy *RetryPolicy           `gorm:"-" json:"retry_policy,omitempty"`
-	options     map[string]interface{} `gorm:"-" json:"options,omitempty"`
+	// 运行时字段（不存储到数据库）- 并发安全
+	mu          sync.RWMutex
+	retryPolicy *RetryPolicy
+	options     map[string]interface{}
 }
 
 // TableName 指定表名
@@ -42,6 +45,9 @@ func (QueueConfig) TableName() string {
 
 // ToConfig 转换为运行时配置
 func (qc *QueueConfig) ToConfig() (*Config, error) {
+	qc.mu.RLock()
+	defer qc.mu.RUnlock()
+
 	cfg := &Config{
 		Type:               qc.Type,
 		Address:            qc.Address,
@@ -106,8 +112,21 @@ func FromConfig(name string, cfg *Config) (*QueueConfig, error) {
 	return qc, nil
 }
 
-// GetRetryPolicy 获取重试策略
+// GetRetryPolicy 获取重试策略（并发安全）
 func (qc *QueueConfig) GetRetryPolicy() (*RetryPolicy, error) {
+	qc.mu.RLock()
+	if qc.retryPolicy != nil {
+		policy := qc.retryPolicy
+		qc.mu.RUnlock()
+		return policy, nil
+	}
+	qc.mu.RUnlock()
+
+	// 升级为写锁
+	qc.mu.Lock()
+	defer qc.mu.Unlock()
+
+	// 双重检查
 	if qc.retryPolicy != nil {
 		return qc.retryPolicy, nil
 	}
@@ -125,8 +144,11 @@ func (qc *QueueConfig) GetRetryPolicy() (*RetryPolicy, error) {
 	return qc.retryPolicy, nil
 }
 
-// SetRetryPolicy 设置重试策略
+// SetRetryPolicy 设置重试策略（并发安全）
 func (qc *QueueConfig) SetRetryPolicy(policy *RetryPolicy) error {
+	qc.mu.Lock()
+	defer qc.mu.Unlock()
+
 	qc.retryPolicy = policy
 
 	if policy == nil {
@@ -143,10 +165,31 @@ func (qc *QueueConfig) SetRetryPolicy(policy *RetryPolicy) error {
 	return nil
 }
 
-// GetOptions 获取扩展配置
+// GetOptions 获取扩展配置（并发安全）
 func (qc *QueueConfig) GetOptions() (map[string]interface{}, error) {
+	qc.mu.RLock()
 	if qc.options != nil {
-		return qc.options, nil
+		// 返回副本以避免外部修改
+		optionsCopy := make(map[string]interface{}, len(qc.options))
+		for k, v := range qc.options {
+			optionsCopy[k] = v
+		}
+		qc.mu.RUnlock()
+		return optionsCopy, nil
+	}
+	qc.mu.RUnlock()
+
+	// 升级为写锁
+	qc.mu.Lock()
+	defer qc.mu.Unlock()
+
+	// 双重检查
+	if qc.options != nil {
+		optionsCopy := make(map[string]interface{}, len(qc.options))
+		for k, v := range qc.options {
+			optionsCopy[k] = v
+		}
+		return optionsCopy, nil
 	}
 
 	if qc.OptionsJSON == "" {
@@ -159,12 +202,29 @@ func (qc *QueueConfig) GetOptions() (map[string]interface{}, error) {
 	}
 
 	qc.options = options
-	return qc.options, nil
+
+	// 返回副本
+	optionsCopy := make(map[string]interface{}, len(options))
+	for k, v := range options {
+		optionsCopy[k] = v
+	}
+	return optionsCopy, nil
 }
 
-// SetOptions 设置扩展配置
+// SetOptions 设置扩展配置（并发安全）
 func (qc *QueueConfig) SetOptions(options map[string]interface{}) error {
-	qc.options = options
+	qc.mu.Lock()
+	defer qc.mu.Unlock()
+
+	// 存储副本
+	if options != nil {
+		qc.options = make(map[string]interface{}, len(options))
+		for k, v := range options {
+			qc.options[k] = v
+		}
+	} else {
+		qc.options = nil
+	}
 
 	if options == nil {
 		qc.OptionsJSON = ""
@@ -177,5 +237,80 @@ func (qc *QueueConfig) SetOptions(options map[string]interface{}) error {
 	}
 
 	qc.OptionsJSON = string(optionsJSON)
+	return nil
+}
+
+// AfterLoad 加载后钩子 - 预解析 JSON 字段
+func (qc *QueueConfig) AfterLoad() error {
+	qc.mu.Lock()
+	defer qc.mu.Unlock()
+
+	// 预解析重试策略
+	if qc.RetryPolicyJSON != "" && qc.retryPolicy == nil {
+		var policy RetryPolicy
+		if err := json.Unmarshal([]byte(qc.RetryPolicyJSON), &policy); err != nil {
+			return err
+		}
+		qc.retryPolicy = &policy
+	}
+
+	// 预解析扩展配置
+	if qc.OptionsJSON != "" && qc.options == nil {
+		var options map[string]interface{}
+		if err := json.Unmarshal([]byte(qc.OptionsJSON), &options); err != nil {
+			return err
+		}
+		qc.options = options
+	}
+
+	return nil
+}
+
+// BeforeSave 保存前钩子 - 序列化缓存字段
+func (qc *QueueConfig) BeforeSave() error {
+	qc.mu.RLock()
+	defer qc.mu.RUnlock()
+
+	// 序列化重试策略
+	if qc.retryPolicy != nil {
+		policyJSON, err := json.Marshal(qc.retryPolicy)
+		if err != nil {
+			return err
+		}
+		qc.RetryPolicyJSON = string(policyJSON)
+	}
+
+	// 序列化扩展配置
+	if qc.options != nil {
+		optionsJSON, err := json.Marshal(qc.options)
+		if err != nil {
+			return err
+		}
+		qc.OptionsJSON = string(optionsJSON)
+	}
+
+	return nil
+}
+
+// Validate 验证配置
+func (qc *QueueConfig) Validate() error {
+	// 使用 validator 进行结构化验证
+	if err := ValidateStruct(qc); err != nil {
+		return err
+	}
+
+	// 额外的业务逻辑验证
+	if qc.Name == "" {
+		return fmt.Errorf("queue name is required")
+	}
+
+	if !qc.Type.IsValid() {
+		return fmt.Errorf("invalid queue type: %s", qc.Type)
+	}
+
+	if qc.Type != TypeMemory && qc.Address == "" {
+		return fmt.Errorf("address is required for queue type: %s", qc.Type)
+	}
+
 	return nil
 }

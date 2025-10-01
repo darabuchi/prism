@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"fmt"
 	"math"
 	"time"
 )
@@ -40,22 +41,22 @@ func (s RetryStrategy) String() string {
 // RetryPolicy 重试策略配置
 type RetryPolicy struct {
 	// 重试策略类型
-	Strategy RetryStrategy `json:"strategy" yaml:"strategy" validate:"required,oneof=none fixed linear exponential" default:"exponential"`
+	Strategy RetryStrategy `json:"strategy" yaml:"strategy" validate:"required,oneof=none fixed linear exponential"`
 
 	// 最大重试次数（0 表示不限制）
-	MaxRetries int `json:"max_retries" yaml:"max_retries" validate:"min=0" default:"3"`
+	MaxRetries int `json:"max_retries" yaml:"max_retries" validate:"min=0"`
 
 	// 初始延迟（毫秒）
-	InitialDelay int `json:"initial_delay" yaml:"initial_delay" validate:"min=0" default:"1000"`
+	InitialDelay int `json:"initial_delay" yaml:"initial_delay" validate:"min=0"`
 
 	// 最大延迟（毫秒，0 表示不限制）
-	MaxDelay int `json:"max_delay" yaml:"max_delay" validate:"min=0" default:"60000"`
+	MaxDelay int `json:"max_delay" yaml:"max_delay" validate:"min=0"`
 
 	// 延迟倍数（指数退避时使用）
-	Multiplier float64 `json:"multiplier" yaml:"multiplier" validate:"min=1" default:"2.0"`
+	Multiplier float64 `json:"multiplier" yaml:"multiplier" validate:"min=1"`
 
 	// 增量（线性递增时使用，毫秒）
-	Increment int `json:"increment" yaml:"increment" validate:"min=0" default:"1000"`
+	Increment int `json:"increment" yaml:"increment" validate:"min=0"`
 }
 
 // ApplyDefaults 应用默认值
@@ -82,20 +83,14 @@ func (p *RetryPolicy) ApplyDefaults() {
 
 // Validate 验证重试策略配置
 func (p *RetryPolicy) Validate() error {
+	// 使用 validator 进行结构化验证
+	if err := ValidateStruct(p); err != nil {
+		return err
+	}
+
+	// 额外的业务逻辑验证
 	if !p.Strategy.IsValid() {
-		return ErrInvalidConfig
-	}
-
-	if p.MaxRetries < 0 {
-		return ErrInvalidConfig
-	}
-
-	if p.InitialDelay < 0 {
-		return ErrInvalidConfig
-	}
-
-	if p.Multiplier < 1 {
-		return ErrInvalidConfig
+		return fmt.Errorf("invalid retry strategy: %s", p.Strategy)
 	}
 
 	return nil

@@ -1,6 +1,9 @@
 package queue
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // Type 队列类型枚举
 type Type string
@@ -45,17 +48,24 @@ type Message[T any] struct {
 func (m *Message[T]) IsReady() bool {
 	now := time.Now()
 
-	// 检查延时执行时间
-	if !m.DelayUntil.IsZero() && now.Before(m.DelayUntil) {
-		return false
+	// 取 DelayUntil 和 NextRetryAt 的最大值
+	maxTime := m.DelayUntil
+	if m.NextRetryAt.After(maxTime) {
+		maxTime = m.NextRetryAt
 	}
 
-	// 检查重试时间
-	if !m.NextRetryAt.IsZero() && now.Before(m.NextRetryAt) {
-		return false
-	}
+	// 如果最大时间为零值或已过期，则准备好
+	return maxTime.IsZero() || !now.Before(maxTime)
+}
 
-	return true
+// Age 返回消息的年龄（从创建到现在的时长）
+func (m *Message[T]) Age() time.Duration {
+	return time.Since(m.Timestamp)
+}
+
+// HasFailed 判断消息是否有失败记录
+func (m *Message[T]) HasFailed() bool {
+	return m.LastError != nil
 }
 
 // ShouldRetry 判断是否应该重试
@@ -90,25 +100,25 @@ func (m *Message[T]) CalculateNextRetry(defaultPolicy *RetryPolicy) {
 // Config 队列配置
 type Config struct {
 	// 队列类型
-	Type Type `json:"type" yaml:"type" validate:"required,oneof=memory redis nsq kafka rabbitmq zeromq" default:"memory"`
+	Type Type `json:"type" yaml:"type" validate:"required,oneof=memory redis nsq kafka rabbitmq zeromq"`
 
 	// 连接地址
-	Address string `json:"address" yaml:"address" validate:"required_unless=Type memory" default:""`
+	Address string `json:"address" yaml:"address"`
 
 	// 操作超时（秒）
-	Timeout int `json:"timeout" yaml:"timeout" validate:"min=1,max=300" default:"30"`
+	Timeout int `json:"timeout" yaml:"timeout" validate:"min=1,max=300"`
 
 	// 队列最大深度（0 表示无限制）
-	MaxDepth int `json:"max_depth" yaml:"max_depth" validate:"min=0" default:"10000"`
+	MaxDepth int `json:"max_depth" yaml:"max_depth" validate:"min=0"`
 
 	// 默认重试策略
 	RetryPolicy *RetryPolicy `json:"retry_policy,omitempty" yaml:"retry_policy,omitempty"`
 
 	// 是否启用延时队列
-	EnableDelayedQueue bool `json:"enable_delayed_queue" yaml:"enable_delayed_queue" default:"false"`
+	EnableDelayedQueue bool `json:"enable_delayed_queue" yaml:"enable_delayed_queue"`
 
 	// 延时队列检查间隔（毫秒）
-	DelayCheckInterval int `json:"delay_check_interval" yaml:"delay_check_interval" validate:"min=100" default:"1000"`
+	DelayCheckInterval int `json:"delay_check_interval" yaml:"delay_check_interval" validate:"min=100"`
 
 	// 类型特定配置
 	Options map[string]interface{} `json:"options,omitempty" yaml:"options,omitempty"`
@@ -116,20 +126,25 @@ type Config struct {
 
 // Validate 验证配置
 func (c *Config) Validate() error {
+	// 使用 validator 进行结构化验证
+	if err := ValidateStruct(c); err != nil {
+		return err
+	}
+
+	// 额外的业务逻辑验证
 	if !c.Type.IsValid() {
-		return ErrInvalidConfig
+		return fmt.Errorf("invalid queue type: %s", c.Type)
 	}
 
 	if c.Type != TypeMemory && c.Address == "" {
-		return ErrInvalidConfig
+		return fmt.Errorf("address is required for queue type: %s", c.Type)
 	}
 
-	if c.MaxRetry < 0 {
-		return ErrInvalidConfig
-	}
-
-	if c.Timeout < 1 {
-		return ErrInvalidConfig
+	// 验证重试策略
+	if c.RetryPolicy != nil {
+		if err := c.RetryPolicy.Validate(); err != nil {
+			return fmt.Errorf("invalid retry policy: %w", err)
+		}
 	}
 
 	return nil

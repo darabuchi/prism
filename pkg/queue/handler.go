@@ -51,3 +51,8 @@ func RetryWithDelay(delay time.Duration, err error) *HandlerResult {
 func (r *HandlerResult) ShouldRetry() bool {
 	return r != nil && r.Retry
 }
+
+// IsSuccess 判断是否成功（无错误且不重试）
+func (r *HandlerResult) IsSuccess() bool {
+	return r != nil && !r.Retry && r.Error == nil
+}
