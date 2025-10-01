@@ -15,26 +15,65 @@ import (
 	"github.com/metacubex/mihomo/constant"
 )
 
+// IPMetadata IP 元数据
+type IPMetadata struct {
+	Country     string  // 国家
+	CountryCode string  // 国家代码
+	Region      string  // 地区/省份
+	RegionCode  string  // 地区代码
+	City        string  // 城市
+	Timezone    string  // 时区
+	ISP         string  // ISP 供应商
+	Org         string  // 组织
+	AS          string  // AS 号（如 "AS15169"）
+	ASN         int     // ASN 数字
+	ASName      string  // AS 名称
+	Latitude    float64 // 纬度
+	Longitude   float64 // 经度
+	Postal      string  // 邮编
+	Colo        string  // Cloudflare colo
+	Loc         string  // 位置
+}
+
 // IPLookupResult IP 查询结果
 type IPLookupResult struct {
-	IP     string        // IP 地址
-	Source string        // 来源服务名称
-	Error  error         // 错误信息（如果查询失败）
-	Delay  time.Duration // 查询延迟
+	IP       string        // IP 地址
+	Source   string        // 来源服务名称
+	Error    error         // 错误信息（如果查询失败）
+	Delay    time.Duration // 查询延迟
+	Metadata *IPMetadata   // IP 元数据
 }
 
 // IPStatistics IP 统计结果
 type IPStatistics struct {
-	IP         string  // IP 地址
-	Count      int     // 出现次数
-	Percentage float64 // 占比（百分比）
+	IP         string   // IP 地址
+	Count      int      // 出现次数
+	Percentage float64  // 占比（百分比）
 	Sources    []string // 来源列表
+}
+
+// MetadataStatistics 元数据统计结果
+type MetadataStatistics struct {
+	Country     map[string]*FieldStatistics // 国家统计
+	Region      map[string]*FieldStatistics // 地区统计
+	City        map[string]*FieldStatistics // 城市统计
+	ISP         map[string]*FieldStatistics // ISP 统计
+	ASN         map[int]*FieldStatistics    // ASN 统计
+	Timezone    map[string]*FieldStatistics // 时区统计
+}
+
+// FieldStatistics 字段统计
+type FieldStatistics struct {
+	Value      interface{} // 字段值
+	Count      int         // 出现次数
+	Percentage float64     // 占比（百分比）
+	Sources    []string    // 来源列表
 }
 
 // IPLookupService IP 查询服务接口
 type IPLookupService struct {
-	Name string                                                     // 服务名称
-	Func func(ctx context.Context, n *Node) (string, error)        // 查询函数
+	Name string                                                              // 服务名称
+	Func func(ctx context.Context, n *Node) (string, *IPMetadata, error)    // 查询函数
 }
 
 // getAllIPLookupServices 获取所有 IP 查询服务
@@ -130,235 +169,373 @@ func (n *Node) doHTTPRequestForIP(ctx context.Context, url string) (string, erro
 }
 
 // lookupIPFromIPify 从 ipify.org 查询 IP
-func lookupIPFromIPify(ctx context.Context, n *Node) (string, error) {
-	return n.doHTTPRequestForIP(ctx, "https://api.ipify.org")
+func lookupIPFromIPify(ctx context.Context, n *Node) (string, *IPMetadata, error) {
+	ip, err := n.doHTTPRequestForIP(ctx, "https://api.ipify.org")
+	return ip, nil, err
 }
 
 // lookupIPFromAPIIPify 从 api.ipify.org (JSON) 查询 IP
-func lookupIPFromAPIIPify(ctx context.Context, n *Node) (string, error) {
+func lookupIPFromAPIIPify(ctx context.Context, n *Node) (string, *IPMetadata, error) {
 	client := n.createHTTPClientForIP(10 * time.Second)
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.ipify.org?format=json", nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", err
+		return "", nil, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	if ip, ok := result["ip"].(string); ok {
-		return ip, nil
+		return ip, nil, nil
 	}
 
-	return "", nil
+	return "", nil, nil
 }
 
 // lookupIPFromIcanhazip 从 icanhazip.com 查询 IP
-func lookupIPFromIcanhazip(ctx context.Context, n *Node) (string, error) {
-	return n.doHTTPRequestForIP(ctx, "https://icanhazip.com")
+func lookupIPFromIcanhazip(ctx context.Context, n *Node) (string, *IPMetadata, error) {
+	ip, err := n.doHTTPRequestForIP(ctx, "https://icanhazip.com")
+	return ip, nil, err
 }
 
 // lookupIPFromIfconfigMe 从 ifconfig.me 查询 IP
-func lookupIPFromIfconfigMe(ctx context.Context, n *Node) (string, error) {
-	return n.doHTTPRequestForIP(ctx, "https://ifconfig.me")
+func lookupIPFromIfconfigMe(ctx context.Context, n *Node) (string, *IPMetadata, error) {
+	ip, err := n.doHTTPRequestForIP(ctx, "https://ifconfig.me")
+	return ip, nil, err
 }
 
 // lookupIPFromIdentMe 从 ident.me 查询 IP
-func lookupIPFromIdentMe(ctx context.Context, n *Node) (string, error) {
-	return n.doHTTPRequestForIP(ctx, "https://ident.me")
+func lookupIPFromIdentMe(ctx context.Context, n *Node) (string, *IPMetadata, error) {
+	ip, err := n.doHTTPRequestForIP(ctx, "https://ident.me")
+	return ip, nil, err
 }
 
 // lookupIPFromAWS 从 AWS checkip 查询 IP
-func lookupIPFromAWS(ctx context.Context, n *Node) (string, error) {
-	return n.doHTTPRequestForIP(ctx, "https://checkip.amazonaws.com")
+func lookupIPFromAWS(ctx context.Context, n *Node) (string, *IPMetadata, error) {
+	ip, err := n.doHTTPRequestForIP(ctx, "https://checkip.amazonaws.com")
+	return ip, nil, err
 }
 
 // lookupIPFromIPEcho 从 ipecho.net 查询 IP
-func lookupIPFromIPEcho(ctx context.Context, n *Node) (string, error) {
-	return n.doHTTPRequestForIP(ctx, "https://ipecho.net/plain")
+func lookupIPFromIPEcho(ctx context.Context, n *Node) (string, *IPMetadata, error) {
+	ip, err := n.doHTTPRequestForIP(ctx, "https://ipecho.net/plain")
+	return ip, nil, err
 }
 
 // lookupIPFromMyIP 从 myip.com 查询 IP
-func lookupIPFromMyIP(ctx context.Context, n *Node) (string, error) {
+func lookupIPFromMyIP(ctx context.Context, n *Node) (string, *IPMetadata, error) {
 	client := n.createHTTPClientForIP(10 * time.Second)
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.myip.com", nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", err
+		return "", nil, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		return "", err
+		return "", nil, err
 	}
+
+	metadata := &IPMetadata{}
 
 	if ip, ok := result["ip"].(string); ok {
-		return ip, nil
+		if country, ok := result["country"].(string); ok {
+			metadata.Country = country
+		}
+		if cc, ok := result["cc"].(string); ok {
+			metadata.CountryCode = cc
+		}
+		return ip, metadata, nil
 	}
 
-	return "", nil
+	return "", nil, nil
 }
 
 // lookupIPFromIPAPI 从 ip-api.com 查询 IP
-func lookupIPFromIPAPI(ctx context.Context, n *Node) (string, error) {
+func lookupIPFromIPAPI(ctx context.Context, n *Node) (string, *IPMetadata, error) {
 	client := n.createHTTPClientForIP(10 * time.Second)
 	req, err := http.NewRequestWithContext(ctx, "GET", "http://ip-api.com/json/", nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", err
+		return "", nil, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		return "", err
+		return "", nil, err
 	}
+
+	metadata := &IPMetadata{}
 
 	if ip, ok := result["query"].(string); ok {
-		return ip, nil
+		// 解析国家信息
+		if country, ok := result["country"].(string); ok {
+			metadata.Country = country
+		}
+		if countryCode, ok := result["countryCode"].(string); ok {
+			metadata.CountryCode = countryCode
+		}
+
+		// 解析地区信息
+		if region, ok := result["regionName"].(string); ok {
+			metadata.Region = region
+		}
+		if regionCode, ok := result["region"].(string); ok {
+			metadata.RegionCode = regionCode
+		}
+
+		// 解析城市
+		if city, ok := result["city"].(string); ok {
+			metadata.City = city
+		}
+
+		// 解析 ISP 和组织
+		if isp, ok := result["isp"].(string); ok {
+			metadata.ISP = isp
+		}
+		if org, ok := result["org"].(string); ok {
+			metadata.Org = org
+		}
+		if as, ok := result["as"].(string); ok {
+			metadata.AS = as
+			// 尝试解析 ASN 数字
+			if strings.HasPrefix(as, "AS") {
+				if asn := candy.ToInt(strings.TrimPrefix(as, "AS")); asn > 0 {
+					metadata.ASN = asn
+				}
+			}
+		}
+
+		// 解析坐标
+		if lat, ok := result["lat"].(float64); ok {
+			metadata.Latitude = lat
+		}
+		if lon, ok := result["lon"].(float64); ok {
+			metadata.Longitude = lon
+		}
+
+		// 解析时区
+		if timezone, ok := result["timezone"].(string); ok {
+			metadata.Timezone = timezone
+		}
+
+		// 解析邮编
+		if zip, ok := result["zip"].(string); ok {
+			metadata.Postal = zip
+		}
+
+		return ip, metadata, nil
 	}
 
-	return "", nil
+	return "", nil, nil
 }
 
 // lookupIPFromIPInfo 从 ipinfo.io 查询 IP
-func lookupIPFromIPInfo(ctx context.Context, n *Node) (string, error) {
+func lookupIPFromIPInfo(ctx context.Context, n *Node) (string, *IPMetadata, error) {
 	client := n.createHTTPClientForIP(10 * time.Second)
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://ipinfo.io/json", nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", err
+		return "", nil, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		return "", err
+		return "", nil, err
 	}
+
+	metadata := &IPMetadata{}
 
 	if ip, ok := result["ip"].(string); ok {
-		return ip, nil
+		// 解析城市
+		if city, ok := result["city"].(string); ok {
+			metadata.City = city
+		}
+
+		// 解析地区
+		if region, ok := result["region"].(string); ok {
+			metadata.Region = region
+		}
+
+		// 解析国家
+		if country, ok := result["country"].(string); ok {
+			metadata.CountryCode = country // ipinfo.io 返回的是代码
+		}
+
+		// 解析位置
+		if loc, ok := result["loc"].(string); ok {
+			metadata.Loc = loc
+			// loc 格式为 "latitude,longitude"
+			parts := strings.Split(loc, ",")
+			if len(parts) == 2 {
+				metadata.Latitude = candy.ToFloat64(parts[0])
+				metadata.Longitude = candy.ToFloat64(parts[1])
+			}
+		}
+
+		// 解析组织/ASN
+		if org, ok := result["org"].(string); ok {
+			metadata.Org = org
+			// org 格式通常为 "AS15169 Google LLC"
+			parts := strings.Fields(org)
+			if len(parts) > 0 && strings.HasPrefix(parts[0], "AS") {
+				metadata.AS = parts[0]
+				if asn := candy.ToInt(strings.TrimPrefix(parts[0], "AS")); asn > 0 {
+					metadata.ASN = asn
+				}
+				if len(parts) > 1 {
+					metadata.ASName = strings.Join(parts[1:], " ")
+				}
+			}
+		}
+
+		// 解析邮编
+		if postal, ok := result["postal"].(string); ok {
+			metadata.Postal = postal
+		}
+
+		// 解析时区
+		if timezone, ok := result["timezone"].(string); ok {
+			metadata.Timezone = timezone
+		}
+
+		return ip, metadata, nil
 	}
 
-	return "", nil
+	return "", nil, nil
 }
 
 // lookupIPFromCloudflare 从 Cloudflare 查询 IP
-func lookupIPFromCloudflare(ctx context.Context, n *Node) (string, error) {
+func lookupIPFromCloudflare(ctx context.Context, n *Node) (string, *IPMetadata, error) {
 	client := n.createHTTPClientForIP(10 * time.Second)
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://1.1.1.1/cdn-cgi/trace", nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", err
+		return "", nil, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	// 解析 Cloudflare trace 格式: ip=x.x.x.x
+	metadata := &IPMetadata{}
+	var ip string
+
+	// 解析 Cloudflare trace 格式: ip=x.x.x.x, loc=XX, colo=XXX
 	lines := strings.Split(string(body), "\n")
 	for _, line := range lines {
+		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "ip=") {
-			return strings.TrimPrefix(line, "ip="), nil
+			ip = strings.TrimPrefix(line, "ip=")
+		} else if strings.HasPrefix(line, "loc=") {
+			metadata.CountryCode = strings.TrimPrefix(line, "loc=")
+		} else if strings.HasPrefix(line, "colo=") {
+			metadata.Colo = strings.TrimPrefix(line, "colo=")
 		}
 	}
 
-	return "", nil
+	if ip != "" {
+		return ip, metadata, nil
+	}
+
+	return "", nil, nil
 }
 
 // lookupIPFromGoogleDNS 从 Google DNS 查询 IP
-func lookupIPFromGoogleDNS(ctx context.Context, n *Node) (string, error) {
+func lookupIPFromGoogleDNS(ctx context.Context, n *Node) (string, *IPMetadata, error) {
 	client := n.createHTTPClientForIP(10 * time.Second)
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://dns.google/resolve?name=o-o.myaddr.l.google.com&type=TXT", nil)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", err
+		return "", nil, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	// 从 DNS TXT 记录中提取 IP
@@ -376,18 +553,18 @@ func lookupIPFromGoogleDNS(ctx context.Context, n *Node) (string, error) {
 						// 移除 CIDR 后缀 /24
 						ipWithCIDR := parts[1]
 						if idx := strings.Index(ipWithCIDR, "/"); idx != -1 {
-							return ipWithCIDR[:idx], nil
+							return ipWithCIDR[:idx], nil, nil
 						}
-						return ipWithCIDR, nil
+						return ipWithCIDR, nil, nil
 					}
 				}
 
-				return data, nil
+				return data, nil, nil
 			}
 		}
 	}
 
-	return "", nil
+	return "", nil, nil
 }
 
 // GetIP 获取节点的出口 IP 地址（单次查询）
@@ -400,8 +577,9 @@ func lookupIPFromGoogleDNS(ctx context.Context, n *Node) (string, error) {
 //
 // 返回:
 //   - string: IP 地址
+//   - *IPMetadata: IP 元数据
 //   - error: 查询失败时返回错误
-func (n *Node) GetIP(ctx context.Context, serviceName string) (string, error) {
+func (n *Node) GetIP(ctx context.Context, serviceName string) (string, *IPMetadata, error) {
 	services := getAllIPLookupServices()
 
 	if serviceName == "" {
@@ -428,8 +606,9 @@ func (n *Node) GetIP(ctx context.Context, serviceName string) (string, error) {
 // 返回:
 //   - []IPLookupResult: 所有查询结果
 //   - []IPStatistics: IP 统计结果（按出现次数降序排列）
+//   - *MetadataStatistics: 元数据统计结果
 //   - error: 查询失败时返回错误
-func (n *Node) GetIPConcurrent(ctx context.Context) ([]IPLookupResult, []IPStatistics, error) {
+func (n *Node) GetIPConcurrent(ctx context.Context) ([]IPLookupResult, []IPStatistics, *MetadataStatistics, error) {
 	services := getAllIPLookupServices()
 	results := make([]IPLookupResult, len(services))
 
@@ -442,14 +621,15 @@ func (n *Node) GetIPConcurrent(ctx context.Context) ([]IPLookupResult, []IPStati
 			defer wg.Done()
 
 			start := time.Now()
-			ip, err := svc.Func(ctx, n)
+			ip, metadata, err := svc.Func(ctx, n)
 			delay := time.Since(start)
 
 			results[index] = IPLookupResult{
-				IP:     ip,
-				Source: svc.Name,
-				Error:  err,
-				Delay:  delay,
+				IP:       ip,
+				Source:   svc.Name,
+				Error:    err,
+				Delay:    delay,
+				Metadata: metadata,
 			}
 
 			if err != nil {
@@ -464,9 +644,12 @@ func (n *Node) GetIPConcurrent(ctx context.Context) ([]IPLookupResult, []IPStati
 	wg.Wait()
 
 	// 统计 IP 出现次数
-	statistics := calculateIPStatistics(results)
+	ipStats := calculateIPStatistics(results)
 
-	return results, statistics, nil
+	// 统计元数据
+	metadataStats := calculateMetadataStatistics(results)
+
+	return results, ipStats, metadataStats, nil
 }
 
 // calculateIPStatistics 计算 IP 统计信息
@@ -513,4 +696,134 @@ func calculateIPStatistics(results []IPLookupResult) []IPStatistics {
 	}
 
 	return statistics
+}
+
+// calculateMetadataStatistics 计算元数据统计信息
+func calculateMetadataStatistics(results []IPLookupResult) *MetadataStatistics {
+	stats := &MetadataStatistics{
+		Country:  make(map[string]*FieldStatistics),
+		Region:   make(map[string]*FieldStatistics),
+		City:     make(map[string]*FieldStatistics),
+		ISP:      make(map[string]*FieldStatistics),
+		ASN:      make(map[int]*FieldStatistics),
+		Timezone: make(map[string]*FieldStatistics),
+	}
+
+	totalSuccess := 0
+
+	// 统计每个元数据字段
+	for _, result := range results {
+		if result.Error != nil || result.Metadata == nil {
+			continue
+		}
+
+		totalSuccess++
+		metadata := result.Metadata
+
+		// 统计国家
+		if metadata.Country != "" {
+			if _, exists := stats.Country[metadata.Country]; !exists {
+				stats.Country[metadata.Country] = &FieldStatistics{
+					Value:   metadata.Country,
+					Sources: make([]string, 0),
+				}
+			}
+			stats.Country[metadata.Country].Count++
+			stats.Country[metadata.Country].Sources = append(stats.Country[metadata.Country].Sources, result.Source)
+		} else if metadata.CountryCode != "" {
+			// 使用国家代码作为备选
+			if _, exists := stats.Country[metadata.CountryCode]; !exists {
+				stats.Country[metadata.CountryCode] = &FieldStatistics{
+					Value:   metadata.CountryCode,
+					Sources: make([]string, 0),
+				}
+			}
+			stats.Country[metadata.CountryCode].Count++
+			stats.Country[metadata.CountryCode].Sources = append(stats.Country[metadata.CountryCode].Sources, result.Source)
+		}
+
+		// 统计地区
+		if metadata.Region != "" {
+			if _, exists := stats.Region[metadata.Region]; !exists {
+				stats.Region[metadata.Region] = &FieldStatistics{
+					Value:   metadata.Region,
+					Sources: make([]string, 0),
+				}
+			}
+			stats.Region[metadata.Region].Count++
+			stats.Region[metadata.Region].Sources = append(stats.Region[metadata.Region].Sources, result.Source)
+		}
+
+		// 统计城市
+		if metadata.City != "" {
+			if _, exists := stats.City[metadata.City]; !exists {
+				stats.City[metadata.City] = &FieldStatistics{
+					Value:   metadata.City,
+					Sources: make([]string, 0),
+				}
+			}
+			stats.City[metadata.City].Count++
+			stats.City[metadata.City].Sources = append(stats.City[metadata.City].Sources, result.Source)
+		}
+
+		// 统计 ISP
+		if metadata.ISP != "" {
+			if _, exists := stats.ISP[metadata.ISP]; !exists {
+				stats.ISP[metadata.ISP] = &FieldStatistics{
+					Value:   metadata.ISP,
+					Sources: make([]string, 0),
+				}
+			}
+			stats.ISP[metadata.ISP].Count++
+			stats.ISP[metadata.ISP].Sources = append(stats.ISP[metadata.ISP].Sources, result.Source)
+		}
+
+		// 统计 ASN
+		if metadata.ASN > 0 {
+			if _, exists := stats.ASN[metadata.ASN]; !exists {
+				stats.ASN[metadata.ASN] = &FieldStatistics{
+					Value:   metadata.ASN,
+					Sources: make([]string, 0),
+				}
+			}
+			stats.ASN[metadata.ASN].Count++
+			stats.ASN[metadata.ASN].Sources = append(stats.ASN[metadata.ASN].Sources, result.Source)
+		}
+
+		// 统计时区
+		if metadata.Timezone != "" {
+			if _, exists := stats.Timezone[metadata.Timezone]; !exists {
+				stats.Timezone[metadata.Timezone] = &FieldStatistics{
+					Value:   metadata.Timezone,
+					Sources: make([]string, 0),
+				}
+			}
+			stats.Timezone[metadata.Timezone].Count++
+			stats.Timezone[metadata.Timezone].Sources = append(stats.Timezone[metadata.Timezone].Sources, result.Source)
+		}
+	}
+
+	// 计算每个字段的百分比
+	if totalSuccess > 0 {
+		for _, stat := range stats.Country {
+			stat.Percentage = float64(stat.Count) / float64(totalSuccess) * 100
+		}
+		for _, stat := range stats.Region {
+			stat.Percentage = float64(stat.Count) / float64(totalSuccess) * 100
+		}
+		for _, stat := range stats.City {
+			stat.Percentage = float64(stat.Count) / float64(totalSuccess) * 100
+		}
+		for _, stat := range stats.ISP {
+			stat.Percentage = float64(stat.Count) / float64(totalSuccess) * 100
+		}
+		for _, stat := range stats.ASN {
+			stat.Percentage = float64(stat.Count) / float64(totalSuccess) * 100
+		}
+		for _, stat := range stats.Timezone {
+			stat.Percentage = float64(stat.Count) / float64(totalSuccess) * 100
+		}
+	}
+
+	return stats
 }

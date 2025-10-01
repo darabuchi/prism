@@ -19,7 +19,7 @@ func TestGetIP(t *testing.T) {
 	defer cancel()
 
 	// Test default service (ipify)
-	ip, err := n.GetIP(ctx, "")
+	ip, metadata, err := n.GetIP(ctx, "")
 	if err != nil {
 		t.Logf("GetIP (default) failed: %v", err)
 		t.Skip("skipping IP lookup test")
@@ -31,6 +31,9 @@ func TestGetIP(t *testing.T) {
 	}
 
 	log.Infof("IP address (default): %s", ip)
+	if metadata != nil {
+		log.Infof("Metadata: %+v", metadata)
+	}
 }
 
 func TestGetIPWithSpecificService(t *testing.T) {
@@ -47,10 +50,12 @@ func TestGetIPWithSpecificService(t *testing.T) {
 		"icanhazip",
 		"ifconfig.me",
 		"ident.me",
+		"ip-api.com",
+		"ipinfo.io",
 	}
 
 	for _, serviceName := range services {
-		ip, err := n.GetIP(ctx, serviceName)
+		ip, metadata, err := n.GetIP(ctx, serviceName)
 		if err != nil {
 			t.Logf("GetIP (%s) failed: %v", serviceName, err)
 			continue
@@ -61,6 +66,14 @@ func TestGetIPWithSpecificService(t *testing.T) {
 		}
 
 		log.Infof("IP address (%s): %s", serviceName, ip)
+		if metadata != nil {
+			log.Infof("  Country: %s (%s)", metadata.Country, metadata.CountryCode)
+			log.Infof("  Region: %s", metadata.Region)
+			log.Infof("  City: %s", metadata.City)
+			log.Infof("  ISP: %s", metadata.ISP)
+			log.Infof("  ASN: %d (%s)", metadata.ASN, metadata.AS)
+			log.Infof("  Timezone: %s", metadata.Timezone)
+		}
 	}
 }
 
@@ -73,7 +86,7 @@ func TestGetIPConcurrent(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	results, statistics, err := n.GetIPConcurrent(ctx)
+	results, statistics, metadataStats, err := n.GetIPConcurrent(ctx)
 	if err != nil {
 		t.Fatalf("GetIPConcurrent failed: %v", err)
 	}
@@ -125,6 +138,53 @@ func TestGetIPConcurrent(t *testing.T) {
 			t.Error("statistics should be sorted by count in descending order")
 		}
 	}
+
+	// Display metadata statistics
+	if metadataStats != nil {
+		log.Infof("\nMetadata Statistics:")
+
+		if len(metadataStats.Country) > 0 {
+			log.Infof("  Country:")
+			for country, stat := range metadataStats.Country {
+				log.Infof("    %s: %d (%.2f%%) %v", country, stat.Count, stat.Percentage, stat.Sources)
+			}
+		}
+
+		if len(metadataStats.Region) > 0 {
+			log.Infof("  Region:")
+			for region, stat := range metadataStats.Region {
+				log.Infof("    %s: %d (%.2f%%) %v", region, stat.Count, stat.Percentage, stat.Sources)
+			}
+		}
+
+		if len(metadataStats.City) > 0 {
+			log.Infof("  City:")
+			for city, stat := range metadataStats.City {
+				log.Infof("    %s: %d (%.2f%%) %v", city, stat.Count, stat.Percentage, stat.Sources)
+			}
+		}
+
+		if len(metadataStats.ISP) > 0 {
+			log.Infof("  ISP:")
+			for isp, stat := range metadataStats.ISP {
+				log.Infof("    %s: %d (%.2f%%) %v", isp, stat.Count, stat.Percentage, stat.Sources)
+			}
+		}
+
+		if len(metadataStats.ASN) > 0 {
+			log.Infof("  ASN:")
+			for asn, stat := range metadataStats.ASN {
+				log.Infof("    %d: %d (%.2f%%) %v", asn, stat.Count, stat.Percentage, stat.Sources)
+			}
+		}
+
+		if len(metadataStats.Timezone) > 0 {
+			log.Infof("  Timezone:")
+			for tz, stat := range metadataStats.Timezone {
+				log.Infof("    %s: %d (%.2f%%) %v", tz, stat.Count, stat.Percentage, stat.Sources)
+			}
+		}
+	}
 }
 
 func TestGetIPConcurrentMultipleTimes(t *testing.T) {
@@ -143,7 +203,7 @@ func TestGetIPConcurrentMultipleTimes(t *testing.T) {
 	for i := 0; i < runs; i++ {
 		log.Infof("\n=== Run %d/%d ===", i+1, runs)
 
-		_, statistics, err := n.GetIPConcurrent(ctx)
+		_, statistics, _, err := n.GetIPConcurrent(ctx)
 		if err != nil {
 			t.Logf("GetIPConcurrent run %d failed: %v", i+1, err)
 			continue
@@ -181,7 +241,7 @@ func TestIPLookupWithCanceledContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
 
-	_, err = n.GetIP(ctx, "")
+	_, _, err = n.GetIP(ctx, "")
 	if err == nil {
 		t.Error("expected error when context is canceled")
 	}
@@ -201,7 +261,7 @@ func TestIPLookupWithTimeout(t *testing.T) {
 
 	time.Sleep(10 * time.Millisecond) // Wait for timeout
 
-	_, err = n.GetIP(ctx, "")
+	_, _, err = n.GetIP(ctx, "")
 	if err == nil {
 		t.Log("Note: Expected timeout error, but request might have completed very quickly")
 	} else {
@@ -235,7 +295,7 @@ func TestIPLookupIndividualServices(t *testing.T) {
 
 	successCount := 0
 	for _, serviceName := range services {
-		ip, err := n.GetIP(ctx, serviceName)
+		ip, metadata, err := n.GetIP(ctx, serviceName)
 		if err != nil {
 			log.Warnf("Service %s failed: %v", serviceName, err)
 			continue
@@ -247,6 +307,9 @@ func TestIPLookupIndividualServices(t *testing.T) {
 		}
 
 		log.Infof("Service %s: %s", serviceName, ip)
+		if metadata != nil && (metadata.Country != "" || metadata.City != "" || metadata.ASN > 0) {
+			log.Infof("  Metadata: Country=%s, City=%s, ASN=%d", metadata.Country, metadata.City, metadata.ASN)
+		}
 		successCount++
 	}
 
