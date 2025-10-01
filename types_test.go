@@ -356,6 +356,79 @@ func TestGeoIP_String(t *testing.T) {
 	}
 }
 
+func TestGeoIP_FillDerivedFields(t *testing.T) {
+	tests := []struct {
+		name          string
+		geoip         GeoIP
+		expectedAS    string
+		expectedIPVer int
+	}{
+		{
+			name: "填充 AS 字符串和 IP 版本",
+			geoip: GeoIP{
+				IP:     "8.8.8.8",
+				ASN:    15169,
+				ASName: "Google LLC",
+			},
+			expectedAS:    "AS15169 Google LLC",
+			expectedIPVer: 4,
+		},
+		{
+			name: "填充 AS 字符串（无 AS 名称）",
+			geoip: GeoIP{
+				IP:  "1.1.1.1",
+				ASN: 13335,
+			},
+			expectedAS:    "AS13335",
+			expectedIPVer: 4,
+		},
+		{
+			name: "填充 IPv6 版本",
+			geoip: GeoIP{
+				IP:     "2001:4860:4860::8888",
+				ASN:    15169,
+				ASName: "Google LLC",
+			},
+			expectedAS:    "AS15169 Google LLC",
+			expectedIPVer: 6,
+		},
+		{
+			name: "不覆盖已存在的值",
+			geoip: GeoIP{
+				IP:        "8.8.8.8",
+				IPVersion: 4,
+				ASN:       15169,
+				ASName:    "Google LLC",
+				AS:        "Custom AS",
+			},
+			expectedAS:    "Custom AS",
+			expectedIPVer: 4,
+		},
+		{
+			name: "无 ASN 时不填充",
+			geoip: GeoIP{
+				IP: "8.8.8.8",
+			},
+			expectedAS:    "",
+			expectedIPVer: 4,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.geoip.FillDerivedFields()
+
+			if tt.geoip.AS != tt.expectedAS {
+				t.Errorf("AS = %v, want %v", tt.geoip.AS, tt.expectedAS)
+			}
+
+			if tt.geoip.IPVersion != tt.expectedIPVer {
+				t.Errorf("IPVersion = %v, want %v", tt.geoip.IPVersion, tt.expectedIPVer)
+			}
+		})
+	}
+}
+
 func TestHealthState_String(t *testing.T) {
 	tests := []struct {
 		name     string
