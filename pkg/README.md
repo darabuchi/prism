@@ -32,19 +32,21 @@
 ### mihomo/ - Mihomo 代理核心
 第三方代理核心模块（git submodule）。
 
-### parser/ - 订阅解析器 🚧
-**规划中，暂未实现**
+### parser/ - 订阅解析器 ✅
+通用代理订阅解析器，支持多种订阅格式。
 
-- `clash.go`: Clash YAML 解析
-- `v2ray.go`: V2Ray JSON 解析
-- `surge.go`: Surge 配置解析
+**已实现：**
+- Clash YAML 格式解析
+- V2Ray Base64 链接解析
+- 逐行 JSON 格式解析
 
-### protocol/ - 协议实现 🚧
-**规划中，暂未实现**
+**核心特性：**
+- 自动格式识别
+- 18+ 种协议支持（SS、SSR、VMess、VLess、Trojan、Hysteria 等）
+- Mihomo 集成
+- 智能回退机制
 
-- `socks5/`: SOCKS5 协议
-- `http/`: HTTP 代理协议
-- `vmess/`: VMess 协议
+详见：[parser/README.md](parser/README.md)
 
 ## 设计原则
 
@@ -74,6 +76,31 @@ q.Process(5, func(msg *queue.Message[string]) (*queue.RetryInfo, error) {
     // 处理逻辑
     return nil, nil
 })
+```
+
+### Parser 订阅解析器
+
+```go
+import "github.com/darabuchi/prism/pkg/parser"
+
+// 解析订阅内容
+data := []byte(`
+proxies:
+  - name: "香港节点"
+    type: ss
+    server: hk.example.com
+    port: 443
+    cipher: aes-256-gcm
+    password: "password123"
+`)
+
+proxies, err := parser.Parse(data)
+if err != nil {
+    log.Errorf("解析失败: %v", err)
+    return
+}
+
+log.Infof("解析到 %d 个节点", len(proxies))
 ```
 
 ## 图标说明
