@@ -1,14 +1,13 @@
 package state
 
 import (
-	"github.com/darabuchi/prism/pkg/queue"
 	"github.com/lazygophers/log"
 )
 
 var (
-	// TODO: 定义具体的队列实例
-	// QueueSubscriptionUpdate *queue.MemoryQueue[*TaskSubscriptionUpdate]
-	// QueueNodeTest *queue.MemoryQueue[*TaskNodeTest]
+// TODO: 定义具体的队列实例
+// QueueSubscriptionUpdate *queue.MemoryQueue[*TaskSubscriptionUpdate]
+// QueueNodeTest *queue.MemoryQueue[*TaskNodeTest]
 )
 
 // InitQueue 初始化队列系统
