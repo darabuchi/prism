@@ -32,6 +32,24 @@
 ### mihomo/ - Mihomo 代理核心
 第三方代理核心模块（git submodule）。
 
+### node/ - 节点管理 ✅
+代理节点核心数据结构和操作方法。
+
+**已实现：**
+- 节点抽象和数据结构
+- 唯一标识生成（SHA256 + UniqueKey）
+- 配置编解码（Base64 JSON）
+- 状态管理（存活/启用/熔断器）
+- 测试结果结构（延迟/速度/解锁/地理）
+
+**核心特性：**
+- 18+ 种协议支持
+- 熔断器健康状态管理
+- 节点克隆和序列化
+- 无内部依赖
+
+详见：[node/README.md](node/README.md)
+
 ### parser/ - 订阅解析器 ✅
 通用代理订阅解析器，支持多种订阅格式。
 
@@ -76,6 +94,34 @@ q.Process(5, func(msg *queue.Message[string]) (*queue.RetryInfo, error) {
     // 处理逻辑
     return nil, nil
 })
+```
+
+### Node 节点管理
+
+```go
+import "github.com/darabuchi/prism/pkg/node"
+
+// 创建节点
+config := map[string]any{
+    "name":   "香港节点",
+    "type":   "vmess",
+    "server": "hk.example.com",
+    "port":   443,
+    "uuid":   "xxx-xxx-xxx",
+}
+
+n, err := node.New(config)
+if err != nil {
+    log.Errorf("创建节点失败: %v", err)
+    return
+}
+
+log.Infof("节点 ID: %s", n.ID())
+log.Infof("节点地址: %s", n.Address())
+
+// 设置状态
+n.SetAlive(true)
+n.SetEnabled(true)
 ```
 
 ### Parser 订阅解析器
