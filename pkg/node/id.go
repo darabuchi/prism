@@ -1,6 +1,7 @@
 package node
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	"github.com/lazygophers/log"
@@ -16,11 +17,11 @@ func GenerateID(config map[string]any) (string, error) {
 	data, err := json.Marshal(config)
 	if err != nil {
 		log.Errorf("err:%v", err)
-		return "", xerror.Wrap(err, "marshal config failed")
+		return "", xerror.WrapError(err, xerror.ErrSystemError, "marshal config failed")
 	}
 
 	// 计算 SHA256
-	hash := cryptox.SHA256(data)
+	hash := cryptox.Sha256(data)
 	return hash, nil
 }
 
@@ -66,25 +67,25 @@ func EncodeConfig(config map[string]any) (string, error) {
 	data, err := json.Marshal(config)
 	if err != nil {
 		log.Errorf("err:%v", err)
-		return "", xerror.Wrap(err, "marshal config failed")
+		return "", xerror.WrapError(err, xerror.ErrSystemError, "marshal config failed")
 	}
 
-	return cryptox.Base64Encode(data), nil
+	return base64.StdEncoding.EncodeToString(data), nil
 }
 
 // DecodeConfig 从 Base64 JSON 字符串解码配置
 func DecodeConfig(encoded string) (map[string]any, error) {
-	data, err := cryptox.Base64Decode(encoded)
+	data, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
 		log.Errorf("err:%v", err)
-		return nil, xerror.Wrap(err, "decode base64 failed")
+		return nil, xerror.WrapError(err, xerror.ErrSystemError, "decode base64 failed")
 	}
 
 	var config map[string]any
-	err = json.Unmarshal([]byte(data), &config)
+	err = json.Unmarshal(data, &config)
 	if err != nil {
 		log.Errorf("err:%v", err)
-		return nil, xerror.Wrap(err, "unmarshal config failed")
+		return nil, xerror.WrapError(err, xerror.ErrSystemError, "unmarshal config failed")
 	}
 
 	return config, nil
