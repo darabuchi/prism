@@ -120,6 +120,9 @@ type Config struct {
 	// 延时队列检查间隔（毫秒）
 	DelayCheckInterval int `json:"delay_check_interval" yaml:"delay_check_interval" validate:"min=100"`
 
+	// 延时队列最大待处理消息数（0 表示无限制）
+	MaxPendingMessages int `json:"max_pending_messages" yaml:"max_pending_messages" validate:"min=0"`
+
 	// 类型特定配置
 	Options map[string]interface{} `json:"options,omitempty" yaml:"options,omitempty"`
 }
@@ -150,6 +153,16 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// QueueMetrics 队列监控指标
+type QueueMetrics struct {
+	Processed   int64 `json:"processed"`    // 已处理消息数
+	Failed      int64 `json:"failed"`       // 失败消息数
+	Retried     int64 `json:"retried"`      // 重试消息数
+	Dropped     int64 `json:"dropped"`      // 丢弃消息数
+	ActiveTasks int64 `json:"active_tasks"` // 活跃任务数
+	QueueDepth  int64 `json:"queue_depth"`  // 队列深度
+}
+
 // ApplyDefaults 应用默认值
 func (c *Config) ApplyDefaults() {
 	if c.Type == "" {
@@ -168,6 +181,9 @@ func (c *Config) ApplyDefaults() {
 	}
 	if c.DelayCheckInterval == 0 {
 		c.DelayCheckInterval = 1000
+	}
+	if c.MaxPendingMessages == 0 {
+		c.MaxPendingMessages = 10000 // 默认最多10000条待处理消息
 	}
 	if c.Options == nil {
 		c.Options = make(map[string]interface{})

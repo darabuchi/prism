@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"container/heap"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -8,6 +9,50 @@ import (
 
 	"github.com/google/uuid"
 )
+
+// messageHeap 实现 heap.Interface，按到期时间排序的消息最小堆
+type messageHeap[T any] []*Message[T]
+
+func (h messageHeap[T]) Len() int { return len(h) }
+
+func (h messageHeap[T]) Less(i, j int) bool {
+	// 获取两个消息的到期时间（DelayUntil 和 NextRetryAt 的最大值）
+	timeI := h[i].DelayUntil
+	if h[i].NextRetryAt.After(timeI) {
+		timeI = h[i].NextRetryAt
+	}
+
+	timeJ := h[j].DelayUntil
+	if h[j].NextRetryAt.After(timeJ) {
+		timeJ = h[j].NextRetryAt
+	}
+
+	// 零值时间视为最早（立即执行）
+	if timeI.IsZero() {
+		return true
+	}
+	if timeJ.IsZero() {
+		return false
+	}
+
+	return timeI.Before(timeJ)
+}
+
+func (h messageHeap[T]) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+func (h *messageHeap[T]) Push(x interface{}) {
+	*h = append(*h, x.(*Message[T]))
+}
+
+func (h *messageHeap[T]) Pop() interface{} {
+	old := *h
+	n := len(old)
+	item := old[n-1]
+	*h = old[0 : n-1]
+	return item
+}
 
 // MemoryQueue 内存队列实现
 type MemoryQueue[T any] struct {
@@ -19,6 +64,7 @@ type MemoryQueue[T any] struct {
 	delayedCh    chan struct{}    // 延时处理器停止信号（通过关闭通知）
 	processDone  sync.WaitGroup   // Process goroutine 计数
 	delayDone    sync.WaitGroup   // 延时队列 goroutine 计数
+	messagePool  sync.Pool        // 消息对象池
 
 	// 监控指标
 	metrics struct {
@@ -37,6 +83,13 @@ func NewMemoryQueue[T any](cfg *Config) (*MemoryQueue[T], error) {
 		workerCh:  make(chan struct{}),
 		delayedCh: make(chan struct{}),
 		cfg:       cfg,
+	}
+
+	// 初始化消息对象池
+	q.messagePool = sync.Pool{
+		New: func() interface{} {
+			return &Message[T]{}
+		},
 	}
 
 	// 如果启用延时队列，创建延时队列并启动处理器
@@ -101,7 +154,7 @@ func (q *MemoryQueue[T]) PushWithRetryPolicy(payload T, policy *RetryPolicy) err
 	return q.pushMessage(msg)
 }
 
-// BatchPush 批量推送消息到队列（优化版）
+// BatchPush 批量推送消息到队列（优化版 - 使用 sync.Pool）
 func (q *MemoryQueue[T]) BatchPush(payloads []T) error {
 	if q.closed.Load() {
 		return ErrQueueClosed
@@ -111,23 +164,33 @@ func (q *MemoryQueue[T]) BatchPush(payloads []T) error {
 		return nil
 	}
 
-	// 预先生成所有消息
+	// 预先生成所有消息（使用对象池）
 	messages := make([]*Message[T], 0, len(payloads))
 	now := time.Now()
 	for _, payload := range payloads {
-		msg := &Message[T]{
-			ID:        uuid.New().String(),
-			Payload:   payload,
-			Timestamp: now,
-		}
+		msg := q.messagePool.Get().(*Message[T])
+		// 重置消息字段
+		msg.ID = uuid.New().String()
+		msg.Payload = payload
+		msg.Timestamp = now
+		msg.DelayUntil = time.Time{}
+		msg.RetryCount = 0
+		msg.RetryPolicy = nil
+		msg.LastError = nil
+		msg.NextRetryAt = time.Time{}
+
 		messages = append(messages, msg)
 	}
 
 	// 批量推送
-	for _, msg := range messages {
+	for i, msg := range messages {
 		select {
 		case q.queue <- msg:
 		default:
+			// 队列满，将未推送的消息归还对象池
+			for j := i; j < len(messages); j++ {
+				q.messagePool.Put(messages[j])
+			}
 			return ErrQueueFull
 		}
 	}
@@ -250,15 +313,18 @@ func (q *MemoryQueue[T]) worker(handler func(*Message[T]) (*RetryInfo, error)) {
 	}
 }
 
-// delayedProcessor 延时队列处理器（优化版 - O(n)）
+// delayedProcessor 延时队列处理器（heap 优化版 - O(log n) 插入和删除）
 func (q *MemoryQueue[T]) delayedProcessor() {
 	defer q.delayDone.Done()
 
-	ticker := time.NewTicker(time.Duration(q.cfg.DelayCheckInterval) * time.Millisecond)
-	defer ticker.Stop()
+	// 初始化消息最小堆
+	h := &messageHeap[T]{}
+	heap.Init(h)
 
-	// 临时存储未到期的消息
-	pending := make([]*Message[T], 0)
+	// 动态 ticker，初始使用配置的间隔
+	checkInterval := time.Duration(q.cfg.DelayCheckInterval) * time.Millisecond
+	ticker := time.NewTicker(checkInterval)
+	defer ticker.Stop()
 
 	for {
 		select {
@@ -267,36 +333,63 @@ func (q *MemoryQueue[T]) delayedProcessor() {
 			return
 
 		case <-ticker.C:
-			// 使用 map 优化查找（O(n) 而非 O(n²)）
 			now := time.Now()
-			readyMessages := make([]*Message[T], 0)
-			newPending := make([]*Message[T], 0, len(pending))
 
-			// 检查所有待处理的消息
-			for _, msg := range pending {
-				if msg.IsReady() {
-					readyMessages = append(readyMessages, msg)
-				} else {
-					newPending = append(newPending, msg)
+			// 处理所有已到期的消息（堆顶）
+			for h.Len() > 0 {
+				msg := (*h)[0] // 查看堆顶元素
+
+				if !msg.IsReady() {
+					// 堆顶元素未到期，后续元素也都未到期
+					break
 				}
-			}
 
-			pending = newPending
+				// 从堆中移除已到期的消息
+				heap.Pop(h)
 
-			// 将准备好的消息推送到主队列
-			for _, msg := range readyMessages {
+				// 推送到主队列
 				select {
 				case q.queue <- msg:
 				case <-q.delayedCh:
 					return
 				default:
-					// 队列满，保留在待处理列表
-					log.Printf("[Queue] Main queue full, message %s delayed", msg.ID)
-					pending = append(pending, msg)
+					// 队列满，重新加入堆
+					if q.cfg.MaxPendingMessages > 0 && h.Len() >= q.cfg.MaxPendingMessages {
+						// 待处理列表已满，丢弃当前消息
+						log.Printf("[Queue] WARNING: Pending heap full (%d), dropping ready message %s",
+							q.cfg.MaxPendingMessages, msg.ID)
+						q.metrics.dropped.Add(1)
+					} else {
+						log.Printf("[Queue] Main queue full, message %s delayed", msg.ID)
+						heap.Push(h, msg)
+					}
 				}
 			}
 
-			// 从延时队列读取新消息
+			// 动态调整下次检查的间隔
+			if h.Len() > 0 {
+				nextMsg := (*h)[0]
+				nextTime := nextMsg.DelayUntil
+				if nextMsg.NextRetryAt.After(nextTime) {
+					nextTime = nextMsg.NextRetryAt
+				}
+
+				if !nextTime.IsZero() {
+					untilNext := time.Until(nextTime)
+					if untilNext > 0 && untilNext < checkInterval {
+						// 下次消息到期时间更近，调整 ticker
+						ticker.Reset(untilNext)
+					} else {
+						// 使用默认间隔
+						ticker.Reset(checkInterval)
+					}
+				}
+			} else {
+				// 堆为空，使用默认间隔
+				ticker.Reset(checkInterval)
+			}
+
+			// 从延时队列读取新消息并加入堆
 		drainLoop:
 			for {
 				select {
@@ -313,12 +406,26 @@ func (q *MemoryQueue[T]) delayedProcessor() {
 						case <-q.delayedCh:
 							return
 						default:
-							// 队列满，添加到待处理列表
-							pending = append(pending, msg)
+							// 队列满，加入堆
+							if q.cfg.MaxPendingMessages > 0 && h.Len() >= q.cfg.MaxPendingMessages {
+								// 待处理堆已满，丢弃堆顶（最早到期）的消息
+								oldMsg := heap.Pop(h).(*Message[T])
+								log.Printf("[Queue] WARNING: Pending heap full (%d), dropping oldest message %s",
+									q.cfg.MaxPendingMessages, oldMsg.ID)
+								q.metrics.dropped.Add(1)
+							}
+							heap.Push(h, msg)
 						}
 					} else {
-						// 未到期，添加到待处理列表
-						pending = append(pending, msg)
+						// 未到期，加入堆
+						if q.cfg.MaxPendingMessages > 0 && h.Len() >= q.cfg.MaxPendingMessages {
+							// 待处理堆已满，丢弃堆顶（最早到期）的消息
+							oldMsg := heap.Pop(h).(*Message[T])
+							log.Printf("[Queue] WARNING: Pending heap full (%d), dropping oldest message %s",
+								q.cfg.MaxPendingMessages, oldMsg.ID)
+							q.metrics.dropped.Add(1)
+						}
+						heap.Push(h, msg)
 					}
 				default:
 					break drainLoop
@@ -375,14 +482,14 @@ func (q *MemoryQueue[T]) Depth() int {
 }
 
 // Metrics 获取监控指标
-func (q *MemoryQueue[T]) Metrics() map[string]int64 {
-	return map[string]int64{
-		"processed":    q.metrics.processed.Load(),
-		"failed":       q.metrics.failed.Load(),
-		"retried":      q.metrics.retried.Load(),
-		"dropped":      q.metrics.dropped.Load(),
-		"active_tasks": q.metrics.activeTasks.Load(),
-		"queue_depth":  int64(q.Depth()),
+func (q *MemoryQueue[T]) Metrics() QueueMetrics {
+	return QueueMetrics{
+		Processed:   q.metrics.processed.Load(),
+		Failed:      q.metrics.failed.Load(),
+		Retried:     q.metrics.retried.Load(),
+		Dropped:     q.metrics.dropped.Load(),
+		ActiveTasks: q.metrics.activeTasks.Load(),
+		QueueDepth:  int64(q.Depth()),
 	}
 }
 
