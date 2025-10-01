@@ -3,7 +3,7 @@ package queue
 import (
 	"fmt"
 
-	"github.com/darabuchi/lazygophers/utils/validator"
+	"github.com/lazygophers/utils/validator"
 )
 
 var defaultValidator *validator.Validator

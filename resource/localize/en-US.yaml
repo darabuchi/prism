@@ -1,12 +1,89 @@
 # English translation file
 
-errors:
-  subscription_not_found: "Subscription not found"
-  subscription_duplicate_key: "Subscription already exists"
-  node_not_found: "Node not found"
-  route_not_found: "Route rule not found"
-  config_invalid: "Invalid configuration file"
+# ==================== Common Messages ====================
+common:
+  success: "Operation succeeded"
+  internal_error: "Internal server error"
+  invalid_request: "Invalid request"
+  not_found: "Resource not found"
+  already_exists: "Resource already exists"
+  timeout: "Operation timeout"
+  too_many_requests: "Too many requests, please try again later"
+  service_unavailable: "Service unavailable"
+  method_not_allowed: "Method not allowed"
+  unprocessable_entity: "Unprocessable entity"
 
+# ==================== Authentication and Authorization ====================
+auth:
+  unauthorized: "Unauthorized, please login first"
+  forbidden: "Forbidden"
+  invalid_token: "Invalid token"
+  token_expired: "Token expired"
+  invalid_credentials: "Invalid username or password"
+
+# ==================== Subscription ====================
+subscription:
+  not_found: "Subscription not found"
+  already_exists: "Subscription already exists"
+  invalid: "Invalid subscription"
+  update_failed: "Failed to update subscription"
+
+# ==================== Node ====================
+node:
+  not_found: "Node not found"
+  test_failed: "Node test failed"
+  unavailable: "Node unavailable"
+
+# ==================== Route ====================
+route:
+  not_found: "Route rule not found"
+  invalid: "Invalid route rule"
+
+# ==================== Validation Errors ====================
+validation:
+  failed: "Validation failed"
+  url_required: "URL is required"
+  url_invalid: "Invalid URL format"
+  title_required: "Title is required"
+  port_invalid: "Invalid port number"
+  email_invalid: "Invalid email format"
+  field_required: "Field %s is required"
+  field_too_long: "Field %s is too long, maximum length is %d"
+  field_too_short: "Field %s is too short, minimum length is %d"
+
+# ==================== Service Errors ====================
+service:
+  database_error: "Database error"
+  cache_error: "Cache error"
+  connection_failed: "Connection failed"
+
+# ==================== Queue Errors ====================
+queue:
+  full: "Queue is full"
+  empty: "Queue is empty"
+  closed: "Queue is closed"
+  timeout: "Queue operation timeout"
+  invalid_concurrency: "Invalid concurrency"
+  unsupported_type: "Unsupported queue type"
+  max_retries_exceeded: "Maximum retries exceeded"
+
+# ==================== Configuration Errors ====================
+config:
+  invalid: "Invalid configuration"
+  not_found: "Configuration not found"
+  parse_failed: "Failed to parse configuration"
+
+# ==================== Proxy and Network Errors ====================
+proxy:
+  connection_failed: "Proxy connection failed"
+  timeout: "Proxy timeout"
+  auth_failed: "Proxy authentication failed"
+
+network:
+  unreachable: "Network unreachable"
+  dns_resolve_failed: "DNS resolution failed"
+
+# ==================== Business Messages ====================
 messages:
   server_started: "Server started, listening on port %d"
   server_stopped: "Server stopped"
@@ -15,9 +92,3 @@ messages:
   subscription_deleted: "Subscription deleted successfully"
   node_test_started: "Node testing started"
   node_test_completed: "Node testing completed"
-
-validation:
-  url_required: "URL is required"
-  url_invalid: "Invalid URL format"
-  title_required: "Title is required"
-  port_invalid: "Invalid port number"

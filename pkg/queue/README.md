@@ -482,7 +482,7 @@ go get github.com/rabbitmq/amqp091-go
 go get github.com/pebbe/zmq4
 
 # Validator
-go get github.com/darabuchi/lazygophers/utils/validator
+go get github.com/lazygophers/utils/validator
 ```
 
 ## 参考资料

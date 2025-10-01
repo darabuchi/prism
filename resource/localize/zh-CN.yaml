@@ -1,12 +1,89 @@
 # 中文翻译文件
 
-errors:
-  subscription_not_found: "订阅不存在"
-  subscription_duplicate_key: "订阅已存在"
-  node_not_found: "节点不存在"
-  route_not_found: "路由规则不存在"
-  config_invalid: "配置文件无效"
+# ==================== 通用消息 ====================
+common:
+  success: "操作成功"
+  internal_error: "内部错误"
+  invalid_request: "无效的请求"
+  not_found: "资源未找到"
+  already_exists: "资源已存在"
+  timeout: "操作超时"
+  too_many_requests: "请求过多，请稍后重试"
+  service_unavailable: "服务不可用"
+  method_not_allowed: "不允许的请求方法"
+  unprocessable_entity: "无法处理的实体"
 
+# ==================== 认证和授权 ====================
+auth:
+  unauthorized: "未授权，请先登录"
+  forbidden: "禁止访问"
+  invalid_token: "无效的令牌"
+  token_expired: "令牌已过期"
+  invalid_credentials: "用户名或密码错误"
+
+# ==================== 订阅相关 ====================
+subscription:
+  not_found: "订阅不存在"
+  already_exists: "订阅已存在"
+  invalid: "订阅无效"
+  update_failed: "订阅更新失败"
+
+# ==================== 节点相关 ====================
+node:
+  not_found: "节点不存在"
+  test_failed: "节点测试失败"
+  unavailable: "节点不可用"
+
+# ==================== 路由相关 ====================
+route:
+  not_found: "路由规则不存在"
+  invalid: "路由规则无效"
+
+# ==================== 验证错误 ====================
+validation:
+  failed: "验证失败"
+  url_required: "URL 不能为空"
+  url_invalid: "URL 格式无效"
+  title_required: "标题不能为空"
+  port_invalid: "端口号无效"
+  email_invalid: "邮箱格式无效"
+  field_required: "字段 %s 不能为空"
+  field_too_long: "字段 %s 过长，最大长度为 %d"
+  field_too_short: "字段 %s 过短，最小长度为 %d"
+
+# ==================== 服务错误 ====================
+service:
+  database_error: "数据库错误"
+  cache_error: "缓存错误"
+  connection_failed: "连接失败"
+
+# ==================== 队列错误 ====================
+queue:
+  full: "队列已满"
+  empty: "队列为空"
+  closed: "队列已关闭"
+  timeout: "队列操作超时"
+  invalid_concurrency: "无效的并发数"
+  unsupported_type: "不支持的队列类型"
+  max_retries_exceeded: "超过最大重试次数"
+
+# ==================== 配置错误 ====================
+config:
+  invalid: "配置无效"
+  not_found: "配置未找到"
+  parse_failed: "配置解析失败"
+
+# ==================== 代理和网络错误 ====================
+proxy:
+  connection_failed: "代理连接失败"
+  timeout: "代理超时"
+  auth_failed: "代理认证失败"
+
+network:
+  unreachable: "网络不可达"
+  dns_resolve_failed: "DNS 解析失败"
+
+# ==================== 业务消息 ====================
 messages:
   server_started: "服务器已启动，监听端口 %d"
   server_stopped: "服务器已停止"
@@ -15,9 +92,3 @@ messages:
   subscription_deleted: "订阅删除成功"
   node_test_started: "节点测试已开始"
   node_test_completed: "节点测试完成"
-
-validation:
-  url_required: "URL 不能为空"
-  url_invalid: "URL 格式无效"
-  title_required: "标题不能为空"
-  port_invalid: "端口号无效"
