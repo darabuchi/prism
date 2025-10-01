@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/lazygophers/log"
 	mdns "github.com/miekg/dns"
 )
 
@@ -53,6 +54,7 @@ func (r *DoHResolver) Query(ctx context.Context, domain, queryType, server strin
 	// 打包 DNS 消息
 	packed, err := msg.Pack()
 	if err != nil {
+		log.Errorf("DoH DNS pack message failed: domain=%s, error=%v", domain, err)
 		return nil, fmt.Errorf("failed to pack DNS message: %w", err)
 	}
 
@@ -77,6 +79,7 @@ func (r *DoHResolver) Query(ctx context.Context, domain, queryType, server strin
 	// 创建 HTTP 请求
 	req, err := http.NewRequestWithContext(ctx, "POST", server, bytes.NewReader(packed))
 	if err != nil {
+		log.Errorf("DoH DNS create request failed: server=%s, error=%v", server, err)
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
 
@@ -86,23 +89,27 @@ func (r *DoHResolver) Query(ctx context.Context, domain, queryType, server strin
 	// 发送请求
 	resp, err := client.Do(req)
 	if err != nil {
+		log.Warnf("DoH DNS request failed: server=%s, domain=%s, error=%v", server, domain, err)
 		return nil, fmt.Errorf("failed to send DoH request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		log.Warnf("DoH DNS bad status: server=%s, domain=%s, status=%d", server, domain, resp.StatusCode)
 		return nil, fmt.Errorf("DoH request failed with status: %d", resp.StatusCode)
 	}
 
 	// 读取响应
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Warnf("DoH DNS read response failed: server=%s, domain=%s, error=%v", server, domain, err)
 		return nil, fmt.Errorf("failed to read DoH response: %w", err)
 	}
 
 	// 解析响应
 	response := new(mdns.Msg)
 	if err := response.Unpack(body); err != nil {
+		log.Warnf("DoH DNS unpack response failed: server=%s, domain=%s, error=%v", server, domain, err)
 		return nil, fmt.Errorf("failed to unpack DNS response: %w", err)
 	}
 

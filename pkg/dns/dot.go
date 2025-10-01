@@ -7,6 +7,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/lazygophers/log"
 	mdns "github.com/miekg/dns"
 )
 
@@ -56,6 +57,7 @@ func (r *DoTResolver) Query(ctx context.Context, domain, queryType, server strin
 	// 创建 TCP 连接
 	conn, err := r.dialer.DialContext(ctx, "tcp", server)
 	if err != nil {
+		log.Warnf("DoT DNS dial failed: server=%s, error=%v", server, err)
 		return nil, fmt.Errorf("failed to dial TCP for DoT: %w", err)
 	}
 	defer conn.Close()
@@ -71,12 +73,14 @@ func (r *DoTResolver) Query(ctx context.Context, domain, queryType, server strin
 
 	// TLS 握手
 	if err := tlsConn.HandshakeContext(ctx); err != nil {
+		log.Warnf("DoT DNS TLS handshake failed: server=%s, error=%v", server, err)
 		return nil, fmt.Errorf("TLS handshake failed: %w", err)
 	}
 	defer tlsConn.Close()
 
 	// 设置超时
 	if err := tlsConn.SetDeadline(time.Now().Add(r.timeout)); err != nil {
+		log.Errorf("DoT DNS set deadline failed: server=%s, error=%v", server, err)
 		return nil, fmt.Errorf("failed to set deadline: %w", err)
 	}
 
@@ -86,12 +90,14 @@ func (r *DoTResolver) Query(ctx context.Context, domain, queryType, server strin
 
 	// 发送查询
 	if err := dnsConn.WriteMsg(msg); err != nil {
+		log.Warnf("DoT DNS write message failed: server=%s, domain=%s, error=%v", server, domain, err)
 		return nil, fmt.Errorf("failed to write DNS message: %w", err)
 	}
 
 	// 接收响应
 	response, err := dnsConn.ReadMsg()
 	if err != nil {
+		log.Warnf("DoT DNS read response failed: server=%s, domain=%s, error=%v", server, domain, err)
 		return nil, fmt.Errorf("failed to read DNS response: %w", err)
 	}
 

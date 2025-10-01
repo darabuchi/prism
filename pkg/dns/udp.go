@@ -6,6 +6,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/lazygophers/log"
 	mdns "github.com/miekg/dns"
 )
 
@@ -55,12 +56,14 @@ func (r *UDPResolver) Query(ctx context.Context, domain, queryType, server strin
 	// 创建 UDP 连接
 	conn, err := r.dialer.DialContext(ctx, "udp", server)
 	if err != nil {
+		log.Warnf("UDP DNS dial failed: server=%s, error=%v", server, err)
 		return nil, fmt.Errorf("failed to dial UDP: %w", err)
 	}
 	defer conn.Close()
 
 	// 设置超时
 	if err := conn.SetDeadline(time.Now().Add(r.timeout)); err != nil {
+		log.Errorf("UDP DNS set deadline failed: server=%s, error=%v", server, err)
 		return nil, fmt.Errorf("failed to set deadline: %w", err)
 	}
 
@@ -70,12 +73,14 @@ func (r *UDPResolver) Query(ctx context.Context, domain, queryType, server strin
 
 	// 发送查询
 	if err := dnsConn.WriteMsg(msg); err != nil {
+		log.Warnf("UDP DNS write message failed: server=%s, domain=%s, error=%v", server, domain, err)
 		return nil, fmt.Errorf("failed to write DNS message: %w", err)
 	}
 
 	// 接收响应
 	response, err := dnsConn.ReadMsg()
 	if err != nil {
+		log.Warnf("UDP DNS read response failed: server=%s, domain=%s, error=%v", server, domain, err)
 		return nil, fmt.Errorf("failed to read DNS response: %w", err)
 	}
 
