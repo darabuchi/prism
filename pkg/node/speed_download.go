@@ -130,8 +130,11 @@ func (n *Node) SpeedDownloadHTTP(ctx context.Context, url string, duration time.
 		case <-ctx.Done():
 			// 上下文取消
 			elapsed := time.Since(start)
-			speed := float64(totalBytes) / elapsed.Seconds()
-			speedMbps := speed * 8 / 1000000
+			var speed, speedMbps float64
+			if elapsed.Seconds() > 0 {
+				speed = float64(totalBytes) / elapsed.Seconds()
+				speedMbps = speed * 8 / 1000000
+			}
 
 			return &SpeedDownloadResult{
 				BytesDownloaded: totalBytes,
@@ -143,8 +146,11 @@ func (n *Node) SpeedDownloadHTTP(ctx context.Context, url string, duration time.
 		case <-timerCh:
 			// 达到指定持续时间
 			elapsed := time.Since(start)
-			speed := float64(totalBytes) / elapsed.Seconds()
-			speedMbps := speed * 8 / 1000000
+			var speed, speedMbps float64
+			if elapsed.Seconds() > 0 {
+				speed = float64(totalBytes) / elapsed.Seconds()
+				speedMbps = speed * 8 / 1000000
+			}
 
 			return &SpeedDownloadResult{
 				BytesDownloaded: totalBytes,
@@ -163,8 +169,11 @@ func (n *Node) SpeedDownloadHTTP(ctx context.Context, url string, duration time.
 				if err == io.EOF {
 					// 下载完成
 					elapsed := time.Since(start)
-					speed := float64(totalBytes) / elapsed.Seconds()
-					speedMbps := speed * 8 / 1000000
+					var speed, speedMbps float64
+					if elapsed.Seconds() > 0 {
+						speed = float64(totalBytes) / elapsed.Seconds()
+						speedMbps = speed * 8 / 1000000
+					}
 
 					return &SpeedDownloadResult{
 						BytesDownloaded: totalBytes,

@@ -144,7 +144,7 @@ func (n *Node) SpeedUploadHTTP(ctx context.Context, url string, dataSize int64, 
 				uploadDone <- nil
 				return
 			default:
-				n, err := data.(io.Reader).Read(buf)
+				n, err := data.Read(buf)
 				if n > 0 {
 					written, writeErr := pw.Write(buf[:n])
 					if writeErr != nil {
@@ -183,8 +183,11 @@ func (n *Node) SpeedUploadHTTP(ctx context.Context, url string, dataSize int64, 
 
 		if uploadErr == nil || uploadErr == io.EOF {
 			// 上传成功完成
-			speed := float64(totalBytes) / elapsed.Seconds()
-			speedMbps := speed * 8 / 1000000
+			var speed, speedMbps float64
+			if elapsed.Seconds() > 0 {
+				speed = float64(totalBytes) / elapsed.Seconds()
+				speedMbps = speed * 8 / 1000000
+			}
 
 			return &SpeedUploadResult{
 				BytesUploaded: totalBytes,
@@ -218,8 +221,11 @@ func (n *Node) SpeedUploadHTTP(ctx context.Context, url string, dataSize int64, 
 	_, _ = io.Copy(io.Discard, resp.Body)
 
 	// 计算上传速度
-	speed := float64(totalBytes) / elapsed.Seconds()
-	speedMbps := speed * 8 / 1000000
+	var speed, speedMbps float64
+	if elapsed.Seconds() > 0 {
+		speed = float64(totalBytes) / elapsed.Seconds()
+		speedMbps = speed * 8 / 1000000
+	}
 
 	return &SpeedUploadResult{
 		BytesUploaded: totalBytes,
