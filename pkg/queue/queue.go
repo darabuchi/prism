@@ -1,9 +1,18 @@
 package queue
 
+import "time"
+
 // Queue 队列接口（泛型）
 type Queue[T any] interface {
 	// Push 推送单个消息到队列
 	Push(payload T) error
+
+	// PushWithDelay 推送延时消息到队列
+	// delay: 延时时长
+	PushWithDelay(payload T, delay time.Duration) error
+
+	// PushWithRetryPolicy 推送带自定义重试策略的消息
+	PushWithRetryPolicy(payload T, policy *RetryPolicy) error
 
 	// BatchPush 批量推送消息到队列
 	BatchPush(payloads []T) error
