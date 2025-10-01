@@ -4,7 +4,10 @@
 
 - **后端**: Tauri 1.x (Rust)
 - **前端**: Next.js + TypeScript
-- **UI 库**: Ant Design + ProComponents
+- **UI 库**:
+  - shadcn/ui（基于 Radix UI 和 Tailwind CSS）
+  - Ant Design + ProComponents
+- **样式方案**: Tailwind CSS
 - **构建工具**: Next.js
 - **包管理**: pnpm (前端) + Cargo (Rust)
 

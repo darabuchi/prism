@@ -36,6 +36,12 @@ help:
 	@echo "  lint              - 运行代码检查"
 	@echo "  fmt               - 格式化代码"
 	@echo ""
+	@echo "Release:"
+	@echo "  release-local     - 本地构建当前平台（goreleaser）"
+	@echo "  release-snapshot  - 构建所有平台快照版本（goreleaser）"
+	@echo "  release-check     - 检查 goreleaser 配置"
+	@echo "  release           - 发布版本（需要 Git 标签）"
+	@echo ""
 	@echo "Frontend:"
 	@echo "  web-dev           - 启动 Web 前端开发服务器"
 	@echo "  web-build         - 构建 Web 前端生产版本"
@@ -161,3 +167,50 @@ desktop-build:
 		echo "desktop directory not found"; \
 	fi
 	@echo "Desktop app build complete"
+
+## release-local: 本地构建当前平台（goreleaser）
+release-local:
+	@echo "Building local release..."
+	@if command -v goreleaser >/dev/null 2>&1; then \
+		goreleaser build --single-target --snapshot --clean; \
+	else \
+		echo "goreleaser not found. Install with: brew install goreleaser"; \
+		exit 1; \
+	fi
+	@echo "Local release build complete: dist/"
+
+## release-snapshot: 构建所有平台快照版本（goreleaser）
+release-snapshot:
+	@echo "Building snapshot release for all platforms..."
+	@if command -v goreleaser >/dev/null 2>&1; then \
+		goreleaser release --snapshot --clean; \
+	else \
+		echo "goreleaser not found. Install with: brew install goreleaser"; \
+		exit 1; \
+	fi
+	@echo "Snapshot release build complete: dist/"
+
+## release-check: 检查 goreleaser 配置
+release-check:
+	@echo "Checking goreleaser configuration..."
+	@if command -v goreleaser >/dev/null 2>&1; then \
+		goreleaser check; \
+	else \
+		echo "goreleaser not found. Install with: brew install goreleaser"; \
+		exit 1; \
+	fi
+
+## release: 发布版本（需要 Git 标签和 GITHUB_TOKEN）
+release:
+	@echo "Releasing version..."
+	@if [ -z "$(GITHUB_TOKEN)" ]; then \
+		echo "GITHUB_TOKEN is not set. Please export GITHUB_TOKEN"; \
+		exit 1; \
+	fi
+	@if command -v goreleaser >/dev/null 2>&1; then \
+		goreleaser release --clean; \
+	else \
+		echo "goreleaser not found. Install with: brew install goreleaser"; \
+		exit 1; \
+	fi
+	@echo "Release complete"

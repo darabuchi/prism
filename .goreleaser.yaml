@@ -1,0 +1,310 @@
+# GoReleaser v2 配置文件
+version: 2
+
+# 项目信息
+project_name: prism
+
+# 构建前执行的钩子
+before:
+  hooks:
+    # 清理构建产物
+    - go mod tidy
+    - go mod download
+
+# 构建配置
+builds:
+  - # 构建ID
+    id: prism
+
+    # 主程序入口
+    main: ./cmd/main.go
+
+    # 二进制文件名
+    binary: prism
+
+    # 构建目标
+    goos:
+      - linux
+      - darwin
+      - windows
+
+    goarch:
+      - amd64
+      - arm64
+      - arm
+
+    goarm:
+      - "7"
+
+    # 忽略的组合
+    ignore:
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+
+    # 编译标志
+    flags:
+      - -trimpath
+
+    # 链接标志
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.Commit={{.Commit}}
+      - -X main.Date={{.Date}}
+      - -X main.BuiltBy=goreleaser
+
+    # 环境变量
+    env:
+      - CGO_ENABLED=0
+
+    # 构建标签
+    tags:
+      - netgo
+
+# 归档配置
+archives:
+  - # 归档ID
+    id: prism-archive
+
+    # 归档格式
+    format: tar.gz
+
+    # Windows 使用 zip 格式
+    format_overrides:
+      - goos: windows
+        format: zip
+
+    # 文件名模板
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+    # 包含的额外文件
+    files:
+      - README.md
+      - LICENSE
+      - config.example.yaml
+      - routes.example.yaml
+      - resource/**/*
+
+# Checksum 配置
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+# Snapshot 配置（用于本地构建）
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+# Changelog 配置
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "merge conflict"
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+  groups:
+    - title: "New Features"
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug Fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: "Performance Improvements"
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: "Refactors"
+      regexp: '^.*?refactor(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: "Other Changes"
+      order: 999
+
+# Docker 镜像配置（可选）
+dockers:
+  - # Docker 镜像 ID
+    id: prism-docker
+
+    # Dockerfile 路径
+    dockerfile: Dockerfile
+
+    # 镜像名称和标签
+    image_templates:
+      - "ghcr.io/ice-cream-heaven/prism:{{ .Version }}"
+      - "ghcr.io/ice-cream-heaven/prism:latest"
+
+    # 构建参数
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+
+# GitHub Release 配置
+release:
+  # GitHub 仓库
+  github:
+    owner: ice-cream-heaven
+    name: prism
+
+  # Draft release
+  draft: false
+
+  # 预发布
+  prerelease: auto
+
+  # Release 名称模板
+  name_template: "{{.ProjectName}} v{{.Version}}"
+
+  # Release 说明模板
+  header: |
+    ## Prism v{{ .Version }}
+
+    ### 下载
+
+    选择适合您系统的版本：
+
+    - **Linux**: `prism_{{ .Version }}_linux_x86_64.tar.gz`
+    - **macOS (Intel)**: `prism_{{ .Version }}_darwin_x86_64.tar.gz`
+    - **macOS (Apple Silicon)**: `prism_{{ .Version }}_darwin_arm64.tar.gz`
+    - **Windows**: `prism_{{ .Version }}_windows_x86_64.zip`
+
+    ### 安装
+
+    ```bash
+    # 解压下载的文件
+    tar -xzf prism_{{ .Version }}_linux_x86_64.tar.gz
+
+    # 移动到 PATH
+    sudo mv prism /usr/local/bin/
+
+    # 验证安装
+    prism version
+    ```
+
+  footer: |
+    **完整更新日志**: https://github.com/ice-cream-heaven/prism/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+# Universal Binaries（macOS）
+universal_binaries:
+  - # 合并 amd64 和 arm64 为 universal binary
+    replace: true
+    name_template: "prism"
+
+# 发布到 Homebrew（可选）
+brews:
+  - # Homebrew tap 仓库
+    repository:
+      owner: ice-cream-heaven
+      name: homebrew-tap
+
+    # 公式文件路径
+    folder: Formula
+
+    # 描述
+    description: "Proxy subscription manager and node tester"
+
+    # 首页
+    homepage: "https://github.com/ice-cream-heaven/prism"
+
+    # 许可证
+    license: "MIT"
+
+    # 依赖
+    dependencies: []
+
+    # 安装脚本
+    install: |
+      bin.install "prism"
+
+      # 安装示例配置文件
+      etc.install "config.example.yaml" => "prism/config.yaml.example"
+      etc.install "routes.example.yaml" => "prism/routes.yaml.example"
+
+    # 测试脚本
+    test: |
+      system "#{bin}/prism", "version"
+
+# NFPM 配置（用于生成 .deb 和 .rpm 包）
+nfpms:
+  - # NFPM ID
+    id: prism-packages
+
+    # 包名
+    package_name: prism
+
+    # 文件名模板
+    file_name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+
+    # 维护者
+    maintainer: "Ice Cream Heaven <noreply@example.com>"
+
+    # 描述
+    description: "Proxy subscription manager and node tester"
+
+    # 许可证
+    license: MIT
+
+    # 首页
+    homepage: https://github.com/ice-cream-heaven/prism
+
+    # 格式
+    formats:
+      - deb
+      - rpm
+      - apk
+
+    # 依赖
+    dependencies: []
+
+    # 推荐
+    recommends: []
+
+    # 内容
+    contents:
+      - src: config.example.yaml
+        dst: /etc/prism/config.yaml.example
+        type: config
+
+      - src: routes.example.yaml
+        dst: /etc/prism/routes.yaml.example
+        type: config
+
+      - src: resource/
+        dst: /usr/share/prism/resource/
+
+    # Systemd 服务文件（可选）
+    # scripts:
+    #   postinstall: "scripts/postinstall.sh"
+    #   preremove: "scripts/preremove.sh"
+
+# AUR 配置（Arch Linux，可选）
+# aurs:
+#   - name: prism-bin
+#     homepage: https://github.com/ice-cream-heaven/prism
+#     description: "Proxy subscription manager and node tester"
+#     maintainers:
+#       - 'Your Name <your.email@example.com>'
+#     license: MIT
+#     private_key: '{{ .Env.AUR_KEY }}'
+#     git_url: 'ssh://aur@aur.archlinux.org/prism-bin.git'

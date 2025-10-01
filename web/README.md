@@ -6,8 +6,10 @@
 - **语言**: TypeScript
 - **包管理器**: pnpm
 - **UI 组件库**:
+  - shadcn/ui（基于 Radix UI 和 Tailwind CSS 的组件系统）
   - Ant Design 5.x（基础组件）
   - ProComponents（优先使用，高级业务组件）
+- **样式方案**: Tailwind CSS
 - **状态管理**: Zustand / Redux Toolkit
 - **数据请求**: SWR / TanStack Query
 
@@ -79,16 +81,105 @@ web/
 └── public/           # 静态资源
 ```
 
-## ProComponents 使用
+## UI 组件使用优先级
 
-优先使用 ProComponents 而非基础的 Ant Design 组件：
+### 1. shadcn/ui（最优先）
 
-- ✅ 使用 `ProTable` 代替 `Table`
-- ✅ 使用 `ProForm` 代替 `Form`
-- ✅ 使用 `ProLayout` 代替自定义布局
-- ✅ 使用 `ProCard` 代替 `Card`
+用于通用 UI 组件，提供完全可定制的组件：
+
+```tsx
+// 示例：使用 shadcn/ui 组件
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+```
+
+**特点**:
+- ✅ 基于 Radix UI（无障碍性强）
+- ✅ 使用 Tailwind CSS（高度可定制）
+- ✅ 组件代码直接复制到项目中（完全控制）
+- ✅ 支持暗色模式
+
+**安装组件**:
+```bash
+pnpm dlx shadcn-ui@latest add button card dialog tabs
+```
+
+### 2. ProComponents（次优先）
+
+用于复杂的业务场景和数据展示：
+
+```tsx
+// 示例：使用 ProComponents
+import { ProTable } from '@ant-design/pro-table';
+import { ProForm, ProFormText } from '@ant-design/pro-form';
+import { ProLayout } from '@ant-design/pro-layout';
+```
+
+**适用场景**:
+- ✅ 数据表格：使用 `ProTable` 代替 `Table`
+- ✅ 表单：使用 `ProForm` 代替 `Form`
+- ✅ 页面布局：使用 `ProLayout`
+- ✅ 卡片：使用 `ProCard`
 
 参考文档：https://procomponents.ant.design/
+
+### 3. Ant Design（基础组件）
+
+仅在 shadcn/ui 和 ProComponents 都不适用时使用：
+
+```tsx
+import { message, notification } from 'antd';
+```
+
+## shadcn/ui 配置
+
+### 初始化
+
+```bash
+cd web
+pnpm dlx shadcn-ui@latest init
+```
+
+### components.json 配置
+
+```json
+{
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "app/globals.css",
+    "baseColor": "slate",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils"
+  }
+}
+```
+
+### 常用组件列表
+
+```bash
+# 布局组件
+pnpm dlx shadcn-ui@latest add card separator
+
+# 表单组件
+pnpm dlx shadcn-ui@latest add button input label form select checkbox
+
+# 反馈组件
+pnpm dlx shadcn-ui@latest add alert dialog toast
+
+# 导航组件
+pnpm dlx shadcn-ui@latest add tabs navigation-menu
+
+# 数据展示
+pnpm dlx shadcn-ui@latest add table badge avatar
+```
 
 ## 共享代码
 
