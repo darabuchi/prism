@@ -85,7 +85,7 @@ func NewNode(config map[string]any) (*Node, error) {
 	// 这是 Mihomo 提供的标准方法，用于解析 Clash 格式配置
 	proxyAdapter, err := adapter.ParseProxy(config)
 	if err != nil {
-		log.Errorf("err:%v", err)
+		log.Errorf("parse proxy config failed: %v, config: %+v", err, config)
 		return nil, xerror.WrapError(err, xerror.ErrSystemError, "parse proxy config failed")
 	}
 

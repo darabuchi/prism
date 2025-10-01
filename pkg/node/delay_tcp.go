@@ -5,6 +5,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/lazygophers/log"
 	"github.com/lazygophers/lrpc/middleware/xerror"
 	"github.com/lazygophers/utils/candy"
 	"github.com/metacubex/mihomo/constant"
@@ -35,18 +36,21 @@ import (
 //	log.Infof("TCP 延迟: %v", delay)
 func (n *Node) DelayTCP(ctx context.Context, addr string) (time.Duration, error) {
 	if addr == "" {
+		log.Errorf("addr is required")
 		return 0, xerror.New(xerror.ErrSystemError, "addr is required")
 	}
 
 	// 解析地址
 	host, portStr, err := net.SplitHostPort(addr)
 	if err != nil {
+		log.Errorf("split host port failed: %v, addr: %s", err, addr)
 		return 0, xerror.WrapError(err, xerror.ErrSystemError, "invalid addr format")
 	}
 
 	// 解析端口
 	port := uint16(candy.ToInt(portStr))
 	if port == 0 {
+		log.Errorf("invalid port: %s", portStr)
 		return 0, xerror.New(xerror.ErrSystemError, "invalid port")
 	}
 
@@ -63,6 +67,7 @@ func (n *Node) DelayTCP(ctx context.Context, addr string) (time.Duration, error)
 	// 使用节点的 DialContext 建立 TCP 连接
 	conn, err := n.adapter.DialContext(ctx, metadata)
 	if err != nil {
+		log.Errorf("TCP connection failed: %v, host: %s, port: %d", err, host, port)
 		return 0, xerror.WrapError(err, xerror.ErrSystemError, "TCP connection failed")
 	}
 	defer conn.Close()

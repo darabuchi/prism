@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/lazygophers/log"
 	"github.com/lazygophers/lrpc/middleware/xerror"
 )
 
@@ -39,6 +40,7 @@ import (
 //	log.Infof("ICMP 延迟: %v", delay)
 func (n *Node) DelayICMP(ctx context.Context, addr string) (time.Duration, error) {
 	if addr == "" {
+		log.Errorf("addr is required")
 		return 0, xerror.New(xerror.ErrSystemError, "addr is required")
 	}
 
@@ -49,9 +51,11 @@ func (n *Node) DelayICMP(ctx context.Context, addr string) (time.Duration, error
 	case "WireGuard":
 		// WireGuard 可能支持 ICMP，但需要特殊实现
 		// TODO: 实现 WireGuard 的 ICMP 测试
+		log.Errorf("ICMP test for WireGuard is not implemented yet, addr: %s", addr)
 		return 0, xerror.New(xerror.ErrSystemError, "ICMP test for WireGuard is not implemented yet")
 	default:
 		// 其他协议不支持 ICMP
+		log.Errorf("ICMP is not supported by proxy protocol: %s, addr: %s", adapterType, addr)
 		return 0, xerror.New(xerror.ErrSystemError, "ICMP is not supported by this proxy protocol")
 	}
 }

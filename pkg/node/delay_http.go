@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/lazygophers/log"
 	"github.com/lazygophers/lrpc/middleware/xerror"
 	"github.com/lazygophers/utils/candy"
 	"github.com/metacubex/mihomo/constant"
@@ -47,6 +48,7 @@ func (n *Node) DelayHTTP(ctx context.Context, url string) (time.Duration, error)
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 			host, portStr, err := net.SplitHostPort(addr)
 			if err != nil {
+				log.Errorf("split host port failed: %v, addr: %s", err, addr)
 				return nil, err
 			}
 
@@ -66,7 +68,12 @@ func (n *Node) DelayHTTP(ctx context.Context, url string) (time.Duration, error)
 			}
 
 			// 使用节点的 DialContext 建立代理连接
-			return n.adapter.DialContext(ctx, metadata)
+			conn, err := n.adapter.DialContext(ctx, metadata)
+			if err != nil {
+				log.Errorf("dial context failed: %v, host: %s, port: %d", err, host, port)
+				return nil, err
+			}
+			return conn, nil
 		},
 	}
 
@@ -81,11 +88,13 @@ func (n *Node) DelayHTTP(ctx context.Context, url string) (time.Duration, error)
 	// 发送 HTTP 请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
+		log.Errorf("create HTTP request failed: %v, url: %s", err, url)
 		return 0, xerror.WrapError(err, xerror.ErrSystemError, "create HTTP request failed")
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
+		log.Errorf("HTTP request failed: %v, url: %s", err, url)
 		return 0, xerror.WrapError(err, xerror.ErrSystemError, "HTTP request failed")
 	}
 	defer resp.Body.Close()
@@ -93,6 +102,7 @@ func (n *Node) DelayHTTP(ctx context.Context, url string) (time.Duration, error)
 	// 读取响应体（确保完整接收）
 	_, err = io.Copy(io.Discard, resp.Body)
 	if err != nil {
+		log.Errorf("read HTTP response failed: %v, url: %s", err, url)
 		return 0, xerror.WrapError(err, xerror.ErrSystemError, "read HTTP response failed")
 	}
 
