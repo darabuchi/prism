@@ -303,3 +303,5 @@ See 产品设计文档.md sections 9.1-9.8 for detailed API documentation.
 - Mihomo Documentation: https://wiki.metacubex.one/
 - Mihomo Dashboard: https://github.com/MetaCubeX/metacubexd
 - Product Documentation: See 产品设计文档.md (Chinese) for comprehensive platform support, deployment options and system behavior documentation
+- System Design: See 系统设计文档.md (Chinese) for architecture, database design, and API specifications
+- Detailed Design: See docs/详细设计/README.md (Chinese) for implementation details, interfaces, and code structure
