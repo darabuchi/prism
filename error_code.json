@@ -1,0 +1,354 @@
+{
+  "version": "1.0.0",
+  "description": "Prism 项目错误码注册表",
+  "categories": [
+    {
+      "name": "common",
+      "range": "0, 1000-1999",
+      "description": "通用错误和基础错误类型"
+    },
+    {
+      "name": "auth",
+      "range": "2000-2999",
+      "description": "认证和授权相关错误"
+    },
+    {
+      "name": "resource",
+      "range": "3000-3999",
+      "description": "资源相关错误（订阅、节点、路由等）"
+    },
+    {
+      "name": "validation",
+      "range": "4000-4999",
+      "description": "输入验证相关错误"
+    },
+    {
+      "name": "service",
+      "range": "5000-5999",
+      "description": "服务错误（数据库、缓存等）"
+    },
+    {
+      "name": "queue",
+      "range": "6000-6999",
+      "description": "消息队列相关错误"
+    },
+    {
+      "name": "config",
+      "range": "7000-7999",
+      "description": "配置文件和设置错误"
+    },
+    {
+      "name": "network",
+      "range": "8000-8999",
+      "description": "网络、代理、DNS 等错误"
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "key": "common.success",
+      "category": "common",
+      "description": "操作成功"
+    },
+    {
+      "code": 1000,
+      "key": "common.internal_error",
+      "category": "common",
+      "description": "内部错误"
+    },
+    {
+      "code": 1001,
+      "key": "common.invalid_request",
+      "category": "common",
+      "description": "无效的请求"
+    },
+    {
+      "code": 1002,
+      "key": "common.not_found",
+      "category": "common",
+      "description": "资源未找到"
+    },
+    {
+      "code": 1003,
+      "key": "common.already_exists",
+      "category": "common",
+      "description": "资源已存在"
+    },
+    {
+      "code": 1004,
+      "key": "common.timeout",
+      "category": "common",
+      "description": "操作超时"
+    },
+    {
+      "code": 1005,
+      "key": "common.too_many_requests",
+      "category": "common",
+      "description": "请求过多"
+    },
+    {
+      "code": 1006,
+      "key": "common.service_unavailable",
+      "category": "common",
+      "description": "服务不可用"
+    },
+    {
+      "code": 1007,
+      "key": "common.method_not_allowed",
+      "category": "common",
+      "description": "方法不允许"
+    },
+    {
+      "code": 1008,
+      "key": "common.unprocessable_entity",
+      "category": "common",
+      "description": "无法处理的实体"
+    },
+    {
+      "code": 2000,
+      "key": "auth.unauthorized",
+      "category": "auth",
+      "description": "未授权"
+    },
+    {
+      "code": 2001,
+      "key": "auth.forbidden",
+      "category": "auth",
+      "description": "禁止访问"
+    },
+    {
+      "code": 2002,
+      "key": "auth.invalid_token",
+      "category": "auth",
+      "description": "无效的令牌"
+    },
+    {
+      "code": 2003,
+      "key": "auth.token_expired",
+      "category": "auth",
+      "description": "令牌已过期"
+    },
+    {
+      "code": 2004,
+      "key": "auth.invalid_credentials",
+      "category": "auth",
+      "description": "无效的凭证"
+    },
+    {
+      "code": 3000,
+      "key": "subscription.not_found",
+      "category": "resource",
+      "description": "订阅不存在"
+    },
+    {
+      "code": 3001,
+      "key": "subscription.already_exists",
+      "category": "resource",
+      "description": "订阅已存在"
+    },
+    {
+      "code": 3002,
+      "key": "subscription.invalid",
+      "category": "resource",
+      "description": "订阅无效"
+    },
+    {
+      "code": 3003,
+      "key": "subscription.update_failed",
+      "category": "resource",
+      "description": "订阅更新失败"
+    },
+    {
+      "code": 3100,
+      "key": "node.not_found",
+      "category": "resource",
+      "description": "节点不存在"
+    },
+    {
+      "code": 3101,
+      "key": "node.test_failed",
+      "category": "resource",
+      "description": "节点测试失败"
+    },
+    {
+      "code": 3102,
+      "key": "node.unavailable",
+      "category": "resource",
+      "description": "节点不可用"
+    },
+    {
+      "code": 3200,
+      "key": "route.not_found",
+      "category": "resource",
+      "description": "路由规则不存在"
+    },
+    {
+      "code": 3201,
+      "key": "route.invalid",
+      "category": "resource",
+      "description": "路由规则无效"
+    },
+    {
+      "code": 4000,
+      "key": "validation.failed",
+      "category": "validation",
+      "description": "验证失败"
+    },
+    {
+      "code": 4001,
+      "key": "validation.url_required",
+      "category": "validation",
+      "description": "URL 不能为空"
+    },
+    {
+      "code": 4002,
+      "key": "validation.url_invalid",
+      "category": "validation",
+      "description": "URL 格式无效"
+    },
+    {
+      "code": 4003,
+      "key": "validation.title_required",
+      "category": "validation",
+      "description": "标题不能为空"
+    },
+    {
+      "code": 4004,
+      "key": "validation.port_invalid",
+      "category": "validation",
+      "description": "端口号无效"
+    },
+    {
+      "code": 4005,
+      "key": "validation.email_invalid",
+      "category": "validation",
+      "description": "邮箱格式无效"
+    },
+    {
+      "code": 4006,
+      "key": "validation.field_required",
+      "category": "validation",
+      "description": "字段不能为空"
+    },
+    {
+      "code": 4007,
+      "key": "validation.field_too_long",
+      "category": "validation",
+      "description": "字段过长"
+    },
+    {
+      "code": 4008,
+      "key": "validation.field_too_short",
+      "category": "validation",
+      "description": "字段过短"
+    },
+    {
+      "code": 5000,
+      "key": "service.database_error",
+      "category": "service",
+      "description": "数据库错误"
+    },
+    {
+      "code": 5001,
+      "key": "service.cache_error",
+      "category": "service",
+      "description": "缓存错误"
+    },
+    {
+      "code": 5002,
+      "key": "service.connection_failed",
+      "category": "service",
+      "description": "连接失败"
+    },
+    {
+      "code": 6000,
+      "key": "queue.full",
+      "category": "queue",
+      "description": "队列已满"
+    },
+    {
+      "code": 6001,
+      "key": "queue.empty",
+      "category": "queue",
+      "description": "队列为空"
+    },
+    {
+      "code": 6002,
+      "key": "queue.closed",
+      "category": "queue",
+      "description": "队列已关闭"
+    },
+    {
+      "code": 6003,
+      "key": "queue.timeout",
+      "category": "queue",
+      "description": "队列操作超时"
+    },
+    {
+      "code": 6004,
+      "key": "queue.invalid_concurrency",
+      "category": "queue",
+      "description": "无效的并发数"
+    },
+    {
+      "code": 6005,
+      "key": "queue.unsupported_type",
+      "category": "queue",
+      "description": "不支持的队列类型"
+    },
+    {
+      "code": 6006,
+      "key": "queue.max_retries_exceeded",
+      "category": "queue",
+      "description": "超过最大重试次数"
+    },
+    {
+      "code": 7000,
+      "key": "config.invalid",
+      "category": "config",
+      "description": "配置无效"
+    },
+    {
+      "code": 7001,
+      "key": "config.not_found",
+      "category": "config",
+      "description": "配置未找到"
+    },
+    {
+      "code": 7002,
+      "key": "config.parse_failed",
+      "category": "config",
+      "description": "配置解析失败"
+    },
+    {
+      "code": 8000,
+      "key": "proxy.connection_failed",
+      "category": "network",
+      "description": "代理连接失败"
+    },
+    {
+      "code": 8001,
+      "key": "proxy.timeout",
+      "category": "network",
+      "description": "代理超时"
+    },
+    {
+      "code": 8002,
+      "key": "proxy.auth_failed",
+      "category": "network",
+      "description": "代理认证失败"
+    },
+    {
+      "code": 8100,
+      "key": "network.unreachable",
+      "category": "network",
+      "description": "网络不可达"
+    },
+    {
+      "code": 8101,
+      "key": "network.dns_resolve_failed",
+      "category": "network",
+      "description": "DNS 解析失败"
+    }
+  ]
+}
