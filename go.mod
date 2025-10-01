@@ -2,9 +2,7 @@ module github.com/darabuchi/prism
 
 go 1.25.1
 
-replace (
-	github.com/metacubex/mihomo  => ./pkg/mihomo
-)
+replace github.com/metacubex/mihomo => ./pkg/mihomo
 
 require (
 	github.com/google/uuid v1.6.0
@@ -23,6 +21,7 @@ require (
 	github.com/lazygophers/log v0.0.0-20250921073910-e5ecde8b16f4 // indirect
 	github.com/lazygophers/lrpc v0.0.0-20251001062652-4067d97311c1 // indirect
 	github.com/petermattis/goid v0.0.0-20250904145737-900bdf8bb490 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.66.0 // indirect

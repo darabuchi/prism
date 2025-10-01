@@ -1,0 +1,94 @@
+# Fichier de traduction française
+
+# ==================== Messages communs ====================
+common:
+  success: "Opération réussie"
+  internal_error: "Erreur interne"
+  invalid_request: "Requête invalide"
+  not_found: "Ressource non trouvée"
+  already_exists: "La ressource existe déjà"
+  timeout: "Délai d'attente dépassé"
+  too_many_requests: "Trop de requêtes, veuillez réessayer plus tard"
+  service_unavailable: "Service indisponible"
+  method_not_allowed: "Méthode non autorisée"
+  unprocessable_entity: "Entité non traitable"
+
+# ==================== Authentification et autorisation ====================
+auth:
+  unauthorized: "Non autorisé, veuillez vous connecter"
+  forbidden: "Accès interdit"
+  invalid_token: "Jeton invalide"
+  token_expired: "Jeton expiré"
+  invalid_credentials: "Nom d'utilisateur ou mot de passe incorrect"
+
+# ==================== Abonnement ====================
+subscription:
+  not_found: "Abonnement introuvable"
+  already_exists: "L'abonnement existe déjà"
+  invalid: "Abonnement invalide"
+  update_failed: "Échec de la mise à jour de l'abonnement"
+
+# ==================== Nœud ====================
+node:
+  not_found: "Nœud introuvable"
+  test_failed: "Test du nœud échoué"
+  unavailable: "Nœud indisponible"
+
+# ==================== Route ====================
+route:
+  not_found: "Règle de routage introuvable"
+  invalid: "Règle de routage invalide"
+
+# ==================== Erreurs de validation ====================
+validation:
+  failed: "Validation échouée"
+  url_required: "L'URL ne peut pas être vide"
+  url_invalid: "Format d'URL invalide"
+  title_required: "Le titre ne peut pas être vide"
+  port_invalid: "Numéro de port invalide"
+  email_invalid: "Format d'email invalide"
+  field_required: "Le champ %s ne peut pas être vide"
+  field_too_long: "Le champ %s est trop long, longueur maximale : %d"
+  field_too_short: "Le champ %s est trop court, longueur minimale : %d"
+
+# ==================== Erreurs de service ====================
+service:
+  database_error: "Erreur de base de données"
+  cache_error: "Erreur de cache"
+  connection_failed: "Échec de connexion"
+
+# ==================== Erreurs de file d'attente ====================
+queue:
+  full: "File d'attente pleine"
+  empty: "File d'attente vide"
+  closed: "File d'attente fermée"
+  timeout: "Délai d'attente de l'opération de file d'attente dépassé"
+  invalid_concurrency: "Nombre de concurrences invalide"
+  unsupported_type: "Type de file d'attente non pris en charge"
+  max_retries_exceeded: "Nombre maximum de tentatives dépassé"
+
+# ==================== Erreurs de configuration ====================
+config:
+  invalid: "Configuration invalide"
+  not_found: "Configuration introuvable"
+  parse_failed: "Échec de l'analyse de la configuration"
+
+# ==================== Erreurs de proxy et réseau ====================
+proxy:
+  connection_failed: "Échec de connexion au proxy"
+  timeout: "Délai d'attente du proxy dépassé"
+  auth_failed: "Échec de l'authentification du proxy"
+
+network:
+  unreachable: "Réseau inaccessible"
+  dns_resolve_failed: "Échec de résolution DNS"
+
+# ==================== Messages métier ====================
+messages:
+  server_started: "Serveur démarré, écoute sur le port %d"
+  server_stopped: "Serveur arrêté"
+  subscription_created: "Abonnement créé avec succès"
+  subscription_updated: "Abonnement mis à jour avec succès"
+  subscription_deleted: "Abonnement supprimé avec succès"
+  node_test_started: "Test du nœud commencé"
+  node_test_completed: "Test du nœud terminé"

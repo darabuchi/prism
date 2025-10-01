@@ -1,0 +1,94 @@
+# 繁體中文翻譯文件
+
+# ==================== 通用消息 ====================
+common:
+  success: "操作成功"
+  internal_error: "內部錯誤"
+  invalid_request: "無效的請求"
+  not_found: "資源未找到"
+  already_exists: "資源已存在"
+  timeout: "操作超時"
+  too_many_requests: "請求過多，請稍後重試"
+  service_unavailable: "服務不可用"
+  method_not_allowed: "不允許的請求方法"
+  unprocessable_entity: "無法處理的實體"
+
+# ==================== 認證和授權 ====================
+auth:
+  unauthorized: "未授權，請先登入"
+  forbidden: "禁止訪問"
+  invalid_token: "無效的令牌"
+  token_expired: "令牌已過期"
+  invalid_credentials: "使用者名稱或密碼錯誤"
+
+# ==================== 訂閱相關 ====================
+subscription:
+  not_found: "訂閱不存在"
+  already_exists: "訂閱已存在"
+  invalid: "訂閱無效"
+  update_failed: "訂閱更新失敗"
+
+# ==================== 節點相關 ====================
+node:
+  not_found: "節點不存在"
+  test_failed: "節點測試失敗"
+  unavailable: "節點不可用"
+
+# ==================== 路由相關 ====================
+route:
+  not_found: "路由規則不存在"
+  invalid: "路由規則無效"
+
+# ==================== 驗證錯誤 ====================
+validation:
+  failed: "驗證失敗"
+  url_required: "URL 不能為空"
+  url_invalid: "URL 格式無效"
+  title_required: "標題不能為空"
+  port_invalid: "連接埠號無效"
+  email_invalid: "郵箱格式無效"
+  field_required: "欄位 %s 不能為空"
+  field_too_long: "欄位 %s 過長，最大長度為 %d"
+  field_too_short: "欄位 %s 過短，最小長度為 %d"
+
+# ==================== 服務錯誤 ====================
+service:
+  database_error: "資料庫錯誤"
+  cache_error: "快取錯誤"
+  connection_failed: "連接失敗"
+
+# ==================== 佇列錯誤 ====================
+queue:
+  full: "佇列已滿"
+  empty: "佇列為空"
+  closed: "佇列已關閉"
+  timeout: "佇列操作超時"
+  invalid_concurrency: "無效的併發數"
+  unsupported_type: "不支援的佇列類型"
+  max_retries_exceeded: "超過最大重試次數"
+
+# ==================== 設定錯誤 ====================
+config:
+  invalid: "設定無效"
+  not_found: "設定未找到"
+  parse_failed: "設定解析失敗"
+
+# ==================== 代理和網路錯誤 ====================
+proxy:
+  connection_failed: "代理連接失敗"
+  timeout: "代理超時"
+  auth_failed: "代理認證失敗"
+
+network:
+  unreachable: "網路不可達"
+  dns_resolve_failed: "DNS 解析失敗"
+
+# ==================== 業務消息 ====================
+messages:
+  server_started: "伺服器已啟動，監聽連接埠 %d"
+  server_stopped: "伺服器已停止"
+  subscription_created: "訂閱建立成功"
+  subscription_updated: "訂閱更新成功"
+  subscription_deleted: "訂閱刪除成功"
+  node_test_started: "節點測試已開始"
+  node_test_completed: "節點測試完成"

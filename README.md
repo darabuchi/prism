@@ -22,8 +22,6 @@ prism/
 ├── prism/                  # 核心包
 ├── internal/               # 内部实现
 │   ├── state/             # 状态管理
-│   ├── cache/             # 缓存系统
-│   ├── service/           # 业务逻辑
 │   └── api/               # HTTP API
 ├── pkg/                    # 公共包
 ├── config/                 # 配置文件

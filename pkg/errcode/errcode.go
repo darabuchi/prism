@@ -1,188 +1,108 @@
 package errcode
 
 import (
-	"fmt"
-
-	"golang.org/x/xerrors"
+	"github.com/darabuchi/prism/pkg/i18n"
+	"github.com/lazygophers/lrpc/middleware/xerror"
 )
 
-// ErrCode 错误码结构
-type ErrCode struct {
-	Code    int    // 错误码（唯一标识）
-	Key     string // 错误码键名（用于 i18n 查找）
-	HTTPCode int    // HTTP 状态码
-}
+// 错误码定义
+const (
+	// 成功
+	Success int32 = 0
 
-// Error 实现 error 接口
-func (e *ErrCode) Error() string {
-	return fmt.Sprintf("[%d] %s", e.Code, e.Key)
-}
+	// 通用错误 (1000-1999)
+	ErrInternal            int32 = 1000
+	ErrInvalidRequest      int32 = 1001
+	ErrNotFound            int32 = 1002
+	ErrAlreadyExists       int32 = 1003
+	ErrTimeout             int32 = 1004
+	ErrTooManyRequests     int32 = 1005
+	ErrServiceUnavailable  int32 = 1006
+	ErrMethodNotAllowed    int32 = 1007
+	ErrUnprocessableEntity int32 = 1008
 
-// CodedError 包含错误码和上下文的错误
-type CodedError struct {
-	ErrCode *ErrCode               // 错误码
-	Message string                 // 错误消息（已本地化）
-	Cause   error                  // 原始错误
-	Details map[string]interface{} // 错误详情
-}
+	// 认证授权 (2000-2999)
+	ErrUnauthorized       int32 = 2000
+	ErrForbidden          int32 = 2001
+	ErrInvalidToken       int32 = 2002
+	ErrTokenExpired       int32 = 2003
+	ErrInvalidCredentials int32 = 2004
 
-// Error 实现 error 接口
-func (e *CodedError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("[%d] %s: %v", e.ErrCode.Code, e.Message, e.Cause)
-	}
-	return fmt.Sprintf("[%d] %s", e.ErrCode.Code, e.Message)
-}
+	// 订阅相关 (3000-3099)
+	ErrSubscriptionNotFound int32 = 3000
+	ErrSubscriptionExists   int32 = 3001
+	ErrSubscriptionInvalid  int32 = 3002
+	ErrSubscriptionUpdateFailed int32 = 3003
 
-// Unwrap 返回原始错误，支持 errors.Is 和 errors.As
-func (e *CodedError) Unwrap() error {
-	return e.Cause
-}
+	// 节点相关 (3100-3199)
+	ErrNodeNotFound   int32 = 3100
+	ErrNodeTestFailed int32 = 3101
+	ErrNodeUnavailable int32 = 3102
 
-// Format 实现 fmt.Formatter 接口，支持 %+v 格式化输出错误链
-func (e *CodedError) Format(s fmt.State, verb rune) {
-	switch verb {
-	case 'v':
-		if s.Flag('+') {
-			// %+v: 详细格式，包含错误链
-			fmt.Fprintf(s, "[%d] %s", e.ErrCode.Code, e.Message)
-			if len(e.Details) > 0 {
-				fmt.Fprintf(s, " (details: %+v)", e.Details)
-			}
-			if e.Cause != nil {
-				fmt.Fprintf(s, "\nCaused by: %+v", e.Cause)
-			}
-			return
-		}
-		fallthrough
-	case 's':
-		fmt.Fprint(s, e.Error())
-	case 'q':
-		fmt.Fprintf(s, "%q", e.Error())
-	}
-}
+	// 路由相关 (3200-3299)
+	ErrRouteNotFound int32 = 3200
+	ErrRouteInvalid  int32 = 3201
 
-// Code 获取错误码
-func (e *CodedError) Code() int {
-	return e.ErrCode.Code
-}
+	// 验证错误 (4000-4999)
+	ErrValidationFailed int32 = 4000
+	ErrURLRequired      int32 = 4001
+	ErrURLInvalid       int32 = 4002
+	ErrTitleRequired    int32 = 4003
+	ErrPortInvalid      int32 = 4004
+	ErrEmailInvalid     int32 = 4005
+	ErrFieldRequired    int32 = 4006
+	ErrFieldTooLong     int32 = 4007
+	ErrFieldTooShort    int32 = 4008
 
-// HTTPStatus 获取 HTTP 状态码
-func (e *CodedError) HTTPStatus() int {
-	return e.ErrCode.HTTPCode
-}
+	// 服务错误 (5000-5999)
+	ErrDatabaseError    int32 = 5000
+	ErrCacheError       int32 = 5001
+	ErrConnectionFailed int32 = 5002
 
-// WithCause 添加原始错误
-func (e *CodedError) WithCause(cause error) *CodedError {
-	e.Cause = cause
-	return e
-}
+	// 队列错误 (6000-6999)
+	ErrQueueFull                int32 = 6000
+	ErrQueueEmpty               int32 = 6001
+	ErrQueueClosed              int32 = 6002
+	ErrQueueTimeout             int32 = 6003
+	ErrQueueInvalidConcurrency  int32 = 6004
+	ErrQueueUnsupportedType     int32 = 6005
+	ErrQueueMaxRetriesExceeded  int32 = 6006
 
-// WithDetail 添加错误详情
-func (e *CodedError) WithDetail(key string, value interface{}) *CodedError {
-	if e.Details == nil {
-		e.Details = make(map[string]interface{})
-	}
-	e.Details[key] = value
-	return e
-}
+	// 配置错误 (7000-7999)
+	ErrConfigInvalid     int32 = 7000
+	ErrConfigNotFound    int32 = 7001
+	ErrConfigParseFailed int32 = 7002
 
-// WithDetails 批量添加错误详情
-func (e *CodedError) WithDetails(details map[string]interface{}) *CodedError {
-	if e.Details == nil {
-		e.Details = make(map[string]interface{})
-	}
-	for k, v := range details {
-		e.Details[k] = v
-	}
-	return e
-}
+	// 代理错误 (8000-8099)
+	ErrProxyConnectionFailed int32 = 8000
+	ErrProxyTimeout          int32 = 8001
+	ErrProxyAuthFailed       int32 = 8002
 
-// New 创建新的错误码错误
-func (ec *ErrCode) New(message string) *CodedError {
-	return &CodedError{
-		ErrCode: ec,
-		Message: message,
-	}
-}
+	// 网络错误 (8100-8199)
+	ErrNetworkUnreachable   int32 = 8100
+	ErrDNSResolveFailed     int32 = 8101
+)
 
-// Newf 创建新的错误码错误（格式化消息）
-func (ec *ErrCode) Newf(format string, args ...interface{}) *CodedError {
-	return &CodedError{
-		ErrCode: ec,
-		Message: fmt.Sprintf(format, args...),
-	}
-}
-
-// Wrap 包装现有错误
-func (ec *ErrCode) Wrap(err error, message string) *CodedError {
-	return &CodedError{
-		ErrCode: ec,
-		Message: message,
-		Cause:   err,
-	}
-}
-
-// Wrapf 包装现有错误（格式化消息）
-func (ec *ErrCode) Wrapf(err error, format string, args ...interface{}) *CodedError {
-	return &CodedError{
-		ErrCode: ec,
-		Message: fmt.Sprintf(format, args...),
-		Cause:   err,
-	}
-}
-
-// Is 判断错误是否为指定错误码（支持错误链）
-func Is(err error, code *ErrCode) bool {
-	if err == nil || code == nil {
-		return false
+// Init 初始化错误码系统
+// dirPath: i18n 资源文件目录路径
+func Init(dirPath string) error {
+	// 加载多语言资源
+	if err := i18n.LoadFromDir(dirPath); err != nil {
+		return err
 	}
 
-	// 遍历错误链
-	for err != nil {
-		if codedErr, ok := err.(*CodedError); ok {
-			if codedErr.ErrCode.Code == code.Code {
-				return true
-			}
-		}
+	// 设置 xerror 的 i18n 实现
+	xerror.SetI18n(i18n.NewLocalizer())
 
-		// 继续检查错误链
-		err = xerrors.Unwrap(err)
-	}
-
-	return false
+	return nil
 }
 
-// GetCode 从错误中提取错误码（支持错误链）
-func GetCode(err error) int {
-	if err == nil {
-		return 0
-	}
-
-	// 遍历错误链，找到第一个 CodedError
-	for err != nil {
-		if codedErr, ok := err.(*CodedError); ok {
-			return codedErr.Code()
-		}
-		err = xerrors.Unwrap(err)
-	}
-
-	return 0
+// New 创建带本地化消息的错误
+func New(code int32, langs ...string) *xerror.Error {
+	return xerror.NewError(code, langs...)
 }
 
-// GetHTTPStatus 从错误中提取 HTTP 状态码（支持错误链）
-func GetHTTPStatus(err error) int {
-	if err == nil {
-		return 200
-	}
-
-	// 遍历错误链，找到第一个 CodedError
-	for err != nil {
-		if codedErr, ok := err.(*CodedError); ok {
-			return codedErr.HTTPStatus()
-		}
-		err = xerrors.Unwrap(err)
-	}
-
-	return 500
+// NewWithMsg 创建带自定义消息的错误
+func NewWithMsg(code int32, msg string) *xerror.Error {
+	return xerror.NewErrorWithMsg(code, msg)
 }

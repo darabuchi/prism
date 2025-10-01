@@ -1,0 +1,94 @@
+# Archivo de traducción al español
+
+# ==================== Mensajes comunes ====================
+common:
+  success: "Operación exitosa"
+  internal_error: "Error interno"
+  invalid_request: "Solicitud inválida"
+  not_found: "Recurso no encontrado"
+  already_exists: "El recurso ya existe"
+  timeout: "Tiempo de espera agotado"
+  too_many_requests: "Demasiadas solicitudes, inténtalo más tarde"
+  service_unavailable: "Servicio no disponible"
+  method_not_allowed: "Método no permitido"
+  unprocessable_entity: "Entidad no procesable"
+
+# ==================== Autenticación y autorización ====================
+auth:
+  unauthorized: "No autorizado, por favor inicia sesión"
+  forbidden: "Acceso prohibido"
+  invalid_token: "Token inválido"
+  token_expired: "Token expirado"
+  invalid_credentials: "Nombre de usuario o contraseña incorrectos"
+
+# ==================== Suscripción ====================
+subscription:
+  not_found: "Suscripción no encontrada"
+  already_exists: "La suscripción ya existe"
+  invalid: "Suscripción inválida"
+  update_failed: "Falló la actualización de la suscripción"
+
+# ==================== Nodo ====================
+node:
+  not_found: "Nodo no encontrado"
+  test_failed: "Prueba de nodo fallida"
+  unavailable: "Nodo no disponible"
+
+# ==================== Ruta ====================
+route:
+  not_found: "Regla de enrutamiento no encontrada"
+  invalid: "Regla de enrutamiento inválida"
+
+# ==================== Errores de validación ====================
+validation:
+  failed: "Validación fallida"
+  url_required: "La URL no puede estar vacía"
+  url_invalid: "Formato de URL inválido"
+  title_required: "El título no puede estar vacío"
+  port_invalid: "Número de puerto inválido"
+  email_invalid: "Formato de correo electrónico inválido"
+  field_required: "El campo %s no puede estar vacío"
+  field_too_long: "El campo %s es demasiado largo, longitud máxima: %d"
+  field_too_short: "El campo %s es demasiado corto, longitud mínima: %d"
+
+# ==================== Errores de servicio ====================
+service:
+  database_error: "Error de base de datos"
+  cache_error: "Error de caché"
+  connection_failed: "Fallo de conexión"
+
+# ==================== Errores de cola ====================
+queue:
+  full: "Cola llena"
+  empty: "Cola vacía"
+  closed: "Cola cerrada"
+  timeout: "Tiempo de espera de operación de cola agotado"
+  invalid_concurrency: "Número de concurrencia inválido"
+  unsupported_type: "Tipo de cola no compatible"
+  max_retries_exceeded: "Número máximo de reintentos excedido"
+
+# ==================== Errores de configuración ====================
+config:
+  invalid: "Configuración inválida"
+  not_found: "Configuración no encontrada"
+  parse_failed: "Fallo al analizar la configuración"
+
+# ==================== Errores de proxy y red ====================
+proxy:
+  connection_failed: "Fallo de conexión al proxy"
+  timeout: "Tiempo de espera del proxy agotado"
+  auth_failed: "Fallo de autenticación del proxy"
+
+network:
+  unreachable: "Red inalcanzable"
+  dns_resolve_failed: "Fallo de resolución DNS"
+
+# ==================== Mensajes de negocio ====================
+messages:
+  server_started: "Servidor iniciado, escuchando en el puerto %d"
+  server_stopped: "Servidor detenido"
+  subscription_created: "Suscripción creada exitosamente"
+  subscription_updated: "Suscripción actualizada exitosamente"
+  subscription_deleted: "Suscripción eliminada exitosamente"
+  node_test_started: "Prueba de nodo iniciada"
+  node_test_completed: "Prueba de nodo completada"
