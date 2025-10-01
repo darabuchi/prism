@@ -827,3 +827,255 @@ func calculateMetadataStatistics(results []IPLookupResult) *MetadataStatistics {
 
 	return stats
 }
+
+// GetMostCommonCountry 获取占比最大的国家
+func (m *MetadataStatistics) GetMostCommonCountry() (string, *FieldStatistics) {
+	if len(m.Country) == 0 {
+		return "", nil
+	}
+
+	var maxKey string
+	var maxStat *FieldStatistics
+	maxPercentage := -1.0
+
+	for key, stat := range m.Country {
+		if stat.Percentage > maxPercentage {
+			maxPercentage = stat.Percentage
+			maxKey = key
+			maxStat = stat
+		}
+	}
+
+	return maxKey, maxStat
+}
+
+// GetLeastCommonCountry 获取占比最小的国家
+func (m *MetadataStatistics) GetLeastCommonCountry() (string, *FieldStatistics) {
+	if len(m.Country) == 0 {
+		return "", nil
+	}
+
+	var minKey string
+	var minStat *FieldStatistics
+	minPercentage := 101.0
+
+	for key, stat := range m.Country {
+		if stat.Percentage < minPercentage {
+			minPercentage = stat.Percentage
+			minKey = key
+			minStat = stat
+		}
+	}
+
+	return minKey, minStat
+}
+
+// GetMostCommonRegion 获取占比最大的地区
+func (m *MetadataStatistics) GetMostCommonRegion() (string, *FieldStatistics) {
+	if len(m.Region) == 0 {
+		return "", nil
+	}
+
+	var maxKey string
+	var maxStat *FieldStatistics
+	maxPercentage := -1.0
+
+	for key, stat := range m.Region {
+		if stat.Percentage > maxPercentage {
+			maxPercentage = stat.Percentage
+			maxKey = key
+			maxStat = stat
+		}
+	}
+
+	return maxKey, maxStat
+}
+
+// GetLeastCommonRegion 获取占比最小的地区
+func (m *MetadataStatistics) GetLeastCommonRegion() (string, *FieldStatistics) {
+	if len(m.Region) == 0 {
+		return "", nil
+	}
+
+	var minKey string
+	var minStat *FieldStatistics
+	minPercentage := 101.0
+
+	for key, stat := range m.Region {
+		if stat.Percentage < minPercentage {
+			minPercentage = stat.Percentage
+			minKey = key
+			minStat = stat
+		}
+	}
+
+	return minKey, minStat
+}
+
+// GetMostCommonCity 获取占比最大的城市
+func (m *MetadataStatistics) GetMostCommonCity() (string, *FieldStatistics) {
+	if len(m.City) == 0 {
+		return "", nil
+	}
+
+	var maxKey string
+	var maxStat *FieldStatistics
+	maxPercentage := -1.0
+
+	for key, stat := range m.City {
+		if stat.Percentage > maxPercentage {
+			maxPercentage = stat.Percentage
+			maxKey = key
+			maxStat = stat
+		}
+	}
+
+	return maxKey, maxStat
+}
+
+// GetLeastCommonCity 获取占比最小的城市
+func (m *MetadataStatistics) GetLeastCommonCity() (string, *FieldStatistics) {
+	if len(m.City) == 0 {
+		return "", nil
+	}
+
+	var minKey string
+	var minStat *FieldStatistics
+	minPercentage := 101.0
+
+	for key, stat := range m.City {
+		if stat.Percentage < minPercentage {
+			minPercentage = stat.Percentage
+			minKey = key
+			minStat = stat
+		}
+	}
+
+	return minKey, minStat
+}
+
+// GetMostCommonISP 获取占比最大的 ISP
+func (m *MetadataStatistics) GetMostCommonISP() (string, *FieldStatistics) {
+	if len(m.ISP) == 0 {
+		return "", nil
+	}
+
+	var maxKey string
+	var maxStat *FieldStatistics
+	maxPercentage := -1.0
+
+	for key, stat := range m.ISP {
+		if stat.Percentage > maxPercentage {
+			maxPercentage = stat.Percentage
+			maxKey = key
+			maxStat = stat
+		}
+	}
+
+	return maxKey, maxStat
+}
+
+// GetLeastCommonISP 获取占比最小的 ISP
+func (m *MetadataStatistics) GetLeastCommonISP() (string, *FieldStatistics) {
+	if len(m.ISP) == 0 {
+		return "", nil
+	}
+
+	var minKey string
+	var minStat *FieldStatistics
+	minPercentage := 101.0
+
+	for key, stat := range m.ISP {
+		if stat.Percentage < minPercentage {
+			minPercentage = stat.Percentage
+			minKey = key
+			minStat = stat
+		}
+	}
+
+	return minKey, minStat
+}
+
+// GetMostCommonASN 获取占比最大的 ASN
+func (m *MetadataStatistics) GetMostCommonASN() (int, *FieldStatistics) {
+	if len(m.ASN) == 0 {
+		return 0, nil
+	}
+
+	var maxKey int
+	var maxStat *FieldStatistics
+	maxPercentage := -1.0
+
+	for key, stat := range m.ASN {
+		if stat.Percentage > maxPercentage {
+			maxPercentage = stat.Percentage
+			maxKey = key
+			maxStat = stat
+		}
+	}
+
+	return maxKey, maxStat
+}
+
+// GetLeastCommonASN 获取占比最小的 ASN
+func (m *MetadataStatistics) GetLeastCommonASN() (int, *FieldStatistics) {
+	if len(m.ASN) == 0 {
+		return 0, nil
+	}
+
+	var minKey int
+	var minStat *FieldStatistics
+	minPercentage := 101.0
+
+	for key, stat := range m.ASN {
+		if stat.Percentage < minPercentage {
+			minPercentage = stat.Percentage
+			minKey = key
+			minStat = stat
+		}
+	}
+
+	return minKey, minStat
+}
+
+// GetMostCommonTimezone 获取占比最大的时区
+func (m *MetadataStatistics) GetMostCommonTimezone() (string, *FieldStatistics) {
+	if len(m.Timezone) == 0 {
+		return "", nil
+	}
+
+	var maxKey string
+	var maxStat *FieldStatistics
+	maxPercentage := -1.0
+
+	for key, stat := range m.Timezone {
+		if stat.Percentage > maxPercentage {
+			maxPercentage = stat.Percentage
+			maxKey = key
+			maxStat = stat
+		}
+	}
+
+	return maxKey, maxStat
+}
+
+// GetLeastCommonTimezone 获取占比最小的时区
+func (m *MetadataStatistics) GetLeastCommonTimezone() (string, *FieldStatistics) {
+	if len(m.Timezone) == 0 {
+		return "", nil
+	}
+
+	var minKey string
+	var minStat *FieldStatistics
+	minPercentage := 101.0
+
+	for key, stat := range m.Timezone {
+		if stat.Percentage < minPercentage {
+			minPercentage = stat.Percentage
+			minKey = key
+			minStat = stat
+		}
+	}
+
+	return minKey, minStat
+}

@@ -319,3 +319,89 @@ func TestIPLookupIndividualServices(t *testing.T) {
 
 	log.Infof("Successfully queried %d/%d services", successCount, len(services))
 }
+
+func TestMetadataStatisticsHelpers(t *testing.T) {
+	n, err := node.NewNode(testProxyConfig)
+	if err != nil {
+		t.Fatalf("NewNode failed: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	_, _, metadataStats, err := n.GetIPConcurrent(ctx)
+	if err != nil {
+		t.Fatalf("GetIPConcurrent failed: %v", err)
+	}
+
+	if metadataStats == nil {
+		t.Log("No metadata statistics available, skipping test")
+		return
+	}
+
+	// Test Country helpers
+	if mostCommonCountry, stat := metadataStats.GetMostCommonCountry(); stat != nil {
+		log.Infof("Most common country: %s (%.2f%%, count: %d, sources: %v)",
+			mostCommonCountry, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	if leastCommonCountry, stat := metadataStats.GetLeastCommonCountry(); stat != nil {
+		log.Infof("Least common country: %s (%.2f%%, count: %d, sources: %v)",
+			leastCommonCountry, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	// Test Region helpers
+	if mostCommonRegion, stat := metadataStats.GetMostCommonRegion(); stat != nil {
+		log.Infof("Most common region: %s (%.2f%%, count: %d, sources: %v)",
+			mostCommonRegion, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	if leastCommonRegion, stat := metadataStats.GetLeastCommonRegion(); stat != nil {
+		log.Infof("Least common region: %s (%.2f%%, count: %d, sources: %v)",
+			leastCommonRegion, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	// Test City helpers
+	if mostCommonCity, stat := metadataStats.GetMostCommonCity(); stat != nil {
+		log.Infof("Most common city: %s (%.2f%%, count: %d, sources: %v)",
+			mostCommonCity, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	if leastCommonCity, stat := metadataStats.GetLeastCommonCity(); stat != nil {
+		log.Infof("Least common city: %s (%.2f%%, count: %d, sources: %v)",
+			leastCommonCity, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	// Test ISP helpers
+	if mostCommonISP, stat := metadataStats.GetMostCommonISP(); stat != nil {
+		log.Infof("Most common ISP: %s (%.2f%%, count: %d, sources: %v)",
+			mostCommonISP, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	if leastCommonISP, stat := metadataStats.GetLeastCommonISP(); stat != nil {
+		log.Infof("Least common ISP: %s (%.2f%%, count: %d, sources: %v)",
+			leastCommonISP, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	// Test ASN helpers
+	if mostCommonASN, stat := metadataStats.GetMostCommonASN(); stat != nil {
+		log.Infof("Most common ASN: %d (%.2f%%, count: %d, sources: %v)",
+			mostCommonASN, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	if leastCommonASN, stat := metadataStats.GetLeastCommonASN(); stat != nil {
+		log.Infof("Least common ASN: %d (%.2f%%, count: %d, sources: %v)",
+			leastCommonASN, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	// Test Timezone helpers
+	if mostCommonTimezone, stat := metadataStats.GetMostCommonTimezone(); stat != nil {
+		log.Infof("Most common timezone: %s (%.2f%%, count: %d, sources: %v)",
+			mostCommonTimezone, stat.Percentage, stat.Count, stat.Sources)
+	}
+
+	if leastCommonTimezone, stat := metadataStats.GetLeastCommonTimezone(); stat != nil {
+		log.Infof("Least common timezone: %s (%.2f%%, count: %d, sources: %v)",
+			leastCommonTimezone, stat.Percentage, stat.Count, stat.Sources)
+	}
+}
