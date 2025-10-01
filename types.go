@@ -1,5 +1,11 @@
 package prism
 
+import (
+	"fmt"
+	"net"
+	"strings"
+)
+
 // ProxyType 代理协议类型
 //
 // 定义所有支持的代理协议类型常量
@@ -94,4 +100,165 @@ func (h HealthState) String() string {
 	default:
 		return "unknown"
 	}
+}
+
+// GeoIP 地理位置信息
+//
+// 包含 IP 地址的地理位置、ASN、ISP 等信息
+// 通常从 GeoIP 数据库或在线服务获取
+type GeoIP struct {
+	// IP 信息
+	IP        string `json:"ip"`         // IP 地址
+	IPVersion int    `json:"ip_version"` // IP 版本 (4 或 6)
+
+	// 地理位置信息
+	Country     string  `json:"country"`      // 国家名称
+	CountryCode string  `json:"country_code"` // 国家代码 (ISO 3166-1 alpha-2)
+	Region      string  `json:"region"`       // 地区/省份名称
+	RegionCode  string  `json:"region_code"`  // 地区/省份代码
+	City        string  `json:"city"`         // 城市名称
+	Latitude    float64 `json:"latitude"`     // 纬度
+	Longitude   float64 `json:"longitude"`    // 经度
+	Postal      string  `json:"postal"`       // 邮政编码
+	Timezone    string  `json:"timezone"`     // 时区
+
+	// ASN 信息
+	ASN    int    `json:"asn"`     // 自治系统号
+	ASName string `json:"as_name"` // 自治系统名称
+	AS     string `json:"as"`      // AS 字符串表示 (如 "AS15169")
+
+	// ISP 信息
+	ISP string `json:"isp"` // 互联网服务提供商
+	Org string `json:"org"` // 组织名称
+
+	// 其他信息
+	Continent     string `json:"continent"`      // 大洲
+	ContinentCode string `json:"continent_code"` // 大洲代码
+	Proxy         bool   `json:"proxy"`          // 是否为代理/VPN
+	Hosting       bool   `json:"hosting"`        // 是否为托管服务器
+}
+
+// Location 返回格式化的地理位置字符串
+//
+// 格式: "城市, 地区, 国家" 或根据可用信息调整
+func (g *GeoIP) Location() string {
+	var parts []string
+
+	if g.City != "" {
+		parts = append(parts, g.City)
+	}
+	if g.Region != "" {
+		parts = append(parts, g.Region)
+	}
+	if g.Country != "" {
+		parts = append(parts, g.Country)
+	} else if g.CountryCode != "" {
+		parts = append(parts, g.CountryCode)
+	}
+
+	if len(parts) == 0 {
+		return "Unknown"
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+// Coordinates 返回格式化的坐标字符串
+func (g *GeoIP) Coordinates() string {
+	if g.Latitude == 0 && g.Longitude == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%.4f, %.4f", g.Latitude, g.Longitude)
+}
+
+// ASString 返回完整的 AS 信息字符串
+//
+// 格式: "AS15169 Google LLC" 或 "AS15169" (如果没有名称)
+func (g *GeoIP) ASString() string {
+	if g.ASN == 0 {
+		return ""
+	}
+
+	if g.ASName != "" {
+		return fmt.Sprintf("AS%d %s", g.ASN, g.ASName)
+	}
+
+	return fmt.Sprintf("AS%d", g.ASN)
+}
+
+// IsIPv4 检查是否为 IPv4 地址
+func (g *GeoIP) IsIPv4() bool {
+	if g.IPVersion != 0 {
+		return g.IPVersion == 4
+	}
+
+	// 如果未设置 IPVersion，从 IP 字符串判断
+	if g.IP == "" {
+		return false
+	}
+
+	ip := net.ParseIP(g.IP)
+	if ip == nil {
+		return false
+	}
+
+	return ip.To4() != nil
+}
+
+// IsIPv6 检查是否为 IPv6 地址
+func (g *GeoIP) IsIPv6() bool {
+	if g.IPVersion != 0 {
+		return g.IPVersion == 6
+	}
+
+	// 如果未设置 IPVersion，从 IP 字符串判断
+	if g.IP == "" {
+		return false
+	}
+
+	ip := net.ParseIP(g.IP)
+	if ip == nil {
+		return false
+	}
+
+	return ip.To4() == nil && ip.To16() != nil
+}
+
+// HasLocation 检查是否有地理位置信息
+func (g *GeoIP) HasLocation() bool {
+	return g.Country != "" || g.CountryCode != "" || g.City != "" || g.Region != ""
+}
+
+// HasASN 检查是否有 ASN 信息
+func (g *GeoIP) HasASN() bool {
+	return g.ASN > 0
+}
+
+// String 返回 GeoIP 的字符串表示
+func (g *GeoIP) String() string {
+	var parts []string
+
+	if g.IP != "" {
+		parts = append(parts, g.IP)
+	}
+
+	location := g.Location()
+	if location != "Unknown" {
+		parts = append(parts, location)
+	}
+
+	if g.ISP != "" {
+		parts = append(parts, g.ISP)
+	}
+
+	asStr := g.ASString()
+	if asStr != "" {
+		parts = append(parts, asStr)
+	}
+
+	if len(parts) == 0 {
+		return "Empty GeoIP"
+	}
+
+	return strings.Join(parts, " | ")
 }
