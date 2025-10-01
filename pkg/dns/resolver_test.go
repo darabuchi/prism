@@ -645,7 +645,11 @@ func TestDoTResolverWithTLSError(t *testing.T) {
 	dialer := &mockDialer{
 		dialContextFunc: func(ctx context.Context, network, address string) (net.Conn, error) {
 			// Return a connection that will fail TLS handshake
-			return &mockConn{}, nil
+			return &mockConn{
+				readFunc: func(b []byte) (int, error) {
+					return 0, errors.New("mock TLS handshake error")
+				},
+			}, nil
 		},
 	}
 
