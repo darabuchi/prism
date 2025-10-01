@@ -29,4 +29,10 @@ var (
 
 	// ErrInvalidConcurrency 无效的并发数
 	ErrInvalidConcurrency = errors.New("invalid concurrency")
+
+	// ErrQueueDisabled 队列已禁用
+	ErrQueueDisabled = errors.New("queue is disabled")
+
+	// ErrConfigNotFound 配置未找到
+	ErrConfigNotFound = errors.New("configuration not found")
 )
