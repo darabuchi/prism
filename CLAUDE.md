@@ -18,6 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - [2025-01-01] MITM功能已添加到产品功能文档，系统需支持完整的HTTPS拦截和流量修改能力
 - [2025-01-01] **工作流程规则**：及时提交变更 - 完成任何有意义的修改后应立即commit，保持Git历史清晰
+- [2025-01-01] **文档维护规则**：文档相关的内容以及代码核心的内容需要及时更新到CLAUDE.md的相关索引中，保持文档与代码同步
 
 ---
 
@@ -53,6 +54,7 @@ The project consists of two main layers:
 - Implements circuit breaker pattern for node health tracking
 - Maintains session persistence and blocklist for failed connections
 - Mixed port (HTTP + SOCKS5, default: 7899) and optional TUN interface
+- **MITM Support**: HTTP/HTTPS traffic interception with dynamic certificate generation, request/response modification, and JavaScript scripting API (see `docs/产品功能文档.md` Section 5.2)
 
 **Routing Engine:**
 - Rule types: Domain, DomainSuffix, DomainKeyword, DomainRegex, GEOIP, IPCIDR, Process, ProcessPath
