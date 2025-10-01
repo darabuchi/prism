@@ -8,8 +8,7 @@ PROJECT_NAME := prism
 # 构建输出目录
 BUILD_DIR := bin
 # 主程序路径
-SERVER_PATH := ./cmd/server.go
-CLI_PATH := ./cmd/cli.go
+MAIN_PATH := ./cmd/main.go
 
 # Go 相关变量
 GOCMD := go
@@ -28,10 +27,8 @@ help:
 	@echo "Available targets:"
 	@echo ""
 	@echo "Backend:"
-	@echo "  build-server      - 编译服务器程序"
-	@echo "  build-cli         - 编译命令行工具"
-	@echo "  build-all         - 编译所有后端程序"
-	@echo "  run-server        - 运行服务器"
+	@echo "  build             - 编译项目"
+	@echo "  run               - 运行服务器"
 	@echo "  test              - 运行所有测试"
 	@echo "  test-unit         - 运行单元测试"
 	@echo "  test-integration  - 运行集成测试"
@@ -50,34 +47,17 @@ help:
 	@echo "  deps              - 下载依赖"
 	@echo "  tidy              - 整理依赖"
 
-## build-server: 编译服务器程序
-build-server:
-	@echo "Building $(PROJECT_NAME) server..."
+## build: 编译项目
+build:
+	@echo "Building $(PROJECT_NAME)..."
 	@mkdir -p $(BUILD_DIR)
-	$(GOBUILD) $(BUILD_FLAGS) -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(PROJECT_NAME)-server $(SERVER_PATH)
-	@echo "Build complete: $(BUILD_DIR)/$(PROJECT_NAME)-server"
+	$(GOBUILD) $(BUILD_FLAGS) -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(PROJECT_NAME) $(MAIN_PATH)
+	@echo "Build complete: $(BUILD_DIR)/$(PROJECT_NAME)"
 
-## build-cli: 编译命令行工具
-build-cli:
-	@echo "Building $(PROJECT_NAME) CLI..."
-	@mkdir -p $(BUILD_DIR)
-	$(GOBUILD) $(BUILD_FLAGS) -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(PROJECT_NAME)-cli $(CLI_PATH)
-	@echo "Build complete: $(BUILD_DIR)/$(PROJECT_NAME)-cli"
-
-## build-all: 编译所有后端程序
-build-all: build-server build-cli
-	@echo "All builds complete"
-
-## build: 编译项目（默认编译服务器）
-build: build-server
-
-## run-server: 运行服务器
-run-server: build-server
+## run: 运行服务器
+run: build
 	@echo "Running $(PROJECT_NAME) server..."
-	@$(BUILD_DIR)/$(PROJECT_NAME)-server
-
-## run: 运行项目（默认运行服务器）
-run: run-server
+	@$(BUILD_DIR)/$(PROJECT_NAME) server
 
 ## test: 运行所有测试
 test:
