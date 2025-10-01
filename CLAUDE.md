@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important: Memory and Rules System
+
+**When the user says "记住：[content]" or "Remember: [content]"**, you MUST:
+1. Immediately add the content to this CLAUDE.md file under the appropriate section
+2. If the content is a general rule/guideline, add it to the "Project Rules and Guidelines" section below
+3. If the content is technical/architectural, add it to the relevant section
+4. Commit the changes to git with a clear message
+5. Confirm to the user that the information has been recorded
+
+## Project Rules and Guidelines
+
+<!-- User-defined rules and memories will be added here -->
+<!-- Format: Add new rules as bullet points with date stamp -->
+
+- [2025-01-01] MITM功能已添加到产品功能文档，系统需支持完整的HTTPS拦截和流量修改能力
+
+---
+
 ## Project Overview
 
 This is **Prism**, an intelligent proxy client system built on top of the Mihomo/Meta kernel. The project provides automated proxy node management, comprehensive performance testing, intelligent routing, and subscription management. It continuously monitors proxy node performance and automatically selects optimal nodes based on multiple metrics.
