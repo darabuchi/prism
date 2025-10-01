@@ -1,9 +1,0 @@
-# Web Frontend
-
-This directory will contain the Next.js frontend application.
-
-## Setup
-
-```bash
-pnpm create next-app@latest . --typescript --tailwind --app --src-dir=false
-```
