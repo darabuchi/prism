@@ -1,4 +1,4 @@
-.PHONY: help build build-server build-cli build-all run run-server test test-unit test-integration test-coverage clean lint fmt web-dev web-build desktop-dev desktop-build
+.PHONY: help build build-server build-cli build-all run run-server test test-unit test-integration test-coverage clean lint fmt web-dev web-build desktop-dev desktop-build release release-local release-snapshot release-check update-geoip clean-geoip-cache gen-error-code validate-error-code
 
 # 默认目标
 .DEFAULT_GOAL := help
@@ -52,6 +52,14 @@ help:
 	@echo "  clean             - 清理构建产物"
 	@echo "  deps              - 下载依赖"
 	@echo "  tidy              - 整理依赖"
+	@echo ""
+	@echo "GeoIP:"
+	@echo "  update-geoip      - 更新 GeoIP 数据库"
+	@echo "  clean-geoip-cache - 清理 GeoIP 缓存（强制重新下载）"
+	@echo ""
+	@echo "Code Generation:"
+	@echo "  gen-error-code      - 根据 error_code.json 生成错误码文件"
+	@echo "  validate-error-code - 验证 error_code.json 格式"
 
 ## build: 编译项目
 build:
@@ -214,3 +222,26 @@ release:
 		exit 1; \
 	fi
 	@echo "Release complete"
+
+## update-geoip: 更新 GeoIP 数据库
+update-geoip:
+	@echo "Updating GeoIP databases..."
+	@go run ./scripts/tools/update-geoip
+
+## clean-geoip-cache: 清理 GeoIP 缓存（强制重新下载）
+clean-geoip-cache:
+	@echo "Cleaning GeoIP cache..."
+	@rm -rf /tmp/prism_geoip
+	@echo "GeoIP cache cleaned"
+
+## gen-error-code: 根据 error_code.json 生成错误码文件
+gen-error-code:
+	@echo "Generating error code file..."
+	@cd scripts/tools/gen-error-code && $(MAKE) run
+	@echo "Error code file generated: error_code.gen.go"
+
+## validate-error-code: 验证 error_code.json 格式
+validate-error-code:
+	@echo "Validating error_code.json..."
+	@cd scripts/tools/gen-error-code && $(MAKE) validate
+	@echo "Error code validation passed"

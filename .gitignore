@@ -72,5 +72,6 @@ pkg/mihomo/*.zip
 # Data directories
 data/
 logs/
+resource/geoip/
 
 coverage.html

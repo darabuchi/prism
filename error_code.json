@@ -189,6 +189,48 @@
       "description": "路由规则无效"
     },
     {
+      "code": 3300,
+      "key": "geoip.invalid_ip",
+      "category": "resource",
+      "description": "无效的 IP 地址"
+    },
+    {
+      "code": 3301,
+      "key": "geoip.database_open_failed",
+      "category": "resource",
+      "description": "打开 GeoIP 数据库失败"
+    },
+    {
+      "code": 3302,
+      "key": "geoip.database_write_failed",
+      "category": "resource",
+      "description": "写入 GeoIP 数据库失败"
+    },
+    {
+      "code": 3303,
+      "key": "geoip.conversion_failed",
+      "category": "resource",
+      "description": "GeoIP 数据转换失败"
+    },
+    {
+      "code": 3304,
+      "key": "geoip.file_operation_failed",
+      "category": "resource",
+      "description": "GeoIP 文件操作失败"
+    },
+    {
+      "code": 3305,
+      "key": "geoip.writer_create_failed",
+      "category": "resource",
+      "description": "创建 GeoIP 写入器失败"
+    },
+    {
+      "code": 3306,
+      "key": "geoip.insert_failed",
+      "category": "resource",
+      "description": "插入 GeoIP 数据失败"
+    },
+    {
       "code": 4000,
       "key": "validation.failed",
       "category": "validation",

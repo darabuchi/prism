@@ -1,0 +1,12 @@
+# 构建产物
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试文件
+*.test
+*.out
+/tmp/
