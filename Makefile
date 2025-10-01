@@ -1,4 +1,4 @@
-.PHONY: help build run test test-unit test-integration test-coverage clean lint fmt
+.PHONY: help build build-server build-cli build-all run run-server test test-unit test-integration test-coverage clean lint fmt web-dev web-build desktop-dev desktop-build
 
 # 默认目标
 .DEFAULT_GOAL := help
@@ -8,7 +8,8 @@ PROJECT_NAME := prism
 # 构建输出目录
 BUILD_DIR := bin
 # 主程序路径
-MAIN_PATH := ./cmd/prism
+SERVER_PATH := ./cmd/server.go
+CLI_PATH := ./cmd/cli.go
 
 # Go 相关变量
 GOCMD := go
@@ -25,29 +26,58 @@ LDFLAGS := -s -w
 ## help: 显示帮助信息
 help:
 	@echo "Available targets:"
-	@echo "  build             - 编译项目"
-	@echo "  run               - 运行项目"
+	@echo ""
+	@echo "Backend:"
+	@echo "  build-server      - 编译服务器程序"
+	@echo "  build-cli         - 编译命令行工具"
+	@echo "  build-all         - 编译所有后端程序"
+	@echo "  run-server        - 运行服务器"
 	@echo "  test              - 运行所有测试"
 	@echo "  test-unit         - 运行单元测试"
 	@echo "  test-integration  - 运行集成测试"
 	@echo "  test-coverage     - 生成测试覆盖率报告"
-	@echo "  clean             - 清理构建产物"
 	@echo "  lint              - 运行代码检查"
 	@echo "  fmt               - 格式化代码"
+	@echo ""
+	@echo "Frontend:"
+	@echo "  web-dev           - 启动 Web 前端开发服务器"
+	@echo "  web-build         - 构建 Web 前端生产版本"
+	@echo "  desktop-dev       - 启动桌面应用开发模式"
+	@echo "  desktop-build     - 构建桌面应用"
+	@echo ""
+	@echo "Utils:"
+	@echo "  clean             - 清理构建产物"
 	@echo "  deps              - 下载依赖"
 	@echo "  tidy              - 整理依赖"
 
-## build: 编译项目
-build:
-	@echo "Building $(PROJECT_NAME)..."
+## build-server: 编译服务器程序
+build-server:
+	@echo "Building $(PROJECT_NAME) server..."
 	@mkdir -p $(BUILD_DIR)
-	$(GOBUILD) $(BUILD_FLAGS) -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(PROJECT_NAME) $(MAIN_PATH)
-	@echo "Build complete: $(BUILD_DIR)/$(PROJECT_NAME)"
+	$(GOBUILD) $(BUILD_FLAGS) -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(PROJECT_NAME)-server $(SERVER_PATH)
+	@echo "Build complete: $(BUILD_DIR)/$(PROJECT_NAME)-server"
 
-## run: 运行项目
-run: build
-	@echo "Running $(PROJECT_NAME)..."
-	@$(BUILD_DIR)/$(PROJECT_NAME)
+## build-cli: 编译命令行工具
+build-cli:
+	@echo "Building $(PROJECT_NAME) CLI..."
+	@mkdir -p $(BUILD_DIR)
+	$(GOBUILD) $(BUILD_FLAGS) -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(PROJECT_NAME)-cli $(CLI_PATH)
+	@echo "Build complete: $(BUILD_DIR)/$(PROJECT_NAME)-cli"
+
+## build-all: 编译所有后端程序
+build-all: build-server build-cli
+	@echo "All builds complete"
+
+## build: 编译项目（默认编译服务器）
+build: build-server
+
+## run-server: 运行服务器
+run-server: build-server
+	@echo "Running $(PROJECT_NAME) server..."
+	@$(BUILD_DIR)/$(PROJECT_NAME)-server
+
+## run: 运行项目（默认运行服务器）
+run: run-server
 
 ## test: 运行所有测试
 test:
@@ -112,3 +142,42 @@ docker-build:
 docker-run:
 	@echo "Running Docker container..."
 	docker run -p 8080:8080 -p 1080:1080 $(PROJECT_NAME):latest
+
+## web-dev: 启动 Web 前端开发服务器
+web-dev:
+	@echo "Starting web frontend development server..."
+	@if [ -d "web/frontend" ]; then \
+		cd web/frontend && pnpm dev; \
+	else \
+		echo "web/frontend directory not found"; \
+	fi
+
+## web-build: 构建 Web 前端生产版本
+web-build:
+	@echo "Building web frontend..."
+	@if [ -d "web/frontend" ]; then \
+		cd web/frontend && pnpm build; \
+	fi
+	@if [ -d "web/admin" ]; then \
+		cd web/admin && pnpm build; \
+	fi
+	@echo "Web frontend build complete"
+
+## desktop-dev: 启动桌面应用开发模式（Tauri）
+desktop-dev:
+	@echo "Starting desktop app development (Tauri)..."
+	@if [ -d "desktop" ]; then \
+		cd desktop && pnpm tauri dev; \
+	else \
+		echo "desktop directory not found"; \
+	fi
+
+## desktop-build: 构建桌面应用（Tauri）
+desktop-build:
+	@echo "Building desktop app (Tauri)..."
+	@if [ -d "desktop" ]; then \
+		cd desktop && pnpm tauri build; \
+	else \
+		echo "desktop directory not found"; \
+	fi
+	@echo "Desktop app build complete"
