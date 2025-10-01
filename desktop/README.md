@@ -3,9 +3,9 @@
 ## 技术栈
 
 - **后端**: Tauri 1.x (Rust)
-- **前端**: React + TypeScript
-- **UI 库**: Ant Design
-- **构建工具**: Vite
+- **前端**: Next.js + TypeScript
+- **UI 库**: Ant Design + ProComponents
+- **构建工具**: Next.js
 - **包管理**: pnpm (前端) + Cargo (Rust)
 
 ## 特性

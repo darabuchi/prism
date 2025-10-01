@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+bin/
+
+# Cache
+.cache/
+.eslintcache
+.turbo/
+
+# Auto-generated files
+*.generated.*
+*.gen.*
+
+# Package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Test coverage
+coverage/
+
+# Public assets
+public/
+
+# Go files
+**/*.go
+
+# Config files
+*.config.js
+*.config.ts
+!.eslintrc.js

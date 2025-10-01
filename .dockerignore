@@ -1,0 +1,85 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Documentation
+*.md
+docs/
+LICENSE
+
+# Build artifacts
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*_test.go
+*.test
+coverage.txt
+*.coverprofile
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.boltdb
+
+# Configuration files (use mounted volumes instead)
+config.yaml
+routes.yaml
+.env
+.env.local
+*.key
+*.pem
+*.p12
+
+# Cache and temporary files
+cache/
+tmp/
+temp/
+*.cache
+*.log
+*.tmp
+
+# Data directories (use mounted volumes instead)
+data/
+logs/
+
+# Frontend directories
+web/
+desktop/
+shared/
+node_modules/
+
+# Mihomo binaries and archives
+pkg/mihomo/bin/
+pkg/mihomo/*.gz
+pkg/mihomo/*.zip
+
+# OS specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
