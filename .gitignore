@@ -1,0 +1,72 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.txt
+*.coverprofile
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# Build artifacts
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# IDE specific files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with sensitive data
+*.key
+*.pem
+*.p12
+config.local.yaml
+config.local.json
+.env
+.env.local
+
+# Cache and temporary files
+cache/
+tmp/
+temp/
+*.cache
+
+# OS specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# BBolt database files (if used for cache)
+*.boltdb
+
+# Mihomo specific
+pkg/mihomo/bin/
+pkg/mihomo/*.gz
+pkg/mihomo/*.zip
+
+# Data directories
+data/
+logs/
