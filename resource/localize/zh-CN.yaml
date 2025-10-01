@@ -1,0 +1,23 @@
+# 中文翻译文件
+
+errors:
+  subscription_not_found: "订阅不存在"
+  subscription_duplicate_key: "订阅已存在"
+  node_not_found: "节点不存在"
+  route_not_found: "路由规则不存在"
+  config_invalid: "配置文件无效"
+
+messages:
+  server_started: "服务器已启动，监听端口 %d"
+  server_stopped: "服务器已停止"
+  subscription_created: "订阅创建成功"
+  subscription_updated: "订阅更新成功"
+  subscription_deleted: "订阅删除成功"
+  node_test_started: "节点测试已开始"
+  node_test_completed: "节点测试完成"
+
+validation:
+  url_required: "URL 不能为空"
+  url_invalid: "URL 格式无效"
+  title_required: "标题不能为空"
+  port_invalid: "端口号无效"

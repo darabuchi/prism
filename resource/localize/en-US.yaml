@@ -1,0 +1,23 @@
+# English translation file
+
+errors:
+  subscription_not_found: "Subscription not found"
+  subscription_duplicate_key: "Subscription already exists"
+  node_not_found: "Node not found"
+  route_not_found: "Route rule not found"
+  config_invalid: "Invalid configuration file"
+
+messages:
+  server_started: "Server started, listening on port %d"
+  server_stopped: "Server stopped"
+  subscription_created: "Subscription created successfully"
+  subscription_updated: "Subscription updated successfully"
+  subscription_deleted: "Subscription deleted successfully"
+  node_test_started: "Node testing started"
+  node_test_completed: "Node testing completed"
+
+validation:
+  url_required: "URL is required"
+  url_invalid: "Invalid URL format"
+  title_required: "Title is required"
+  port_invalid: "Invalid port number"

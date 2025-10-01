@@ -43,8 +43,8 @@ vendor/
 *.key
 *.pem
 *.p12
-config.local.yaml
-config.local.json
+config.yaml
+routes.yaml
 .env
 .env.local
 
