@@ -147,7 +147,6 @@ make lint
 ## 🙏 致谢
 
 - [LRPC](https://github.com/lazygophers/lrpc) - 框架支持
-- [Gin](https://github.com/gin-gonic/gin) - HTTP 框架
 - [GORM](https://gorm.io/) - ORM 库
 
 ## 📮 联系方式
