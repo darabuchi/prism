@@ -2,20 +2,250 @@ package prism
 
 // Payload 规则分流目标类型
 // 表示流量的处理方式或目标服务
-type Payload string
+type Payload int
 
 const (
-	// PayloadProxy 使用代理
-	PayloadProxy Payload = "PROXY"
+	// PayloadUnknown 未知类型
+	PayloadUnknown Payload = iota
 
 	// PayloadDirect 直连
-	PayloadDirect Payload = "DIRECT"
+	PayloadDirect
 
 	// PayloadReject 拒绝连接
-	PayloadReject Payload = "REJECT"
+	PayloadReject
 
 	// PayloadRejectDrop 拒绝连接并丢弃数据包
-	PayloadRejectDrop Payload = "REJECT-DROP"
+	PayloadRejectDrop
+
+	// PayloadProxy 使用代理
+	PayloadProxy
+
+	// ========== AI 服务 ==========
+	// PayloadOpenAI OpenAI 服务
+	PayloadOpenAI
+
+	// PayloadClaude Claude 服务
+	PayloadClaude
+
+	// PayloadGemini Google Gemini 服务
+	PayloadGemini
+
+	// ========== 流媒体 - 国际 ==========
+	// PayloadYouTube YouTube 视频服务
+	PayloadYouTube
+
+	// PayloadNetflix Netflix 流媒体
+	PayloadNetflix
+
+	// PayloadDisney Disney+ 流媒体
+	PayloadDisney
+
+	// PayloadSpotify Spotify 音乐服务
+	PayloadSpotify
+
+	// PayloadTikTok TikTok 短视频
+	PayloadTikTok
+
+	// PayloadTwitch Twitch 直播平台
+	PayloadTwitch
+
+	// PayloadHBO HBO 流媒体
+	PayloadHBO
+
+	// PayloadHulu Hulu 流媒体
+	PayloadHulu
+
+	// PayloadPrimeVideo Amazon Prime Video
+	PayloadPrimeVideo
+
+	// PayloadPandora Pandora 音乐
+	PayloadPandora
+
+	// PayloadSoundCloud SoundCloud 音乐
+	PayloadSoundCloud
+
+	// PayloadDAZN DAZN 体育流媒体
+	PayloadDAZN
+
+	// PayloadVimeo Vimeo 视频平台
+	PayloadVimeo
+
+	// ========== 流媒体 - 国内 ==========
+	// PayloadBilibili 哔哩哔哩
+	PayloadBilibili
+
+	// PayloadBilibiliHK 哔哩哔哩港澳台
+	PayloadBilibiliHK
+
+	// PayloadIQIYI 爱奇艺
+	PayloadIQIYI
+
+	// PayloadIQIYIHK 爱奇艺港澳台
+	PayloadIQIYIHK
+
+	// PayloadTencentVideo 腾讯视频
+	PayloadTencentVideo
+
+	// PayloadYouku 优酷
+	PayloadYouku
+
+	// PayloadNeteaseMusic 网易云音乐
+	PayloadNeteaseMusic
+
+	// PayloadCCTV CCTV
+	PayloadCCTV
+
+	// PayloadDouyu 斗鱼
+	PayloadDouyu
+
+	// PayloadHimalaya 喜马拉雅
+	PayloadHimalaya
+
+	// ========== 苹果服务 ==========
+	// PayloadAppStore App Store
+	PayloadAppStore
+
+	// PayloadICloud iCloud
+	PayloadICloud
+
+	// PayloadAppleTV Apple TV
+	PayloadAppleTV
+
+	// PayloadAppleMusic Apple Music
+	PayloadAppleMusic
+
+	// PayloadTestFlight TestFlight
+	PayloadTestFlight
+
+	// PayloadApple Apple 其他服务
+	PayloadApple
+
+	// ========== 云存储 ==========
+	// PayloadOneDrive OneDrive
+	PayloadOneDrive
+
+	// PayloadGoogleDrive Google Drive
+	PayloadGoogleDrive
+
+	// PayloadDropbox Dropbox
+	PayloadDropbox
+
+	// ========== 科技公司 ==========
+	// PayloadGoogle Google
+	PayloadGoogle
+
+	// PayloadMicrosoft Microsoft
+	PayloadMicrosoft
+
+	// PayloadAmazon Amazon
+	PayloadAmazon
+
+	// PayloadFacebook Facebook
+	PayloadFacebook
+
+	// PayloadAdobe Adobe
+	PayloadAdobe
+
+	// ========== 开发工具/VPS ==========
+	// PayloadGitHub GitHub
+	PayloadGitHub
+
+	// PayloadGitLab GitLab
+	PayloadGitLab
+
+	// PayloadDocker Docker Hub
+	PayloadDocker
+
+	// PayloadHeroku Heroku
+	PayloadHeroku
+
+	// PayloadDigitalOcean DigitalOcean
+	PayloadDigitalOcean
+
+	// PayloadVercel Vercel
+	PayloadVercel
+
+	// PayloadCloudflare Cloudflare
+	PayloadCloudflare
+
+	// ========== 交易所 ==========
+	// PayloadBinance Binance 币安
+	PayloadBinance
+
+	// PayloadOKX OKX 交易所
+	PayloadOKX
+
+	// PayloadCrypto Crypto.com
+	PayloadCrypto
+
+	// PayloadCryptocurrency 加密货币综合
+	PayloadCryptocurrency
+
+	// ========== 支付 ==========
+	// PayloadPayPal PayPal
+	PayloadPayPal
+
+	// ========== 社交平台 ==========
+	// PayloadTelegram Telegram
+	PayloadTelegram
+
+	// PayloadTwitter Twitter
+	PayloadTwitter
+
+	// PayloadInstagram Instagram
+	PayloadInstagram
+
+	// PayloadWhatsApp WhatsApp
+	PayloadWhatsApp
+
+	// PayloadDiscord Discord
+	PayloadDiscord
+
+	// PayloadLine Line
+	PayloadLine
+
+	// PayloadThreads Threads
+	PayloadThreads
+
+	// PayloadReddit Reddit
+	PayloadReddit
+
+	// PayloadLinkedIn LinkedIn
+	PayloadLinkedIn
+
+	// ========== 其他服务 ==========
+	// PayloadWikipedia Wikipedia
+	PayloadWikipedia
+
+	// PayloadSteam Steam
+	PayloadSteam
+
+	// PayloadEpic Epic Games
+	PayloadEpic
+
+	// PayloadPlayStation PlayStation
+	PayloadPlayStation
+
+	// PayloadEbay eBay
+	PayloadEbay
+
+	// PayloadShopify Shopify
+	PayloadShopify
+
+	// PayloadBBC BBC
+	PayloadBBC
+
+	// PayloadCNN CNN
+	PayloadCNN
+
+	// PayloadBloomberg Bloomberg
+	PayloadBloomberg
+
+	// PayloadNYTimes New York Times
+	PayloadNYTimes
+
+	// PayloadScholar 学术/政府资源
+	PayloadScholar
 )
 
 // IsDirect 判断是否为直连动作
@@ -38,6 +268,11 @@ func (p Payload) IsReject() bool {
 	return p == PayloadReject || p == PayloadRejectDrop
 }
 
+// String 返回 Payload 的字符串表示
+func (p Payload) String() string {
+	return p.Name()
+}
+
 // Name 获取分流目标的本地化名称
 // 支持多语言，默认返回英文名称
 //
@@ -49,10 +284,10 @@ func (p Payload) IsReject() bool {
 //
 // 示例:
 //
-//	PayloadProxy.Name()           // "Proxy"
-//	PayloadProxy.Name("zh")       // "代理"
-//	Payload("OPENAI").Name()      // "OpenAI"
-//	Payload("OPENAI").Name("zh")  // "OpenAI"
+//	PayloadProxy.Name()        // "Proxy"
+//	PayloadProxy.Name("zh")    // "代理"
+//	PayloadOpenAI.Name()       // "OpenAI"
+//	PayloadOpenAI.Name("zh")   // "OpenAI"
 func (p Payload) Name(lang ...string) string {
 	// 获取语言代码，默认为英文
 	langCode := "en"
@@ -60,39 +295,8 @@ func (p Payload) Name(lang ...string) string {
 		langCode = lang[0]
 	}
 
-	// 本地化映射
-	names := map[string]map[Payload]string{
-		"en": {
-			PayloadProxy:      "Proxy",
-			PayloadDirect:     "Direct",
-			PayloadReject:     "Reject",
-			PayloadRejectDrop: "Reject Drop",
-		},
-		"zh": {
-			PayloadProxy:      "代理",
-			PayloadDirect:     "直连",
-			PayloadReject:     "拒绝",
-			PayloadRejectDrop: "拒绝丢弃",
-		},
-		"zh-CN": {
-			PayloadProxy:      "代理",
-			PayloadDirect:     "直连",
-			PayloadReject:     "拒绝",
-			PayloadRejectDrop: "拒绝丢弃",
-		},
-		"zh-TW": {
-			PayloadProxy:      "代理",
-			PayloadDirect:     "直連",
-			PayloadReject:     "拒絕",
-			PayloadRejectDrop: "拒絕丟棄",
-		},
-		"ja": {
-			PayloadProxy:      "プロキシ",
-			PayloadDirect:     "直接接続",
-			PayloadReject:     "拒否",
-			PayloadRejectDrop: "拒否してドロップ",
-		},
-	}
+	// 完整的本地化名称映射
+	names := getPayloadNames()
 
 	// 查找对应语言的名称
 	if langMap, ok := names[langCode]; ok {
@@ -101,124 +305,236 @@ func (p Payload) Name(lang ...string) string {
 		}
 	}
 
-	// 如果是自定义服务名称（如 OPENAI, NETFLIX 等），返回格式化的名称
-	payloadStr := string(p)
-
-	// 对于标准动作，返回默认英文名称
-	if p == PayloadProxy || p == PayloadDirect || p == PayloadReject || p == PayloadRejectDrop {
-		if names["en"][p] != "" {
-			return names["en"][p]
-		}
-	}
-
-	// 对于自定义服务，返回首字母大写的格式
-	if len(payloadStr) > 0 {
-		// 转换为标题格式：OPENAI -> OpenAI, YOUTUBE -> YouTube
-		return formatServiceName(payloadStr)
-	}
-
-	return payloadStr
-}
-
-// formatServiceName 格式化服务名称
-func formatServiceName(name string) string {
-	// 特殊服务名称映射
-	specialNames := map[string]string{
-		"OPENAI":         "OpenAI",
-		"CLAUDE":         "Claude",
-		"GEMINI":         "Gemini",
-		"YOUTUBE":        "YouTube",
-		"NETFLIX":        "Netflix",
-		"DISNEY":         "Disney+",
-		"SPOTIFY":        "Spotify",
-		"TIKTOK":         "TikTok",
-		"TWITCH":         "Twitch",
-		"HBO":            "HBO",
-		"HULU":           "Hulu",
-		"PRIME-VIDEO":    "Prime Video",
-		"PANDORA":        "Pandora",
-		"SOUNDCLOUD":     "SoundCloud",
-		"DAZN":           "DAZN",
-		"VIMEO":          "Vimeo",
-		"BILIBILI":       "哔哩哔哩",
-		"BILIBILI-HK":    "哔哩哔哩港澳台",
-		"IQIYI":          "爱奇艺",
-		"IQIYI-HK":       "爱奇艺港澳台",
-		"TENCENT-VIDEO":  "腾讯视频",
-		"YOUKU":          "优酷",
-		"NETEASE-MUSIC":  "网易云音乐",
-		"CCTV":           "CCTV",
-		"DOUYU":          "斗鱼",
-		"HIMALAYA":       "喜马拉雅",
-		"APP-STORE":      "App Store",
-		"ICLOUD":         "iCloud",
-		"APPLE-TV":       "Apple TV",
-		"APPLE-MUSIC":    "Apple Music",
-		"TESTFLIGHT":     "TestFlight",
-		"APPLE":          "Apple",
-		"ONEDRIVE":       "OneDrive",
-		"GDRIVE":         "Google Drive",
-		"DROPBOX":        "Dropbox",
-		"GOOGLE":         "Google",
-		"MICROSOFT":      "Microsoft",
-		"AMAZON":         "Amazon",
-		"FACEBOOK":       "Facebook",
-		"ADOBE":          "Adobe",
-		"GITHUB":         "GitHub",
-		"GITLAB":         "GitLab",
-		"DOCKER":         "Docker",
-		"HEROKU":         "Heroku",
-		"DIGITALOCEAN":   "DigitalOcean",
-		"VERCEL":         "Vercel",
-		"CLOUDFLARE":     "Cloudflare",
-		"BINANCE":        "Binance",
-		"OKX":            "OKX",
-		"CRYPTO":         "Crypto.com",
-		"CRYPTOCURRENCY": "Cryptocurrency",
-		"PAYPAL":         "PayPal",
-		"TELEGRAM":       "Telegram",
-		"TWITTER":        "Twitter",
-		"INSTAGRAM":      "Instagram",
-		"WHATSAPP":       "WhatsApp",
-		"DISCORD":        "Discord",
-		"LINE":           "Line",
-		"THREADS":        "Threads",
-		"REDDIT":         "Reddit",
-		"LINKEDIN":       "LinkedIn",
-		"WIKIPEDIA":      "Wikipedia",
-		"STEAM":          "Steam",
-		"EPIC":           "Epic Games",
-		"PLAYSTATION":    "PlayStation",
-		"EBAY":           "eBay",
-		"SHOPIFY":        "Shopify",
-		"BBC":            "BBC",
-		"CNN":            "CNN",
-		"BLOOMBERG":      "Bloomberg",
-		"NYTIMES":        "New York Times",
-		"SCHOLAR":        "Scholar",
-	}
-
-	if special, ok := specialNames[name]; ok {
-		return special
-	}
-
-	// 默认：首字母大写，其余小写
-	if len(name) == 0 {
+	// 如果没有找到，返回英文名称
+	if name, ok := names["en"][p]; ok {
 		return name
 	}
 
-	// 如果全是大写，转换为首字母大写
-	allUpper := true
-	for _, c := range name {
-		if c >= 'a' && c <= 'z' {
-			allUpper = false
-			break
-		}
-	}
+	// 兜底返回
+	return "Unknown"
+}
 
-	if allUpper && len(name) > 0 {
-		return string(name[0]) + string(name[1:])
+// getPayloadNames 获取所有 Payload 的本地化名称映射
+func getPayloadNames() map[string]map[Payload]string {
+	return map[string]map[Payload]string{
+		"en": {
+			PayloadUnknown:         "Unknown",
+			PayloadDirect:          "Direct",
+			PayloadReject:          "Reject",
+			PayloadRejectDrop:      "Reject Drop",
+			PayloadProxy:           "Proxy",
+			PayloadOpenAI:          "OpenAI",
+			PayloadClaude:          "Claude",
+			PayloadGemini:          "Gemini",
+			PayloadYouTube:         "YouTube",
+			PayloadNetflix:         "Netflix",
+			PayloadDisney:          "Disney+",
+			PayloadSpotify:         "Spotify",
+			PayloadTikTok:          "TikTok",
+			PayloadTwitch:          "Twitch",
+			PayloadHBO:             "HBO",
+			PayloadHulu:            "Hulu",
+			PayloadPrimeVideo:      "Prime Video",
+			PayloadPandora:         "Pandora",
+			PayloadSoundCloud:      "SoundCloud",
+			PayloadDAZN:            "DAZN",
+			PayloadVimeo:           "Vimeo",
+			PayloadBilibili:        "Bilibili",
+			PayloadBilibiliHK:      "Bilibili HK",
+			PayloadIQIYI:           "iQIYI",
+			PayloadIQIYIHK:         "iQIYI HK",
+			PayloadTencentVideo:    "Tencent Video",
+			PayloadYouku:           "Youku",
+			PayloadNeteaseMusic:    "Netease Music",
+			PayloadCCTV:            "CCTV",
+			PayloadDouyu:           "Douyu",
+			PayloadHimalaya:        "Himalaya",
+			PayloadAppStore:        "App Store",
+			PayloadICloud:          "iCloud",
+			PayloadAppleTV:         "Apple TV",
+			PayloadAppleMusic:      "Apple Music",
+			PayloadTestFlight:      "TestFlight",
+			PayloadApple:           "Apple",
+			PayloadOneDrive:        "OneDrive",
+			PayloadGoogleDrive:     "Google Drive",
+			PayloadDropbox:         "Dropbox",
+			PayloadGoogle:          "Google",
+			PayloadMicrosoft:       "Microsoft",
+			PayloadAmazon:          "Amazon",
+			PayloadFacebook:        "Facebook",
+			PayloadAdobe:           "Adobe",
+			PayloadGitHub:          "GitHub",
+			PayloadGitLab:          "GitLab",
+			PayloadDocker:          "Docker",
+			PayloadHeroku:          "Heroku",
+			PayloadDigitalOcean:    "DigitalOcean",
+			PayloadVercel:          "Vercel",
+			PayloadCloudflare:      "Cloudflare",
+			PayloadBinance:         "Binance",
+			PayloadOKX:             "OKX",
+			PayloadCrypto:          "Crypto.com",
+			PayloadCryptocurrency:  "Cryptocurrency",
+			PayloadPayPal:          "PayPal",
+			PayloadTelegram:        "Telegram",
+			PayloadTwitter:         "Twitter",
+			PayloadInstagram:       "Instagram",
+			PayloadWhatsApp:        "WhatsApp",
+			PayloadDiscord:         "Discord",
+			PayloadLine:            "Line",
+			PayloadThreads:         "Threads",
+			PayloadReddit:          "Reddit",
+			PayloadLinkedIn:        "LinkedIn",
+			PayloadWikipedia:       "Wikipedia",
+			PayloadSteam:           "Steam",
+			PayloadEpic:            "Epic Games",
+			PayloadPlayStation:     "PlayStation",
+			PayloadEbay:            "eBay",
+			PayloadShopify:         "Shopify",
+			PayloadBBC:             "BBC",
+			PayloadCNN:             "CNN",
+			PayloadBloomberg:       "Bloomberg",
+			PayloadNYTimes:         "New York Times",
+			PayloadScholar:         "Scholar",
+		},
+		"zh": {
+			PayloadUnknown:         "未知",
+			PayloadDirect:          "直连",
+			PayloadReject:          "拒绝",
+			PayloadRejectDrop:      "拒绝丢弃",
+			PayloadProxy:           "代理",
+			PayloadOpenAI:          "OpenAI",
+			PayloadClaude:          "Claude",
+			PayloadGemini:          "Gemini",
+			PayloadYouTube:         "YouTube",
+			PayloadNetflix:         "Netflix",
+			PayloadDisney:          "Disney+",
+			PayloadSpotify:         "Spotify",
+			PayloadTikTok:          "TikTok",
+			PayloadTwitch:          "Twitch",
+			PayloadHBO:             "HBO",
+			PayloadHulu:            "Hulu",
+			PayloadPrimeVideo:      "Prime Video",
+			PayloadPandora:         "Pandora",
+			PayloadSoundCloud:      "SoundCloud",
+			PayloadDAZN:            "DAZN",
+			PayloadVimeo:           "Vimeo",
+			PayloadBilibili:        "哔哩哔哩",
+			PayloadBilibiliHK:      "哔哩哔哩港澳台",
+			PayloadIQIYI:           "爱奇艺",
+			PayloadIQIYIHK:         "爱奇艺港澳台",
+			PayloadTencentVideo:    "腾讯视频",
+			PayloadYouku:           "优酷",
+			PayloadNeteaseMusic:    "网易云音乐",
+			PayloadCCTV:            "CCTV",
+			PayloadDouyu:           "斗鱼",
+			PayloadHimalaya:        "喜马拉雅",
+			PayloadAppStore:        "App Store",
+			PayloadICloud:          "iCloud",
+			PayloadAppleTV:         "Apple TV",
+			PayloadAppleMusic:      "Apple Music",
+			PayloadTestFlight:      "TestFlight",
+			PayloadApple:           "Apple",
+			PayloadOneDrive:        "OneDrive",
+			PayloadGoogleDrive:     "Google Drive",
+			PayloadDropbox:         "Dropbox",
+			PayloadGoogle:          "Google",
+			PayloadMicrosoft:       "微软",
+			PayloadAmazon:          "亚马逊",
+			PayloadFacebook:        "Facebook",
+			PayloadAdobe:           "Adobe",
+			PayloadGitHub:          "GitHub",
+			PayloadGitLab:          "GitLab",
+			PayloadDocker:          "Docker",
+			PayloadHeroku:          "Heroku",
+			PayloadDigitalOcean:    "DigitalOcean",
+			PayloadVercel:          "Vercel",
+			PayloadCloudflare:      "Cloudflare",
+			PayloadBinance:         "币安",
+			PayloadOKX:             "OKX",
+			PayloadCrypto:          "Crypto.com",
+			PayloadCryptocurrency:  "加密货币",
+			PayloadPayPal:          "PayPal",
+			PayloadTelegram:        "Telegram",
+			PayloadTwitter:         "Twitter",
+			PayloadInstagram:       "Instagram",
+			PayloadWhatsApp:        "WhatsApp",
+			PayloadDiscord:         "Discord",
+			PayloadLine:            "Line",
+			PayloadThreads:         "Threads",
+			PayloadReddit:          "Reddit",
+			PayloadLinkedIn:        "LinkedIn",
+			PayloadWikipedia:       "维基百科",
+			PayloadSteam:           "Steam",
+			PayloadEpic:            "Epic Games",
+			PayloadPlayStation:     "PlayStation",
+			PayloadEbay:            "eBay",
+			PayloadShopify:         "Shopify",
+			PayloadBBC:             "BBC",
+			PayloadCNN:             "CNN",
+			PayloadBloomberg:       "彭博社",
+			PayloadNYTimes:         "纽约时报",
+			PayloadScholar:         "学术资源",
+		},
+		"zh-CN": {
+			PayloadUnknown:         "未知",
+			PayloadDirect:          "直连",
+			PayloadReject:          "拒绝",
+			PayloadRejectDrop:      "拒绝丢弃",
+			PayloadProxy:           "代理",
+			PayloadBilibili:        "哔哩哔哩",
+			PayloadBilibiliHK:      "哔哩哔哩港澳台",
+			PayloadIQIYI:           "爱奇艺",
+			PayloadIQIYIHK:         "爱奇艺港澳台",
+			PayloadTencentVideo:    "腾讯视频",
+			PayloadYouku:           "优酷",
+			PayloadNeteaseMusic:    "网易云音乐",
+			PayloadDouyu:           "斗鱼",
+			PayloadHimalaya:        "喜马拉雅",
+			PayloadMicrosoft:       "微软",
+			PayloadAmazon:          "亚马逊",
+			PayloadBinance:         "币安",
+			PayloadCryptocurrency:  "加密货币",
+			PayloadWikipedia:       "维基百科",
+			PayloadBloomberg:       "彭博社",
+			PayloadNYTimes:         "纽约时报",
+			PayloadScholar:         "学术资源",
+		},
+		"zh-TW": {
+			PayloadUnknown:         "未知",
+			PayloadDirect:          "直連",
+			PayloadReject:          "拒絕",
+			PayloadRejectDrop:      "拒絕丟棄",
+			PayloadProxy:           "代理",
+			PayloadBilibili:        "嗶哩嗶哩",
+			PayloadBilibiliHK:      "嗶哩嗶哩港澳台",
+			PayloadIQIYI:           "愛奇藝",
+			PayloadIQIYIHK:         "愛奇藝港澳台",
+			PayloadTencentVideo:    "騰訊視頻",
+			PayloadYouku:           "優酷",
+			PayloadNeteaseMusic:    "網易雲音樂",
+			PayloadDouyu:           "鬥魚",
+			PayloadHimalaya:        "喜馬拉雅",
+			PayloadMicrosoft:       "微軟",
+			PayloadAmazon:          "亞馬遜",
+			PayloadBinance:         "幣安",
+			PayloadCryptocurrency:  "加密貨幣",
+			PayloadWikipedia:       "維基百科",
+			PayloadBloomberg:       "彭博社",
+			PayloadNYTimes:         "紐約時報",
+			PayloadScholar:         "學術資源",
+		},
+		"ja": {
+			PayloadUnknown:         "不明",
+			PayloadDirect:          "直接接続",
+			PayloadReject:          "拒否",
+			PayloadRejectDrop:      "拒否してドロップ",
+			PayloadProxy:           "プロキシ",
+			PayloadMicrosoft:       "マイクロソフト",
+			PayloadAmazon:          "アマゾン",
+			PayloadCryptocurrency:  "暗号通貨",
+			PayloadWikipedia:       "ウィキペディア",
+			PayloadBloomberg:       "ブルームバーグ",
+			PayloadScholar:         "学術リソース",
+		},
 	}
-
-	return name
 }
