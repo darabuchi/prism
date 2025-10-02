@@ -34,7 +34,7 @@ func LoadConfig() (*Config, error) {
 	// 设置默认值
 	cfg := &Config{
 		CacheDir:    "/tmp/prism_rule_collector",
-		OutputDir:   "./resource/rules",  // 默认输出到 resource/rules
+		OutputDir:   "../../../resource/rules",  // 默认输出到项目根目录的 resource/rules
 		CacheDays:   1, // 规则更新频繁，默认 1 天
 		Proxy:       "",
 		ForceUpdate: false,
