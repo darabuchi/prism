@@ -778,7 +778,7 @@ const (
 // Category 返回 Payload 的服务类别
 func (p Payload) Category() PayloadCategory {
 	switch {
-	// 基础动作
+	// 基础动作 (0-4)
 	case p >= PayloadUnknown && p <= PayloadProxy:
 		return CategoryBase
 
@@ -790,28 +790,28 @@ func (p Payload) Category() PayloadCategory {
 	case p >= PayloadYouTube && p <= PayloadYouku:
 		return CategoryStreaming
 
-	// 社交平台 (400-409)
-	case p >= PayloadTelegram && p <= PayloadReddit:
-		return CategorySocial
-
-	// 开发工具 (500-509)
-	case p >= PayloadGitHub && p <= PayloadVercel:
+	// 开发工具 (500-509, 700-706)
+	case (p >= PayloadAppStore && p <= PayloadDropbox) || (p >= PayloadGitHub && p <= PayloadCloudflare):
 		return CategoryDev
 
-	// 游戏平台 (600-609)
-	case p >= PayloadSteam && p <= PayloadRoblox:
+	// 金融服务 (800-803, 900)
+	case (p >= PayloadBinance && p <= PayloadCryptocurrency) || p == PayloadPayPal:
+		return CategoryFinance
+
+	// 社交平台 (1000-1008)
+	case p >= PayloadTelegram && p <= PayloadLinkedIn:
+		return CategorySocial
+
+	// 游戏平台 (1101-1103)
+	case p >= PayloadSteam && p <= PayloadPlayStation:
 		return CategoryGaming
 
-	// 新闻资讯 (700-709)
+	// 新闻资讯 (1108-1109)
 	case p >= PayloadBloomberg && p <= PayloadNYTimes:
 		return CategoryNews
 
-	// 金融服务 (800-809)
-	case p >= PayloadBinance && p <= PayloadCryptocurrency:
-		return CategoryFinance
-
-	// 教育学术 (900-909)
-	case p >= PayloadScholar:
+	// 教育学术 (1110)
+	case p == PayloadScholar:
 		return CategoryEducation
 
 	default:
