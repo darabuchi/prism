@@ -1,7 +1,0 @@
-# Prism Rules - OKX
-# Generated at: 2025-10-02T12:27:43+08:00
-# Total rules: 3
-
-DOMAIN-SUFFIX,okex.com,OKX
-DOMAIN-SUFFIX,oklink.com,OKX
-DOMAIN-SUFFIX,okx.com,OKX

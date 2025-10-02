@@ -1,6 +1,0 @@
-# Prism Rules - APP STORE
-# Generated at: 2025-10-02T12:27:44+08:00
-# Total rules: 2
-
-DOMAIN,itunes.apple.com,APP STORE
-DOMAIN,apps.apple.com,APP STORE

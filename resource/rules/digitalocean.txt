@@ -1,8 +1,0 @@
-# Prism Rules - DIGITALOCEAN
-# Generated at: 2025-10-02T12:27:43+08:00
-# Total rules: 4
-
-DOMAIN-SUFFIX,digitalocean.com,DIGITALOCEAN
-DOMAIN-SUFFIX,digitaloceanspaces.com,DIGITALOCEAN
-DOMAIN-SUFFIX,do.co,DIGITALOCEAN
-DOMAIN-SUFFIX,nginxconfig.io,DIGITALOCEAN

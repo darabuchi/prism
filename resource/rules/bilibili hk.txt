@@ -1,5 +1,0 @@
-# Prism Rules - BILIBILI HK
-# Generated at: 2025-10-02T12:27:43+08:00
-# Total rules: 1
-
-PROCESS-NAME,com.bstar.intl,BILIBILI HK

@@ -1,8 +1,0 @@
-# Prism Rules - CLAUDE
-# Generated at: 2025-10-02T12:27:43+08:00
-# Total rules: 4
-
-DOMAIN,cdn.usefathom.com,CLAUDE
-DOMAIN,servd-anthropic-website.b-cdn.net,CLAUDE
-DOMAIN-SUFFIX,anthropic.com,CLAUDE
-DOMAIN-SUFFIX,claude.ai,CLAUDE
