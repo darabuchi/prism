@@ -343,18 +343,18 @@ func (c *Collector) Export() error {
 		rulesByAction[action] = append(rulesByAction[action], rule)
 	}
 
-	// 导出每个分组
-	for action, rules := range rulesByAction {
-		err := c.exportRuleFile(outputDir, action, rules)
-		if err != nil {
-			return fmt.Errorf("failed to export %s rules: %w", action, err)
-		}
+	// 导出 Prism 专属格式（YAML payload 格式，参考 fire）
+	prismDir := filepath.Join(outputDir, "prism")
+	err = os.MkdirAll(prismDir, 0755)
+	if err != nil {
+		return fmt.Errorf("failed to create prism directory: %w", err)
 	}
 
-	// 导出汇总文件
-	err = c.exportAllRules(outputDir, ruleList)
-	if err != nil {
-		return fmt.Errorf("failed to export all rules: %w", err)
+	for action, rules := range rulesByAction {
+		err := c.exportPrismRuleFile(prismDir, action, rules)
+		if err != nil {
+			return fmt.Errorf("failed to export prism %s rules: %w", action, err)
+		}
 	}
 
 	// 导出 subconverter 格式
@@ -366,9 +366,11 @@ func (c *Collector) Export() error {
 	return nil
 }
 
-// exportRuleFile 导出单个规则文件
-func (c *Collector) exportRuleFile(dir, action string, ruleList []rules.Rule) error {
-	filename := filepath.Join(dir, fmt.Sprintf("%s.txt", strings.ToLower(action)))
+// exportPrismRuleFile 导出 Prism 专属格式规则文件（YAML payload 格式，参考 fire）
+func (c *Collector) exportPrismRuleFile(dir, action string, ruleList []rules.Rule) error {
+	// 文件名使用下划线
+	filenameNormalized := strings.ReplaceAll(strings.ToLower(action), " ", "_")
+	filename := filepath.Join(dir, fmt.Sprintf("%s.yaml", filenameNormalized))
 
 	file, err := os.Create(filename)
 	if err != nil {
@@ -376,38 +378,44 @@ func (c *Collector) exportRuleFile(dir, action string, ruleList []rules.Rule) er
 	}
 	defer file.Close()
 
-	// 写入文件头
+	// 写入 YAML 头部
 	fmt.Fprintf(file, "# Prism Rules - %s\n", action)
 	fmt.Fprintf(file, "# Generated at: %s\n", time.Now().Format(time.RFC3339))
-	fmt.Fprintf(file, "# Total rules: %d\n\n", len(ruleList))
+	fmt.Fprintf(file, "# Total rules: %d\n", len(ruleList))
+	fmt.Fprintf(file, "# Repository: https://github.com/darabuchi/prism\n")
+	fmt.Fprintf(file, "#\n")
+	fmt.Fprintf(file, "# Usage:\n")
+	fmt.Fprintf(file, "#   rule-providers:\n")
+	fmt.Fprintf(file, "#     %s:\n", action)
+	fmt.Fprintf(file, "#       type: http\n")
+	fmt.Fprintf(file, "#       behavior: domain/ipcidr/classical\n")
+	fmt.Fprintf(file, "#       url: https://raw.githubusercontent.com/darabuchi/prism/main/rules/prism/%s.yaml\n", filenameNormalized)
+	fmt.Fprintf(file, "#       interval: 86400\n")
+	fmt.Fprintf(file, "\n")
+	fmt.Fprintf(file, "payload:\n")
 
-	// 写入规则
+	// 写入规则 payload（fire 格式）
 	for _, rule := range ruleList {
-		fmt.Fprintf(file, "%s,%s,%s\n", rule.Type(), rule.Payload(), rule.Action())
-	}
+		ruleType := string(rule.Type())
+		payload := rule.Payload()
 
-	pterm.Success.Printfln("导出 %d 条规则到 %s", len(ruleList), filename)
-	return nil
-}
-
-// exportAllRules 导出所有规则到单个文件
-func (c *Collector) exportAllRules(dir string, ruleList []rules.Rule) error {
-	filename := filepath.Join(dir, "all_rules.txt")
-
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// 写入文件头
-	fmt.Fprintf(file, "# Prism Rules - All\n")
-	fmt.Fprintf(file, "# Generated at: %s\n", time.Now().Format(time.RFC3339))
-	fmt.Fprintf(file, "# Total rules: %d\n\n", len(ruleList))
-
-	// 写入规则
-	for _, rule := range ruleList {
-		fmt.Fprintf(file, "%s,%s,%s\n", rule.Type(), rule.Payload(), rule.Action())
+		switch ruleType {
+		case "DOMAIN":
+			// DOMAIN -> 直接域名
+			fmt.Fprintf(file, "  - %s\n", payload)
+		case "DOMAIN-SUFFIX":
+			// DOMAIN-SUFFIX -> +.domain
+			fmt.Fprintf(file, "  - +.%s\n", payload)
+		case "DOMAIN-KEYWORD":
+			// DOMAIN-KEYWORD 不支持 payload 格式，跳过
+			continue
+		case "IP-CIDR", "IP-CIDR6":
+			// IP-CIDR -> 直接 CIDR
+			fmt.Fprintf(file, "  - %s\n", payload)
+		default:
+			// 其他类型暂不支持
+			continue
+		}
 	}
 
 	pterm.Success.Printfln("导出 %d 条规则到 %s", len(ruleList), filename)
