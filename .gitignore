@@ -73,5 +73,6 @@ pkg/mihomo/*.zip
 data/
 logs/
 resource/geoip/
+resource/rules/
 
 coverage.html
