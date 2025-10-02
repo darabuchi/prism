@@ -3,6 +3,8 @@ package rules
 import (
 	"strconv"
 	"strings"
+
+	"github.com/darabuchi/prism"
 )
 
 // Network 网络类型匹配规则
@@ -20,7 +22,7 @@ func (n *Network) Match(metadata *Metadata) bool {
 }
 
 // NewNetwork 创建网络类型匹配规则
-func NewNetwork(payload string, action ActionType) *Network {
+func NewNetwork(payload string, action prism.Payload) *Network {
 	network := strings.ToUpper(strings.TrimSpace(payload))
 	return &Network{
 		base:    newBase(TypeNetwork, payload, action),
@@ -40,7 +42,7 @@ func (u *UID) Match(metadata *Metadata) bool {
 }
 
 // NewUID 创建用户 ID 匹配规则
-func NewUID(payload string, action ActionType) (*UID, error) {
+func NewUID(payload string, action prism.Payload) (*UID, error) {
 	uid, err := strconv.ParseUint(payload, 10, 32)
 	if err != nil {
 		return nil, err
@@ -64,7 +66,7 @@ func (d *DSCP) Match(metadata *Metadata) bool {
 }
 
 // NewDSCP 创建 DSCP 值匹配规则
-func NewDSCP(payload string, action ActionType) (*DSCP, error) {
+func NewDSCP(payload string, action prism.Payload) (*DSCP, error) {
 	dscp, err := strconv.ParseUint(payload, 10, 8)
 	if err != nil {
 		return nil, err

@@ -1,6 +1,10 @@
 package rules
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/darabuchi/prism"
+)
 
 // DomainKeyword 域名关键字匹配规则
 type DomainKeyword struct {
@@ -21,7 +25,7 @@ func (d *DomainKeyword) Match(metadata *Metadata) bool {
 }
 
 // NewDomainKeyword 创建域名关键字匹配规则
-func NewDomainKeyword(payload string, action ActionType) *DomainKeyword {
+func NewDomainKeyword(payload string, action prism.Payload) *DomainKeyword {
 	keyword := strings.ToLower(strings.TrimSpace(payload))
 	return &DomainKeyword{
 		base:    newBase(TypeDomainKeyword, payload, action),

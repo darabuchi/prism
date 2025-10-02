@@ -292,20 +292,18 @@ func (c *Collector) ruleKey(rule rules.Rule) string {
 
 // actionPriority 返回 Action 的优先级
 // 优先级从低到高：reject(1) < direct(2) < proxy(3) < 其他服务(4)
-func (c *Collector) actionPriority(action rules.ActionType) int {
-	actionStr := strings.ToUpper(string(action))
-
-	switch actionStr {
-	case "REJECT":
+func (c *Collector) actionPriority(action prism.Payload) int {
+	if action.IsReject() {
 		return 1
-	case "DIRECT":
-		return 2
-	case "PROXY":
-		return 3
-	default:
-		// 其他服务（OPENAI, NETFLIX, YOUTUBE 等）都是高优先级
-		return 4
 	}
+	if action.IsDirect() {
+		return 2
+	}
+	if action == prism.PayloadProxy {
+		return 3
+	}
+	// 其他服务（OPENAI, NETFLIX, YOUTUBE 等）都是高优先级
+	return 4
 }
 
 // Export 导出规则

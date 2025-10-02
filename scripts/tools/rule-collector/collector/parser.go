@@ -145,8 +145,6 @@ func parseClashPayloadLine(line, action string) (rules.Rule, error) {
 
 // ParseTextRules 解析纯文本格式的规则（每行一个域名或 IP）
 func ParseTextRules(body []byte, payload prism.Payload, ruleTypeStr string) ([]rules.Rule, error) {
-	// 将 prism.Payload 转换为 string action，用于 pkg/rules
-	action := payload.String()
 	var ruleList []rules.Rule
 
 	scanner := bufio.NewScanner(bytes.NewReader(body))
@@ -163,11 +161,11 @@ func ParseTextRules(body []byte, payload prism.Payload, ruleTypeStr string) ([]r
 		var rule rules.Rule
 		switch strings.ToUpper(ruleTypeStr) {
 		case "DOMAIN":
-			rule = rules.NewDomain(line, rules.ActionType(action))
+			rule = rules.NewDomain(line, payload)
 		case "DOMAIN-SUFFIX":
-			rule = rules.NewDomainSuffix(line, rules.ActionType(action))
+			rule = rules.NewDomainSuffix(line, payload)
 		case "IP-CIDR":
-			r, err := rules.NewIPCIDR(line, rules.ActionType(action), false)
+			r, err := rules.NewIPCIDR(line, payload, false)
 			if err != nil {
 				continue
 			}
@@ -200,7 +198,7 @@ func parseRuleLine(line, action string) (rules.Rule, error) {
 
 	// MATCH 规则只需要类型
 	if ruleTypeStr == "MATCH" {
-		return rules.NewMatch(rules.ActionType(action)), nil
+		return rules.NewMatch(prism.ParsePayload(action)), nil
 	}
 
 	// 其他规则需要 payload

@@ -1,6 +1,10 @@
 package rules
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/darabuchi/prism"
+)
 
 // Domain 域名精确匹配规则
 type Domain struct {
@@ -21,7 +25,7 @@ func (d *Domain) Match(metadata *Metadata) bool {
 }
 
 // NewDomain 创建域名精确匹配规则
-func NewDomain(payload string, action ActionType) *Domain {
+func NewDomain(payload string, action prism.Payload) *Domain {
 	domain := strings.ToLower(strings.TrimSpace(payload))
 	return &Domain{
 		base:   newBase(TypeDomain, payload, action),

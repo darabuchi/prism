@@ -2,6 +2,8 @@ package rules
 
 import (
 	"strconv"
+
+	"github.com/darabuchi/prism"
 )
 
 // IPASN IP ASN 匹配规则
@@ -50,7 +52,7 @@ func (i *IPASN) NoResolve(noResolve bool) *IPASN {
 }
 
 // NewIPASN 创建 IP ASN 匹配规则
-func NewIPASN(payload string, action ActionType) (*IPASN, error) {
+func NewIPASN(payload string, action prism.Payload) (*IPASN, error) {
 	asn, err := strconv.Atoi(payload)
 	if err != nil {
 		return nil, err

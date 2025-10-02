@@ -3,6 +3,8 @@ package rules
 import (
 	"strconv"
 	"strings"
+
+	"github.com/darabuchi/prism"
 )
 
 // Port 端口匹配规则
@@ -46,7 +48,7 @@ func (p *Port) Match(metadata *Metadata) bool {
 // - 多个端口: "80,443,8080"
 // - 端口范围: "8000-9000"
 // - 混合: "80,443,8000-9000"
-func NewPort(payload string, action ActionType, isDst bool) (*Port, error) {
+func NewPort(payload string, action prism.Payload, isDst bool) (*Port, error) {
 	var ports []uint16
 	var portRanges [][2]uint16
 

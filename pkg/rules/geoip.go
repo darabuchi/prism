@@ -2,6 +2,8 @@ package rules
 
 import (
 	"strings"
+
+	"github.com/darabuchi/prism"
 )
 
 // GEOIP GeoIP 国家代码匹配规则
@@ -50,7 +52,7 @@ func (g *GEOIP) NoResolve(noResolve bool) *GEOIP {
 }
 
 // NewGEOIP 创建 GeoIP 国家代码匹配规则
-func NewGEOIP(payload string, action ActionType) *GEOIP {
+func NewGEOIP(payload string, action prism.Payload) *GEOIP {
 	countryCode := strings.ToUpper(strings.TrimSpace(payload))
 	return &GEOIP{
 		base:        newBase(TypeGEOIP, payload, action),

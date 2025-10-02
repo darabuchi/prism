@@ -1,6 +1,10 @@
 package rules
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/darabuchi/prism"
+)
 
 // DomainSuffix 域名后缀匹配规则
 type DomainSuffix struct {
@@ -35,7 +39,7 @@ func (d *DomainSuffix) Match(metadata *Metadata) bool {
 }
 
 // NewDomainSuffix 创建域名后缀匹配规则
-func NewDomainSuffix(payload string, action ActionType) *DomainSuffix {
+func NewDomainSuffix(payload string, action prism.Payload) *DomainSuffix {
 	suffix := strings.ToLower(strings.TrimSpace(payload))
 	// 移除前导点
 	suffix = strings.TrimPrefix(suffix, ".")

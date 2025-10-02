@@ -1,6 +1,10 @@
 package rules
 
-import "net/netip"
+import (
+	"net/netip"
+
+	"github.com/darabuchi/prism"
+)
 
 // RuleType 规则类型
 type RuleType string
@@ -375,7 +379,7 @@ type Rule interface {
 	Match(metadata *Metadata) bool
 
 	// Action 返回规则动作
-	Action() ActionType
+	Action() prism.Payload
 
 	// Payload 返回规则载荷（匹配内容）
 	Payload() string

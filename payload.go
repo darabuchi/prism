@@ -848,3 +848,4 @@ func (p Payload) IsGamingService() bool {
 func (p Payload) IsBaseAction() bool {
 	return p.Category() == CategoryBase
 }
+

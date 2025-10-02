@@ -3,6 +3,8 @@ package rules
 import (
 	"regexp"
 	"strings"
+
+	"github.com/darabuchi/prism"
 )
 
 // DomainRegex 域名正则表达式匹配规则
@@ -24,7 +26,7 @@ func (d *DomainRegex) Match(metadata *Metadata) bool {
 }
 
 // NewDomainRegex 创建域名正则表达式匹配规则
-func NewDomainRegex(payload string, action ActionType) (*DomainRegex, error) {
+func NewDomainRegex(payload string, action prism.Payload) (*DomainRegex, error) {
 	pattern, err := regexp.Compile(payload)
 	if err != nil {
 		return nil, err

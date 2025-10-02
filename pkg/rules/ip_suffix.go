@@ -5,6 +5,8 @@ import (
 	"net/netip"
 	"strconv"
 	"strings"
+
+	"github.com/darabuchi/prism"
 )
 
 // IPSuffix IP 后缀匹配规则
@@ -64,7 +66,7 @@ func (i *IPSuffix) NoResolve(noResolve bool) *IPSuffix {
 //
 // payload 格式: "IP/PREFIX,SUFFIX"
 // 示例: "8.8.8.8/24,1" 匹配 8.8.8.1
-func NewIPSuffix(payload string, action ActionType) (*IPSuffix, error) {
+func NewIPSuffix(payload string, action prism.Payload) (*IPSuffix, error) {
 	parts := strings.Split(payload, ",")
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid IP-SUFFIX format, expected IP/PREFIX,SUFFIX")

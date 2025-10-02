@@ -2,6 +2,8 @@ package rules
 
 import (
 	"regexp"
+
+	"github.com/darabuchi/prism"
 )
 
 // ProcessRegex 进程正则匹配规则
@@ -29,7 +31,7 @@ func (p *ProcessRegex) Match(metadata *Metadata) bool {
 }
 
 // NewProcessRegex 创建进程正则匹配规则
-func NewProcessRegex(payload string, action ActionType, isPath bool) (*ProcessRegex, error) {
+func NewProcessRegex(payload string, action prism.Payload, isPath bool) (*ProcessRegex, error) {
 	pattern, err := regexp.Compile(payload)
 	if err != nil {
 		return nil, err

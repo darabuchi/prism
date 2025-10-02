@@ -1,13 +1,17 @@
 package rules
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/darabuchi/prism"
+)
 
 // base 规则基础实现
 //
 // 包含所有规则的通用字段和方法
 type base struct {
 	ruleType RuleType
-	action   ActionType
+	action   prism.Payload
 	payload  string
 }
 
@@ -17,7 +21,7 @@ func (b *base) Type() RuleType {
 }
 
 // Action 返回规则动作
-func (b *base) Action() ActionType {
+func (b *base) Action() prism.Payload {
 	return b.action
 }
 
@@ -32,7 +36,7 @@ func (b *base) String() string {
 }
 
 // newBase 创建基础规则
-func newBase(ruleType RuleType, payload string, action ActionType) base {
+func newBase(ruleType RuleType, payload string, action prism.Payload) base {
 	return base{
 		ruleType: ruleType,
 		payload:  payload,

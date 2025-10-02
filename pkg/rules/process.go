@@ -1,6 +1,10 @@
 package rules
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/darabuchi/prism"
+)
 
 // Process 进程匹配规则
 type Process struct {
@@ -27,7 +31,7 @@ func (p *Process) Match(metadata *Metadata) bool {
 }
 
 // NewProcess 创建进程匹配规则
-func NewProcess(payload string, action ActionType, isPath bool) *Process {
+func NewProcess(payload string, action prism.Payload, isPath bool) *Process {
 	ruleType := TypeProcess
 	if isPath {
 		ruleType = TypeProcessPath

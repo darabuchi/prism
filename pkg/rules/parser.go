@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/darabuchi/prism"
 )
 
 // ParseRule 从字符串解析规则
@@ -33,7 +35,7 @@ func ParseRule(ruleStr string) (Rule, error) {
 	ruleType := strings.TrimSpace(strings.ToUpper(parts[0]))
 
 	var payload string
-	var action ActionType
+	var action prism.Payload
 	var noResolve bool
 
 	// MATCH 规则只需要类型和动作
@@ -41,7 +43,8 @@ func ParseRule(ruleStr string) (Rule, error) {
 		if len(parts) < 2 {
 			return nil, fmt.Errorf("%w: MATCH rule requires action", ErrInvalidRule)
 		}
-		action = ActionType(strings.TrimSpace(strings.ToUpper(parts[1])))
+		actionStr := strings.TrimSpace(strings.ToUpper(parts[1]))
+		action = prism.ParsePayload(actionStr)
 		return NewMatch(action), nil
 	}
 
@@ -57,7 +60,8 @@ func ParseRule(ruleStr string) (Rule, error) {
 		}
 		// 组合 CIDR 和 SUFFIX 作为 payload
 		payload = strings.TrimSpace(parts[1]) + "," + strings.TrimSpace(parts[2])
-		action = ActionType(strings.TrimSpace(strings.ToUpper(parts[3])))
+		actionStr := strings.TrimSpace(strings.ToUpper(parts[3]))
+		action = prism.ParsePayload(actionStr)
 
 		// 检查是否有 no-resolve 选项
 		if len(parts) > 4 {
@@ -70,7 +74,8 @@ func ParseRule(ruleStr string) (Rule, error) {
 		}
 	} else {
 		payload = strings.TrimSpace(parts[1])
-		action = ActionType(strings.TrimSpace(strings.ToUpper(parts[2])))
+		actionStr := strings.TrimSpace(strings.ToUpper(parts[2]))
+		action = prism.ParsePayload(actionStr)
 
 		// 检查是否有 no-resolve 选项
 		if len(parts) > 3 {

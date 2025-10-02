@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/netip"
 	"strings"
+
+	"github.com/darabuchi/prism"
 )
 
 const (
@@ -530,10 +532,10 @@ func (r *PrismBinaryReader) readAction(reader io.Reader) (string, []Rule, error)
 
 	// 读取规则列表
 	rules := make([]Rule, 0, ruleCount)
-	actionType := ActionType(action)
+	payload := prism.ParsePayload(action)
 
 	for j := uint64(0); j < ruleCount; j++ {
-		rule, err := r.readRule(reader, actionType)
+		rule, err := r.readRule(reader, payload)
 		if err != nil {
 			return "", nil, fmt.Errorf("read rule %d: %w", j, err)
 		}
@@ -544,7 +546,7 @@ func (r *PrismBinaryReader) readAction(reader io.Reader) (string, []Rule, error)
 }
 
 // readRule 读取单条规则
-func (r *PrismBinaryReader) readRule(reader io.Reader, actionType ActionType) (Rule, error) {
+func (r *PrismBinaryReader) readRule(reader io.Reader, payload prism.Payload) (Rule, error) {
 	// 读取规则类型
 	var ruleType BinaryRuleType
 	if err := binary.Read(reader, binary.LittleEndian, &ruleType); err != nil {
@@ -554,25 +556,25 @@ func (r *PrismBinaryReader) readRule(reader io.Reader, actionType ActionType) (R
 	// 根据规则类型读取 payload
 	switch ruleType {
 	case BinaryTypeDomain:
-		payload, err := r.readDomainPayload(reader)
+		content, err := r.readDomainPayload(reader)
 		if err != nil {
 			return nil, err
 		}
-		return NewDomain(payload, actionType), nil
+		return NewDomain(content, payload), nil
 
 	case BinaryTypeDomainSuffix:
-		payload, err := r.readDomainPayload(reader)
+		content, err := r.readDomainPayload(reader)
 		if err != nil {
 			return nil, err
 		}
-		return NewDomainSuffix(payload, actionType), nil
+		return NewDomainSuffix(content, payload), nil
 
 	case BinaryTypeIPCIDR, BinaryTypeIPCIDR6:
-		payload, err := r.readIPPayload(reader, ruleType == BinaryTypeIPCIDR6)
+		content, err := r.readIPPayload(reader, ruleType == BinaryTypeIPCIDR6)
 		if err != nil {
 			return nil, err
 		}
-		return NewIPCIDR(payload, actionType, false)
+		return NewIPCIDR(content, payload, false)
 
 	default:
 		return nil, fmt.Errorf("unknown rule type: %d", ruleType)

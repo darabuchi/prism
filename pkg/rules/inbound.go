@@ -1,6 +1,10 @@
 package rules
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/darabuchi/prism"
+)
 
 // InType 入站类型匹配规则
 type InType struct {
@@ -17,7 +21,7 @@ func (i *InType) Match(metadata *Metadata) bool {
 }
 
 // NewInType 创建入站类型匹配规则
-func NewInType(payload string, action ActionType) *InType {
+func NewInType(payload string, action prism.Payload) *InType {
 	inType := strings.ToUpper(strings.TrimSpace(payload))
 	return &InType{
 		base:   newBase(TypeInType, payload, action),
@@ -40,7 +44,7 @@ func (i *InName) Match(metadata *Metadata) bool {
 }
 
 // NewInName 创建入站名称匹配规则
-func NewInName(payload string, action ActionType) *InName {
+func NewInName(payload string, action prism.Payload) *InName {
 	inName := strings.TrimSpace(payload)
 	return &InName{
 		base:   newBase(TypeInName, payload, action),
@@ -63,7 +67,7 @@ func (i *InUser) Match(metadata *Metadata) bool {
 }
 
 // NewInUser 创建入站用户匹配规则
-func NewInUser(payload string, action ActionType) *InUser {
+func NewInUser(payload string, action prism.Payload) *InUser {
 	user := strings.TrimSpace(payload)
 	return &InUser{
 		base: newBase(TypeInUser, payload, action),

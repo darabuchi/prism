@@ -2,6 +2,8 @@ package rules
 
 import (
 	"net/netip"
+
+	"github.com/darabuchi/prism"
 )
 
 // IPCIDR IP CIDR 匹配规则
@@ -38,7 +40,7 @@ func (i *IPCIDR) NoResolve(noResolve bool) *IPCIDR {
 }
 
 // NewIPCIDR 创建 IP CIDR 匹配规则
-func NewIPCIDR(payload string, action ActionType, isIPv6 bool) (*IPCIDR, error) {
+func NewIPCIDR(payload string, action prism.Payload, isIPv6 bool) (*IPCIDR, error) {
 	prefix, err := netip.ParsePrefix(payload)
 	if err != nil {
 		return nil, err

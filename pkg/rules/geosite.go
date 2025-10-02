@@ -3,6 +3,8 @@ package rules
 import (
 	"strings"
 	"sync"
+
+	"github.com/darabuchi/prism"
 )
 
 // GeositeProvider GeoSite 数据提供者
@@ -79,7 +81,7 @@ func (g *GeoSite) Match(metadata *Metadata) bool {
 }
 
 // NewGeoSite 创建 GeoSite 匹配规则
-func NewGeoSite(payload string, action ActionType) *GeoSite {
+func NewGeoSite(payload string, action prism.Payload) *GeoSite {
 	category := strings.ToLower(strings.TrimSpace(payload))
 	return &GeoSite{
 		base:     newBase(TypeGeoSite, payload, action),
