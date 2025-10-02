@@ -39,7 +39,7 @@ func ParseRule(ruleStr string) (Rule, error) {
 	var noResolve bool
 
 	// MATCH 规则只需要类型和动作
-	if ruleType == string(TypeMatch) {
+	if ruleType == "MATCH" {
 		if len(parts) < 2 {
 			return nil, fmt.Errorf("%w: MATCH rule requires action", ErrInvalidRule)
 		}
@@ -94,7 +94,8 @@ func ParseRule(ruleStr string) (Rule, error) {
 	}
 
 	// 根据规则类型创建对应的规则
-	switch RuleType(ruleType) {
+	parsedType := prism.ParseRuleType(ruleType)
+	switch parsedType {
 	case TypeDomain:
 		return NewDomain(payload, action), nil
 
@@ -119,7 +120,7 @@ func ParseRule(ruleStr string) (Rule, error) {
 		return rule, nil
 
 	case TypeIPCIDR, TypeIPCIDR6:
-		isIPv6 := ruleType == string(TypeIPCIDR6)
+		isIPv6 := parsedType == TypeIPCIDR6
 		rule, err := NewIPCIDR(payload, action, isIPv6)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrInvalidIPCIDR, err)
