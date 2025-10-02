@@ -155,6 +155,20 @@ func (c *Collector) Export() error {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
+	// 执行规则合并优化
+	pterm.Info.Println("执行规则合并优化...")
+	originalCount := len(c.rules)
+	merger := NewRuleMerger(c.rules)
+	c.rules = merger.Merge()
+	mergedCount := len(c.rules)
+
+	if originalCount > mergedCount {
+		pterm.Success.Printfln("规则合并完成：%d → %d（减少 %d 条）",
+			originalCount, mergedCount, originalCount-mergedCount)
+	} else {
+		pterm.Info.Printfln("规则合并完成：保持 %d 条规则", mergedCount)
+	}
+
 	// 按 action 分组规则
 	rulesByAction := make(map[string][]rules.Rule)
 	for _, rule := range c.rules {
