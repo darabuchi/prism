@@ -1,4 +1,4 @@
-.PHONY: help build build-server build-cli build-all run run-server test test-unit test-integration test-coverage clean lint fmt web-dev web-build desktop-dev desktop-build release release-local release-snapshot release-check update-geoip clean-geoip-cache gen-error-code validate-error-code
+.PHONY: help build build-server build-cli build-all run run-server test test-unit test-integration test-coverage clean lint fmt web-dev web-build desktop-dev desktop-build release release-local release-snapshot release-check update-geoip clean-geoip-cache gen-error-code validate-error-code collect-rules clean-rules-cache
 
 # 默认目标
 .DEFAULT_GOAL := help
@@ -53,9 +53,11 @@ help:
 	@echo "  deps              - 下载依赖"
 	@echo "  tidy              - 整理依赖"
 	@echo ""
-	@echo "GeoIP:"
-	@echo "  update-geoip      - 更新 GeoIP 数据库"
-	@echo "  clean-geoip-cache - 清理 GeoIP 缓存（强制重新下载）"
+	@echo "Tools:"
+	@echo "  update-geoip        - 更新 GeoIP 数据库"
+	@echo "  clean-geoip-cache   - 清理 GeoIP 缓存（强制重新下载）"
+	@echo "  collect-rules       - 收集规则集"
+	@echo "  clean-rules-cache   - 清理规则收集器缓存"
 	@echo ""
 	@echo "Code Generation:"
 	@echo "  gen-error-code      - 根据 error_code.json 生成错误码文件"
@@ -245,3 +247,15 @@ validate-error-code:
 	@echo "Validating error_code.json..."
 	@cd scripts/tools/gen-error-code && $(MAKE) validate
 	@echo "Error code validation passed"
+
+## collect-rules: 收集规则集
+collect-rules:
+	@echo "Collecting rules..."
+	@cd scripts/tools/rule-collector && $(MAKE) run
+	@echo "Rules collection complete"
+
+## clean-rules-cache: 清理规则收集器缓存
+clean-rules-cache:
+	@echo "Cleaning rules cache..."
+	@rm -rf /tmp/prism_rule_collector
+	@echo "Rules cache cleaned"

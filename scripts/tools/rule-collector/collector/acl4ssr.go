@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/darabuchi/prism/pkg/rules"
 )
@@ -13,17 +12,15 @@ import (
 // ACL4SSR ACL4SSR 规则源处理器
 // 来源：https://github.com/ACL4SSR/ACL4SSR
 type ACL4SSR struct {
+	*BaseHandler
 	baseURL string
-	client  *http.Client
 }
 
 // NewACL4SSR 创建 ACL4SSR 处理器
-func NewACL4SSR() *ACL4SSR {
+func NewACL4SSR(proxy string, cacheDays int) *ACL4SSR {
 	return &ACL4SSR{
-		baseURL: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/",
-		client: &http.Client{
-			Timeout: 30 * time.Second,
-		},
+		BaseHandler: NewBaseHandler(proxy, cacheDays),
+		baseURL:     "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/",
 	}
 }
 
@@ -56,7 +53,4 @@ func (h *ACL4SSR) Parse(body []byte, action string) ([]rules.Rule, error) {
 }
 
 // NeedUpdate 判断缓存是否需要更新
-// ACL4SSR 规则每天更新一次
-func (h *ACL4SSR) NeedUpdate(info os.FileInfo) bool {
-	return time.Since(info.ModTime()) > 24*time.Hour
-}
+// 使用基类实现

@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/darabuchi/prism/pkg/rules"
 )
@@ -13,17 +12,15 @@ import (
 // BlackMatrix7 BlackMatrix7 规则源处理器
 // 来源：https://github.com/blackmatrix7/ios_rule_script
 type BlackMatrix7 struct {
+	*BaseHandler
 	baseURL string
-	client  *http.Client
 }
 
 // NewBlackMatrix7 创建 BlackMatrix7 处理器
-func NewBlackMatrix7() *BlackMatrix7 {
+func NewBlackMatrix7(proxy string, cacheDays int) *BlackMatrix7 {
 	return &BlackMatrix7{
-		baseURL: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/",
-		client: &http.Client{
-			Timeout: 30 * time.Second,
-		},
+		BaseHandler: NewBaseHandler(proxy, cacheDays),
+		baseURL:     "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/",
 	}
 }
 
@@ -55,7 +52,4 @@ func (h *BlackMatrix7) Parse(body []byte, action string) ([]rules.Rule, error) {
 }
 
 // NeedUpdate 判断缓存是否需要更新
-// BlackMatrix7 规则每天更新一次
-func (h *BlackMatrix7) NeedUpdate(info os.FileInfo) bool {
-	return time.Since(info.ModTime()) > 24*time.Hour
-}
+// 使用基类实现

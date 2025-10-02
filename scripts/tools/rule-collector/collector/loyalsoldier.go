@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/darabuchi/prism/pkg/rules"
 )
@@ -14,17 +13,15 @@ import (
 // LoyalSoldier Loyalsoldier 规则源处理器
 // 来源：https://github.com/Loyalsoldier/clash-rules
 type LoyalSoldier struct {
+	*BaseHandler
 	baseURL string
-	client  *http.Client
 }
 
 // NewLoyalSoldier 创建 LoyalSoldier 处理器
-func NewLoyalSoldier() *LoyalSoldier {
+func NewLoyalSoldier(proxy string, cacheDays int) *LoyalSoldier {
 	return &LoyalSoldier{
-		baseURL: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/",
-		client: &http.Client{
-			Timeout: 30 * time.Second,
-		},
+		BaseHandler: NewBaseHandler(proxy, cacheDays),
+		baseURL:     "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/",
 	}
 }
 
@@ -61,10 +58,7 @@ func (h *LoyalSoldier) Parse(body []byte, action string) ([]rules.Rule, error) {
 }
 
 // NeedUpdate 判断缓存是否需要更新
-// Loyalsoldier 规则每天更新一次
-func (h *LoyalSoldier) NeedUpdate(info os.FileInfo) bool {
-	return time.Since(info.ModTime()) > 24*time.Hour
-}
+// 使用基类实现
 
 // ParseWithType 根据文件类型解析规则
 func (h *LoyalSoldier) ParseWithType(body []byte, action, filename string) ([]rules.Rule, error) {

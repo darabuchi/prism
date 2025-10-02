@@ -15,6 +15,8 @@ import (
 
 // Collector 规则收集器
 type Collector struct {
+	cfg *Config
+
 	// 数据源收集器映射
 	handlers map[string]collector.Handler
 
@@ -26,8 +28,9 @@ type Collector struct {
 }
 
 // NewCollector 创建新的收集器
-func NewCollector() *Collector {
+func NewCollector(cfg *Config) *Collector {
 	return &Collector{
+		cfg:      cfg,
 		handlers: make(map[string]collector.Handler),
 		rules:    make([]rules.Rule, 0),
 		ruleMap:  make(map[string]bool),
@@ -46,7 +49,7 @@ func (c *Collector) Parse(source, path, action string) error {
 		return fmt.Errorf("unknown source: %s", source)
 	}
 
-	pterm.Info.Printfln("Parsing %s/%s (action: %s)", source, path, action)
+	pterm.Info.Printfln("解析 %s/%s (动作: %s)", source, path, action)
 
 	// 下载规则数据（带缓存）
 	body, err := c.downloadWithCache(source, path, handler)
@@ -54,7 +57,7 @@ func (c *Collector) Parse(source, path, action string) error {
 		return fmt.Errorf("download failed: %w", err)
 	}
 
-	pterm.Info.Printfln("Downloaded %s/%s (%d bytes)", source, path, len(body))
+	pterm.Info.Printfln("已下载 %s/%s (%d 字节)", source, path, len(body))
 
 	// 解析规则
 	ruleList, err := handler.Parse(body, action)
@@ -65,7 +68,7 @@ func (c *Collector) Parse(source, path, action string) error {
 	// 添加规则并去重
 	bar, _ := pterm.DefaultProgressbar.
 		WithTotal(len(ruleList)).
-		WithTitle(fmt.Sprintf("Processing %s/%s", source, path)).
+		WithTitle(fmt.Sprintf("处理 %s/%s", source, path)).
 		Start()
 
 	added := 0
@@ -77,31 +80,31 @@ func (c *Collector) Parse(source, path, action string) error {
 	}
 	bar.Stop()
 
-	pterm.Success.Printfln("Added %d/%d rules from %s/%s", added, len(ruleList), source, path)
+	pterm.Success.Printfln("从 %s/%s 添加了 %d/%d 条规则", source, path, added, len(ruleList))
 
 	return nil
 }
 
 // downloadWithCache 带缓存的下载
 func (c *Collector) downloadWithCache(source, path string, handler collector.Handler) ([]byte, error) {
-	// 计算缓存文件路径
+	// 计算缓存文件路径（使用配置的缓存目录）
 	hash := sha256.Sum256([]byte(fmt.Sprintf("%s_%s", source, path)))
-	cachePath := filepath.Join("scripts", "tools", "rule-collector", "tmp", "cache", hex.EncodeToString(hash[:]))
+	cachePath := filepath.Join(c.cfg.CacheDir, hex.EncodeToString(hash[:]))
 
 	// 检查缓存是否存在且有效
 	if info, err := os.Stat(cachePath); err == nil {
-		if !handler.NeedUpdate(info) {
+		if !handler.NeedUpdate(info, c.cfg.CacheDays) {
 			// 使用缓存
 			data, err := os.ReadFile(cachePath)
 			if err == nil {
-				pterm.Info.Printfln("Using cached data for %s/%s", source, path)
+				pterm.Info.Printfln("使用缓存: %s/%s", source, path)
 				return data, nil
 			}
 		}
 	}
 
 	// 下载新数据
-	pterm.Info.Printfln("Downloading %s/%s...", source, path)
+	pterm.Info.Printfln("下载中: %s/%s...", source, path)
 	data, err := handler.Download(path)
 	if err != nil {
 		return nil, err
@@ -115,7 +118,7 @@ func (c *Collector) downloadWithCache(source, path string, handler collector.Han
 
 	err = os.WriteFile(cachePath, data, 0644)
 	if err != nil {
-		pterm.Warning.Printfln("Failed to save cache: %v", err)
+		pterm.Warning.Printfln("保存缓存失败: %v", err)
 	}
 
 	return data, nil
@@ -131,11 +134,6 @@ func (c *Collector) addRule(rule rules.Rule) bool {
 		return false
 	}
 
-	// 检查是否被其他规则覆盖
-	if c.isRuleCovered(rule) {
-		return false
-	}
-
 	// 添加规则
 	c.rules = append(c.rules, rule)
 	c.ruleMap[key] = true
@@ -148,40 +146,9 @@ func (c *Collector) ruleKey(rule rules.Rule) string {
 	return fmt.Sprintf("%s|%s|%s", rule.Type(), rule.Payload(), rule.Action())
 }
 
-// isRuleCovered 检查规则是否被已有规则覆盖
-func (c *Collector) isRuleCovered(newRule rules.Rule) bool {
-	// 简单去重逻辑，可以根据需要扩展
-	// 例如：
-	// - DOMAIN-SUFFIX 可以覆盖 DOMAIN
-	// - 更大的 IP-CIDR 可以覆盖更小的
-
-	for _, existingRule := range c.rules {
-		// 只比较相同 action 的规则
-		if existingRule.Action() != newRule.Action() {
-			continue
-		}
-
-		// 根据规则类型进行覆盖检查
-		if c.ruleCovers(existingRule, newRule) {
-			return true
-		}
-	}
-
-	return false
-}
-
-// ruleCovers 检查 existing 规则是否覆盖 new 规则
-func (c *Collector) ruleCovers(existing, new rules.Rule) bool {
-	// TODO: 实现更智能的规则覆盖检查
-	// 例如：
-	// - DOMAIN-SUFFIX .example.com 覆盖 DOMAIN www.example.com
-	// - IP-CIDR 192.168.0.0/16 覆盖 IP-CIDR 192.168.1.0/24
-	return false
-}
-
 // Export 导出规则
 func (c *Collector) Export() error {
-	outputDir := "scripts/tools/rule-collector/output"
+	outputDir := c.cfg.OutputDir
 	err := os.MkdirAll(outputDir, 0755)
 	if err != nil {
 		return fmt.Errorf("failed to create output directory: %w", err)
@@ -231,7 +198,7 @@ func (c *Collector) exportRuleFile(dir, action string, ruleList []rules.Rule) er
 		fmt.Fprintf(file, "%s,%s,%s\n", rule.Type(), rule.Payload(), rule.Action())
 	}
 
-	pterm.Success.Printfln("Exported %d rules to %s", len(ruleList), filename)
+	pterm.Success.Printfln("导出 %d 条规则到 %s", len(ruleList), filename)
 	return nil
 }
 
@@ -255,7 +222,7 @@ func (c *Collector) exportAllRules(dir string) error {
 		fmt.Fprintf(file, "%s,%s,%s\n", rule.Type(), rule.Payload(), rule.Action())
 	}
 
-	pterm.Success.Printfln("Exported %d rules to %s", len(c.rules), filename)
+	pterm.Success.Printfln("导出 %d 条规则到 %s", len(c.rules), filename)
 	return nil
 }
 
