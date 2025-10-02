@@ -65,28 +65,28 @@ func main() {
 		{BLACKMATRIX7, "Disney/Disney.yaml", "DISNEY"},              // Disney+
 
 		// 代理规则 - 国内流媒体
-		{BLACKMATRIX7, "BiliBili/BiliBili.yaml", "BILIBILI"},      // 哔哩哔哩
-		{BLACKMATRIX7, "BiliBiliIntl/BiliBiliIntl.yaml", "PROXY"}, // 哔哩哔哩国际版
-		{BLACKMATRIX7, "iQIYI/iQIYI.yaml", "DIRECT"},              // 爱奇艺
-		{BLACKMATRIX7, "iQIYIIntl/iQIYIIntl.yaml", "PROXY"},       // 爱奇艺国际版
+		{BLACKMATRIX7, "BiliBili/BiliBili.yaml", "BILIBILI"},            // 哔哩哔哩
+		{BLACKMATRIX7, "BiliBiliIntl/BiliBiliIntl.yaml", "BILIBILI-HK"}, // 哔哩哔哩国际版
+		{BLACKMATRIX7, "iQIYI/iQIYI.yaml", "IQIYI"},                     // 爱奇艺
+		{BLACKMATRIX7, "iQIYIIntl/iQIYIIntl.yaml", "IQIYI-HK"},          // 爱奇艺国际版
 
 		// 代理规则 - AI 服务（细分类型）
-		{BLACKMATRIX7, "OpenAI/OpenAI.yaml", "OPENAI"},  // OpenAI
-		{BLACKMATRIX7, "Claude/Claude.yaml", "OPENAI"},  // Claude（归类到 OpenAI）
-		{BLACKMATRIX7, "Copilot/Copilot.yaml", "PROXY"}, // GitHub Copilot
-		{BLACKMATRIX7, "Gemini/Gemini.yaml", "PROXY"},   // Google Gemini
+		{BLACKMATRIX7, "OpenAI/OpenAI.yaml", "OPENAI"},   // OpenAI
+		{BLACKMATRIX7, "Claude/Claude.yaml", "CLAUDE"},   // Claude
+		{BLACKMATRIX7, "Copilot/Copilot.yaml", "GITHUB"}, // GitHub Copilot
+		{BLACKMATRIX7, "Gemini/Gemini.yaml", "GEMINI"},   // Google Gemini
 
 		// 代理规则 - 开发工具
-		{BLACKMATRIX7, "GitHub/GitHub.yaml", "PROXY"}, // GitHub
-		{BLACKMATRIX7, "Docker/Docker.yaml", "PROXY"}, // Docker Hub
+		{BLACKMATRIX7, "GitHub/GitHub.yaml", "GITHUB"}, // GitHub
+		{BLACKMATRIX7, "Docker/Docker.yaml", "DOCKER"}, // Docker Hub
 
 		// 代理规则 - 社交平台
 		{BLACKMATRIX7, "Telegram/Telegram.yaml", "TELEGRAM"}, // Telegram
 		{BLACKMATRIX7, "Twitter/Twitter.yaml", "PROXY"},      // Twitter
 
 		// 代理规则 - 科技公司
-		{BLACKMATRIX7, "Google/Google.yaml", "PROXY"},       // Google
-		{BLACKMATRIX7, "Microsoft/Microsoft.yaml", "PROXY"}, // Microsoft
+		{BLACKMATRIX7, "Google/Google.yaml", "GOOGLE"},         // Google
+		{BLACKMATRIX7, "Microsoft/Microsoft.yaml", "MICROSOFT"}, // Microsoft
 
 		// 国内常用网站和服务
 		{BLACKMATRIX7, "ChinaMax/ChinaMax.yaml", "DIRECT"}, // 国内网站合集
