@@ -433,10 +433,16 @@ func (c *Collector) exportSubconverter(baseDir string, rulesByAction map[string]
 		}
 	}
 
-	// 生成 subconverter 配置示例
+	// 生成 subconverter 配置示例和 README
 	err = c.exportSubconverterConfig(subconverterDir, rulesByAction)
 	if err != nil {
 		return fmt.Errorf("failed to export subconverter config: %w", err)
+	}
+
+	// 生成实际的 INI 配置文件
+	err = c.exportSubconverterINI(subconverterDir, rulesByAction)
+	if err != nil {
+		return fmt.Errorf("failed to export subconverter INI: %w", err)
 	}
 
 	pterm.Success.Printfln("subconverter 格式导出完成: %s", subconverterDir)
@@ -537,22 +543,14 @@ func (c *Collector) exportSubconverterConfig(dir string, rulesByAction map[strin
 		ruleCount := len(rulesByAction[action])
 
 		// 生成友好的分组名称
-		groupName := action
-		switch action {
-		case "Reject":
-			groupName = "🛡️ 广告拦截"
-		case "Direct":
-			groupName = "🎯 全球直连"
-		case "Proxy":
-			groupName = "🚀 节点选择"
-		default:
-			// 对于服务名称，添加表情符号
-			groupName = fmt.Sprintf("📺 %s", action)
-		}
+		groupName := c.getGroupName(action)
 
 		fmt.Fprintf(file, "; %s (%d 条规则)\n", action, ruleCount)
+
+		// 将文件名中的空格替换为 %20
+		filenameEncoded := strings.ReplaceAll(strings.ToLower(action), " ", "%20")
 		fmt.Fprintf(file, "ruleset=%s,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list\n",
-			groupName, strings.ToLower(action))
+			groupName, filenameEncoded)
 	}
 
 	fmt.Fprintf(file, "\n; GEOIP 规则\n")
@@ -592,6 +590,164 @@ func (c *Collector) exportSubconverterConfig(dir string, rulesByAction map[strin
 	fmt.Fprintf(file, "本项目采用 GPL-3.0 许可证。详见 [LICENSE](../../LICENSE) 文件。\n")
 
 	return nil
+}
+
+// exportSubconverterINI 导出实际的 INI 配置文件
+func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][]rules.Rule) error {
+	filename := filepath.Join(dir, "prism.ini")
+
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 写入 INI 文件头部
+	fmt.Fprintf(file, "[custom]\n")
+	fmt.Fprintf(file, "; Prism Rules Configuration for Subconverter\n")
+	fmt.Fprintf(file, "; Generated at: %s\n", time.Now().Format(time.RFC3339))
+	fmt.Fprintf(file, "; Repository: https://github.com/darabuchi/prism\n")
+	fmt.Fprintf(file, ";\n")
+	fmt.Fprintf(file, "; 使用方法：\n")
+	fmt.Fprintf(file, "; 1. 将此文件放到 subconverter 的 base 目录下\n")
+	fmt.Fprintf(file, "; 2. 在订阅转换时使用 &config=prism 参数引用此配置\n")
+	fmt.Fprintf(file, ";\n\n")
+
+	// 启用规则生成
+	fmt.Fprintf(file, "; 启用规则生成\n")
+	fmt.Fprintf(file, "enable_rule_generator=true\n")
+	fmt.Fprintf(file, "overwrite_original_rules=true\n\n")
+
+	// 按 action 排序
+	actions := make([]string, 0, len(rulesByAction))
+	for action := range rulesByAction {
+		actions = append(actions, action)
+	}
+	sortActions := func(actions []string) {
+		order := map[string]int{
+			"Reject": 1,
+			"Direct": 2,
+			"Proxy":  3,
+		}
+		for i := 0; i < len(actions); i++ {
+			for j := i + 1; j < len(actions); j++ {
+				orderI := order[actions[i]]
+				orderJ := order[actions[j]]
+				if orderI == 0 {
+					orderI = 100
+				}
+				if orderJ == 0 {
+					orderJ = 100
+				}
+				if orderI > orderJ || (orderI == orderJ && actions[i] > actions[j]) {
+					actions[i], actions[j] = actions[j], actions[i]
+				}
+			}
+		}
+	}
+	sortActions(actions)
+
+	// 写入规则集配置
+	fmt.Fprintf(file, "; ============ 规则集配置 ============\n\n")
+
+	for _, action := range actions {
+		ruleCount := len(rulesByAction[action])
+
+		// 生成友好的分组名称
+		groupName := c.getGroupName(action)
+
+		fmt.Fprintf(file, "; %s (%d 条规则)\n", action, ruleCount)
+
+		// 将文件名中的空格替换为 %20
+		filenameEncoded := strings.ReplaceAll(strings.ToLower(action), " ", "%20")
+		fmt.Fprintf(file, "ruleset=%s,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list\n\n",
+			groupName, filenameEncoded)
+	}
+
+	// 添加 GEOIP 和 FINAL 规则
+	fmt.Fprintf(file, "; ============ 最终规则 ============\n\n")
+	fmt.Fprintf(file, "; GEOIP 规则\n")
+	fmt.Fprintf(file, "ruleset=🎯 全球直连,[]GEOIP,CN\n\n")
+	fmt.Fprintf(file, "; 兜底规则\n")
+	fmt.Fprintf(file, "ruleset=🐟 漏网之鱼,[]FINAL\n")
+
+	pterm.Success.Printfln("已生成 INI 配置文件: %s", filename)
+	return nil
+}
+
+// getGroupName 获取友好的分组名称
+func (c *Collector) getGroupName(action string) string {
+	// 特殊处理基础动作
+	switch strings.ToUpper(action) {
+	case "REJECT":
+		return "🛡️ 广告拦截"
+	case "DIRECT":
+		return "🎯 全球直连"
+	case "PROXY":
+		return "🚀 节点选择"
+	}
+
+	// AI 服务
+	aiServices := map[string]string{
+		"OPENAI":           "🤖 OpenAI",
+		"CLAUDE":           "🤖 Claude",
+		"GEMINI":           "🤖 Gemini",
+		"COPILOT":          "🤖 Copilot",
+		"BING":             "🤖 Bing AI",
+		"PERPLEXITY":       "🤖 Perplexity",
+		"CHARACTER.AI":     "🤖 Character.AI",
+		"MIDJOURNEY":       "🎨 Midjourney",
+		"STABLE DIFFUSION": "🎨 Stable Diffusion",
+		"CHATGPT":          "🤖 ChatGPT",
+	}
+	if groupName, ok := aiServices[strings.ToUpper(action)]; ok {
+		return groupName
+	}
+
+	// 流媒体服务
+	streamingServices := map[string]string{
+		"YOUTUBE":        "📹 YouTube",
+		"NETFLIX":        "🎬 Netflix",
+		"DISNEY":         "🎬 Disney+",
+		"SPOTIFY":        "🎵 Spotify",
+		"TIKTOK":         "📹 TikTok",
+		"BILIBILI":       "📺 哔哩哔哩",
+		"BILIBILIINTL":   "📺 哔哩哔哩",
+		"BILIBILI HK":    "📺 哔哩哔哩港澳台",
+		"IQIYI":          "📺 爱奇艺",
+		"TENCENT VIDEO":  "📺 腾讯视频",
+		"APPLE TV":       "📺 Apple TV",
+		"APPLE MUSIC":    "🎵 Apple Music",
+	}
+	if groupName, ok := streamingServices[strings.ToUpper(action)]; ok {
+		return groupName
+	}
+
+	// 社交平台
+	socialServices := map[string]string{
+		"TELEGRAM":  "💬 Telegram",
+		"TWITTER":   "🐦 Twitter",
+		"FACEBOOK":  "📘 Facebook",
+		"INSTAGRAM": "📷 Instagram",
+		"DISCORD":   "💬 Discord",
+	}
+	if groupName, ok := socialServices[strings.ToUpper(action)]; ok {
+		return groupName
+	}
+
+	// 开发工具
+	devServices := map[string]string{
+		"GITHUB":  "💻 GitHub",
+		"GITLAB":  "💻 GitLab",
+		"DOCKER":  "🐳 Docker",
+		"VERCEL":  "⚡ Vercel",
+	}
+	if groupName, ok := devServices[strings.ToUpper(action)]; ok {
+		return groupName
+	}
+
+	// 其他服务使用默认格式
+	return fmt.Sprintf("📦 %s", action)
 }
 
 // RuleCount 返回收集的规则数量
