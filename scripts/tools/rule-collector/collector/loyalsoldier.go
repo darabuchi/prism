@@ -48,12 +48,11 @@ func (h *LoyalSoldier) Download(path string) ([]byte, error) {
 
 // Parse 解析规则数据
 // Loyalsoldier 规则格式：
-// - 纯文本格式：每行一个域名或 IP
+// - YAML 列表格式：使用 "- '域名'" 格式
 // - 根据文件名判断规则类型
 func (h *LoyalSoldier) Parse(body []byte, action string) ([]rules.Rule, error) {
-	// 大多数 Loyalsoldier 规则是纯文本域名列表
-	// 默认作为 DOMAIN-SUFFIX 处理
-	return ParseTextRules(body, action, "DOMAIN-SUFFIX")
+	// Loyalsoldier 使用 YAML 列表格式，需要使用 Clash 解析器
+	return ParseClashRules(body, action)
 }
 
 // NeedUpdate 判断缓存是否需要更新

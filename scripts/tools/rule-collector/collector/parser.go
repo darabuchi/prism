@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/darabuchi/prism/pkg/rules"
+	"gopkg.in/yaml.v3"
 )
 
 // ParseClashRules 解析 Clash 格式的规则
@@ -21,11 +23,42 @@ import (
 func ParseClashRules(body []byte, action string) ([]rules.Rule, error) {
 	var ruleList []rules.Rule
 
+	// 尝试使用 YAML 解析（Clash YAML 格式）
+	var data struct {
+		Payload []string `yaml:"payload"`
+	}
+
+	err := yaml.Unmarshal(body, &data)
+	if err == nil && len(data.Payload) > 0 {
+		// YAML 格式解析成功
+		for _, line := range data.Payload {
+			// 清理 YAML 格式的残留符号
+			// 某些上游源可能在YAML字符串中包含列表语法，如: "- 'domain.com'"
+			// 需要按正确顺序清理这些符号
+
+			// 1. 移除 YAML 列表前缀 "- " (如果存在)
+			line = strings.TrimPrefix(line, "- ")
+			line = strings.TrimSpace(line)
+
+			// 2. 移除前后的引号
+			line = strings.Trim(line, "\"'")
+			line = strings.TrimSpace(line)
+
+			rule, err := parseClashPayloadLine(line, action)
+			if err != nil {
+				continue
+			}
+			if rule != nil {
+				ruleList = append(ruleList, rule)
+			}
+		}
+		return ruleList, nil
+	}
+
+	// 如果 YAML 解析失败，使用逐行解析（纯文本格式）
 	scanner := bufio.NewScanner(bytes.NewReader(body))
-	lineNum := 0
 
 	for scanner.Scan() {
-		lineNum++
 		line := strings.TrimSpace(scanner.Text())
 
 		// 跳过空行和注释
@@ -39,8 +72,11 @@ func ParseClashRules(body []byte, action string) ([]rules.Rule, error) {
 		}
 
 		// 移除行首的 - 符号（YAML 列表格式）
-		line = strings.TrimPrefix(line, "-")
+		line = strings.TrimPrefix(line, "- ")
 		line = strings.TrimSpace(line)
+
+		// 移除 YAML 的单引号和双引号
+		line = strings.Trim(line, "'\"")
 
 		// 移除 ,no-resolve 后缀
 		line = strings.ReplaceAll(line, ",no-resolve", "")
@@ -62,6 +98,46 @@ func ParseClashRules(body []byte, action string) ([]rules.Rule, error) {
 	}
 
 	return ruleList, nil
+}
+
+// parseClashPayloadLine 解析 Clash payload 中的一行（参考 fire 的实现）
+func parseClashPayloadLine(line, action string) (rules.Rule, error) {
+	// 移除 ,no-resolve 后缀
+	line = strings.ReplaceAll(line, ",no-resolve", "")
+
+	// 处理特殊前缀
+	if strings.HasPrefix(line, "+.") {
+		// +.example.com -> DOMAIN-SUFFIX,example.com
+		return parseRuleLine("DOMAIN-SUFFIX,"+strings.TrimPrefix(line, "+"), action)
+	}
+
+	if strings.HasPrefix(line, "*.*.") {
+		// *.*.example.com -> DOMAIN-SUFFIX,.example.com
+		return parseRuleLine("DOMAIN-SUFFIX,"+strings.TrimPrefix(line, "*.*"), action)
+	}
+
+	if strings.HasPrefix(line, ".") {
+		// .example.com -> DOMAIN-SUFFIX,.example.com
+		return parseRuleLine("DOMAIN-SUFFIX,"+line, action)
+	}
+
+	// 如果包含逗号，说明已经是完整的规则格式
+	if strings.Contains(line, ",") {
+		return parseRuleLine(line, action)
+	}
+
+	// 尝试解析为 IP-CIDR
+	_, _, err := net.ParseCIDR(line)
+	if err == nil {
+		return parseRuleLine("IP-CIDR,"+line, action)
+	}
+
+	// 包含点号，当作 DOMAIN 处理
+	if strings.Contains(line, ".") {
+		return parseRuleLine("DOMAIN,"+line, action)
+	}
+
+	return nil, fmt.Errorf("unknown format: %s", line)
 }
 
 // ParseTextRules 解析纯文本格式的规则（每行一个域名或 IP）
