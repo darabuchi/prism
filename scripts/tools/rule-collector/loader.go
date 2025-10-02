@@ -76,8 +76,8 @@ func (c *Collector) loadRuleFile(path string) error {
 			continue
 		}
 
-		// 添加到规则集合
-		c.addRule(rule)
+		// 添加到规则集合（自定义规则使用最高优先级 1000）
+		c.addRule(rule, "custom", 1000)
 	}
 
 	if err := scanner.Err(); err != nil {

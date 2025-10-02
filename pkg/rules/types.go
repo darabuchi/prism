@@ -128,6 +128,198 @@ const (
 	ActionRejectDrop ActionType = "REJECT-DROP"
 )
 
+// IsDirect 判断是否为直连动作
+func (a ActionType) IsDirect() bool {
+	return a == ActionDirect
+}
+
+// IsProxy 判断是否为代理动作
+// 包括 PROXY 和所有自定义服务名称（OPENAI, NETFLIX, YOUTUBE 等）
+func (a ActionType) IsProxy() bool {
+	if a == ActionProxy {
+		return true
+	}
+	// 不是直连也不是拒绝，则认为是代理类动作
+	return !a.IsDirect() && !a.IsReject()
+}
+
+// IsReject 判断是否为拒绝动作
+func (a ActionType) IsReject() bool {
+	return a == ActionReject || a == ActionRejectDrop
+}
+
+// Name 获取动作的本地化名称
+// 支持多语言，默认返回英文名称
+func (a ActionType) Name(lang ...string) string {
+	// 获取语言代码，默认为英文
+	langCode := "en"
+	if len(lang) > 0 {
+		langCode = lang[0]
+	}
+
+	// 本地化映射
+	names := map[string]map[ActionType]string{
+		"en": {
+			ActionProxy:      "Proxy",
+			ActionDirect:     "Direct",
+			ActionReject:     "Reject",
+			ActionRejectDrop: "Reject Drop",
+		},
+		"zh": {
+			ActionProxy:      "代理",
+			ActionDirect:     "直连",
+			ActionReject:     "拒绝",
+			ActionRejectDrop: "拒绝丢弃",
+		},
+		"zh-CN": {
+			ActionProxy:      "代理",
+			ActionDirect:     "直连",
+			ActionReject:     "拒绝",
+			ActionRejectDrop: "拒绝丢弃",
+		},
+		"zh-TW": {
+			ActionProxy:      "代理",
+			ActionDirect:     "直連",
+			ActionReject:     "拒絕",
+			ActionRejectDrop: "拒絕丟棄",
+		},
+		"ja": {
+			ActionProxy:      "プロキシ",
+			ActionDirect:     "直接接続",
+			ActionReject:     "拒否",
+			ActionRejectDrop: "拒否してドロップ",
+		},
+	}
+
+	// 查找对应语言的名称
+	if langMap, ok := names[langCode]; ok {
+		if name, ok := langMap[a]; ok {
+			return name
+		}
+	}
+
+	// 如果是自定义服务名称（如 OPENAI, NETFLIX 等），返回格式化的名称
+	actionStr := string(a)
+
+	// 对于标准动作，返回默认英文名称
+	if a == ActionProxy || a == ActionDirect || a == ActionReject || a == ActionRejectDrop {
+		if names["en"][a] != "" {
+			return names["en"][a]
+		}
+	}
+
+	// 对于自定义服务，返回首字母大写的格式
+	if len(actionStr) > 0 {
+		// 转换为标题格式：OPENAI -> OpenAI, YOUTUBE -> YouTube
+		return formatServiceName(actionStr)
+	}
+
+	return actionStr
+}
+
+// formatServiceName 格式化服务名称
+func formatServiceName(name string) string {
+	// 特殊服务名称映射
+	specialNames := map[string]string{
+		"OPENAI":         "OpenAI",
+		"CLAUDE":         "Claude",
+		"GEMINI":         "Gemini",
+		"YOUTUBE":        "YouTube",
+		"NETFLIX":        "Netflix",
+		"DISNEY":         "Disney+",
+		"SPOTIFY":        "Spotify",
+		"TIKTOK":         "TikTok",
+		"TWITCH":         "Twitch",
+		"HBO":            "HBO",
+		"HULU":           "Hulu",
+		"PRIME-VIDEO":    "Prime Video",
+		"PANDORA":        "Pandora",
+		"SOUNDCLOUD":     "SoundCloud",
+		"DAZN":           "DAZN",
+		"VIMEO":          "Vimeo",
+		"BILIBILI":       "哔哩哔哩",
+		"BILIBILI-HK":    "哔哩哔哩港澳台",
+		"IQIYI":          "爱奇艺",
+		"IQIYI-HK":       "爱奇艺港澳台",
+		"TENCENT-VIDEO":  "腾讯视频",
+		"YOUKU":          "优酷",
+		"NETEASE-MUSIC":  "网易云音乐",
+		"CCTV":           "CCTV",
+		"DOUYU":          "斗鱼",
+		"HIMALAYA":       "喜马拉雅",
+		"APP-STORE":      "App Store",
+		"ICLOUD":         "iCloud",
+		"APPLE-TV":       "Apple TV",
+		"APPLE-MUSIC":    "Apple Music",
+		"TESTFLIGHT":     "TestFlight",
+		"APPLE":          "Apple",
+		"ONEDRIVE":       "OneDrive",
+		"GDRIVE":         "Google Drive",
+		"DROPBOX":        "Dropbox",
+		"GOOGLE":         "Google",
+		"MICROSOFT":      "Microsoft",
+		"AMAZON":         "Amazon",
+		"FACEBOOK":       "Facebook",
+		"ADOBE":          "Adobe",
+		"GITHUB":         "GitHub",
+		"GITLAB":         "GitLab",
+		"DOCKER":         "Docker",
+		"HEROKU":         "Heroku",
+		"DIGITALOCEAN":   "DigitalOcean",
+		"VERCEL":         "Vercel",
+		"CLOUDFLARE":     "Cloudflare",
+		"BINANCE":        "Binance",
+		"OKX":            "OKX",
+		"CRYPTO":         "Crypto.com",
+		"CRYPTOCURRENCY": "Cryptocurrency",
+		"PAYPAL":         "PayPal",
+		"TELEGRAM":       "Telegram",
+		"TWITTER":        "Twitter",
+		"INSTAGRAM":      "Instagram",
+		"WHATSAPP":       "WhatsApp",
+		"DISCORD":        "Discord",
+		"LINE":           "Line",
+		"THREADS":        "Threads",
+		"REDDIT":         "Reddit",
+		"LINKEDIN":       "LinkedIn",
+		"WIKIPEDIA":      "Wikipedia",
+		"STEAM":          "Steam",
+		"EPIC":           "Epic Games",
+		"PLAYSTATION":    "PlayStation",
+		"EBAY":           "eBay",
+		"SHOPIFY":        "Shopify",
+		"BBC":            "BBC",
+		"CNN":            "CNN",
+		"BLOOMBERG":      "Bloomberg",
+		"NYTIMES":        "New York Times",
+		"SCHOLAR":        "Scholar",
+	}
+
+	if special, ok := specialNames[name]; ok {
+		return special
+	}
+
+	// 默认：首字母大写，其余小写
+	if len(name) == 0 {
+		return name
+	}
+
+	// 如果全是大写，转换为首字母大写
+	allUpper := true
+	for _, c := range name {
+		if c >= 'a' && c <= 'z' {
+			allUpper = false
+			break
+		}
+	}
+
+	if allUpper && len(name) > 0 {
+		return string(name[0]) + string(name[1:])
+	}
+
+	return name
+}
+
 // Metadata 连接元数据
 //
 // 包含连接的各种信息，用于规则匹配
