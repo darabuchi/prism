@@ -58,21 +58,21 @@ func main() {
 		{BLACKMATRIX7, "Lan/Lan.yaml", "DIRECT"},       // 本地局域网
 		{BLACKMATRIX7, "Direct/Direct.yaml", "DIRECT"}, // 直连规则
 
-		// 代理规则 - 流媒体
-		{BLACKMATRIX7, "YouTube/YouTube.yaml", "PROXY"},           // YouTube
-		{BLACKMATRIX7, "YouTubeMusic/YouTubeMusic.yaml", "PROXY"}, // YouTube Music
-		{BLACKMATRIX7, "Netflix/Netflix.yaml", "PROXY"},           // Netflix
-		{BLACKMATRIX7, "Disney/Disney.yaml", "PROXY"},             // Disney+
+		// 代理规则 - 流媒体（细分类型）
+		{BLACKMATRIX7, "YouTube/YouTube.yaml", "YOUTUBE"},           // YouTube
+		{BLACKMATRIX7, "YouTubeMusic/YouTubeMusic.yaml", "YOUTUBE"}, // YouTube Music
+		{BLACKMATRIX7, "Netflix/Netflix.yaml", "NETFLIX"},           // Netflix
+		{BLACKMATRIX7, "Disney/Disney.yaml", "DISNEY"},              // Disney+
 
 		// 代理规则 - 国内流媒体
-		{BLACKMATRIX7, "BiliBili/BiliBili.yaml", "DIRECT"},        // 哔哩哔哩
+		{BLACKMATRIX7, "BiliBili/BiliBili.yaml", "BILIBILI"},      // 哔哩哔哩
 		{BLACKMATRIX7, "BiliBiliIntl/BiliBiliIntl.yaml", "PROXY"}, // 哔哩哔哩国际版
 		{BLACKMATRIX7, "iQIYI/iQIYI.yaml", "DIRECT"},              // 爱奇艺
 		{BLACKMATRIX7, "iQIYIIntl/iQIYIIntl.yaml", "PROXY"},       // 爱奇艺国际版
 
-		// 代理规则 - AI 服务
-		{BLACKMATRIX7, "OpenAI/OpenAI.yaml", "PROXY"},   // OpenAI
-		{BLACKMATRIX7, "Claude/Claude.yaml", "PROXY"},   // Claude
+		// 代理规则 - AI 服务（细分类型）
+		{BLACKMATRIX7, "OpenAI/OpenAI.yaml", "OPENAI"},  // OpenAI
+		{BLACKMATRIX7, "Claude/Claude.yaml", "OPENAI"},  // Claude（归类到 OpenAI）
 		{BLACKMATRIX7, "Copilot/Copilot.yaml", "PROXY"}, // GitHub Copilot
 		{BLACKMATRIX7, "Gemini/Gemini.yaml", "PROXY"},   // Google Gemini
 
@@ -81,11 +81,11 @@ func main() {
 		{BLACKMATRIX7, "Docker/Docker.yaml", "PROXY"}, // Docker Hub
 
 		// 代理规则 - 社交平台
-		{BLACKMATRIX7, "Telegram/Telegram.yaml", "PROXY"}, // Telegram
-		{BLACKMATRIX7, "Twitter/Twitter.yaml", "PROXY"},   // Twitter
+		{BLACKMATRIX7, "Telegram/Telegram.yaml", "TELEGRAM"}, // Telegram
+		{BLACKMATRIX7, "Twitter/Twitter.yaml", "PROXY"},      // Twitter
 
 		// 代理规则 - 科技公司
-		{BLACKMATRIX7, "Google/Google.yaml", "PROXY"},   // Google
+		{BLACKMATRIX7, "Google/Google.yaml", "PROXY"},       // Google
 		{BLACKMATRIX7, "Microsoft/Microsoft.yaml", "PROXY"}, // Microsoft
 
 		// 国内常用网站和服务

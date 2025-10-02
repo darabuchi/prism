@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/darabuchi/prism/pkg/rules"
@@ -180,7 +181,7 @@ func (c *Collector) Export() error {
 
 // exportRuleFile 导出单个规则文件
 func (c *Collector) exportRuleFile(dir, action string, ruleList []rules.Rule) error {
-	filename := filepath.Join(dir, fmt.Sprintf("%s.txt", action))
+	filename := filepath.Join(dir, fmt.Sprintf("%s.txt", strings.ToLower(action)))
 
 	file, err := os.Create(filename)
 	if err != nil {
