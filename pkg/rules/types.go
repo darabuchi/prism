@@ -66,6 +66,46 @@ const (
 	// 示例: RULE-SET,reject,REJECT
 	TypeRuleSet RuleType = "RULE-SET"
 
+	// TypeInType 入站类型匹配
+	// 示例: IN-TYPE,HTTP,PROXY
+	TypeInType RuleType = "IN-TYPE"
+
+	// TypeInName 入站名称匹配
+	// 示例: IN-NAME,socks-in,DIRECT
+	TypeInName RuleType = "IN-NAME"
+
+	// TypeInUser 入站用户匹配
+	// 示例: IN-USER,admin,PROXY
+	TypeInUser RuleType = "IN-USER"
+
+	// TypeNetwork 网络类型匹配
+	// 示例: NETWORK,TCP,DIRECT
+	TypeNetwork RuleType = "NETWORK"
+
+	// TypeUID 用户 ID 匹配
+	// 示例: UID,1000,DIRECT
+	TypeUID RuleType = "UID"
+
+	// TypeDSCP DSCP 值匹配
+	// 示例: DSCP,46,PROXY
+	TypeDSCP RuleType = "DSCP"
+
+	// TypeProcessNameRegex 进程名正则匹配
+	// 示例: PROCESS-NAME-REGEX,^chrome.*$,PROXY
+	TypeProcessNameRegex RuleType = "PROCESS-NAME-REGEX"
+
+	// TypeProcessPathRegex 进程路径正则匹配
+	// 示例: PROCESS-PATH-REGEX,^/usr/bin/.*$,DIRECT
+	TypeProcessPathRegex RuleType = "PROCESS-PATH-REGEX"
+
+	// TypeIPSuffix IP 后缀匹配
+	// 示例: IP-SUFFIX,8.8.8.8/24,1,DIRECT
+	TypeIPSuffix RuleType = "IP-SUFFIX"
+
+	// TypeGeoSite GeoSite 域名地理位置匹配
+	// 示例: GEOSITE,cn,DIRECT
+	TypeGeoSite RuleType = "GEOSITE"
+
 	// TypeMatch 匹配所有流量（通常作为最后一条规则）
 	// 示例: MATCH,PROXY
 	TypeMatch RuleType = "MATCH"
@@ -112,9 +152,14 @@ type Metadata struct {
 	ProcessName string      // 进程名称
 	ProcessPath string      // 进程路径
 
-	// 其他信息
-	UID         uint32      // 用户 ID
+	// 入站信息
+	InboundType string      // 入站类型: HTTP, SOCKS5, etc.
 	InboundName string      // 入站名称
+	InboundUser string      // 入站用户（认证用户名）
+
+	// 系统信息
+	UID         uint32      // 用户 ID (Linux/Android)
+	DSCP        uint8       // DSCP 值 (Differentiated Services Code Point)
 }
 
 // GeoIPInfo GeoIP 信息

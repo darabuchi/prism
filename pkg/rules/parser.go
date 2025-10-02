@@ -50,15 +50,35 @@ func ParseRule(ruleStr string) (Rule, error) {
 		return nil, fmt.Errorf("%w: %s", ErrInvalidRule, ruleStr)
 	}
 
-	payload = strings.TrimSpace(parts[1])
-	action = ActionType(strings.TrimSpace(strings.ToUpper(parts[2])))
+	// IP-SUFFIX 特殊处理：格式为 IP-SUFFIX,CIDR,SUFFIX,ACTION
+	if ruleType == string(TypeIPSuffix) {
+		if len(parts) < 4 {
+			return nil, fmt.Errorf("%w: IP-SUFFIX requires CIDR, SUFFIX and ACTION", ErrInvalidRule)
+		}
+		// 组合 CIDR 和 SUFFIX 作为 payload
+		payload = strings.TrimSpace(parts[1]) + "," + strings.TrimSpace(parts[2])
+		action = ActionType(strings.TrimSpace(strings.ToUpper(parts[3])))
 
-	// 检查是否有 no-resolve 选项
-	if len(parts) > 3 {
-		for i := 3; i < len(parts); i++ {
-			option := strings.TrimSpace(strings.ToLower(parts[i]))
-			if option == "no-resolve" {
-				noResolve = true
+		// 检查是否有 no-resolve 选项
+		if len(parts) > 4 {
+			for i := 4; i < len(parts); i++ {
+				option := strings.TrimSpace(strings.ToLower(parts[i]))
+				if option == "no-resolve" {
+					noResolve = true
+				}
+			}
+		}
+	} else {
+		payload = strings.TrimSpace(parts[1])
+		action = ActionType(strings.TrimSpace(strings.ToUpper(parts[2])))
+
+		// 检查是否有 no-resolve 选项
+		if len(parts) > 3 {
+			for i := 3; i < len(parts); i++ {
+				option := strings.TrimSpace(strings.ToLower(parts[i]))
+				if option == "no-resolve" {
+					noResolve = true
+				}
 			}
 		}
 	}
@@ -125,6 +145,59 @@ func ParseRule(ruleStr string) (Rule, error) {
 			rule.NoResolve(true)
 		}
 		return rule, nil
+
+	case TypeInType:
+		return NewInType(payload, action), nil
+
+	case TypeInName:
+		return NewInName(payload, action), nil
+
+	case TypeInUser:
+		return NewInUser(payload, action), nil
+
+	case TypeNetwork:
+		return NewNetwork(payload, action), nil
+
+	case TypeUID:
+		rule, err := NewUID(payload, action)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidPayload, err)
+		}
+		return rule, nil
+
+	case TypeDSCP:
+		rule, err := NewDSCP(payload, action)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidPayload, err)
+		}
+		return rule, nil
+
+	case TypeProcessNameRegex:
+		rule, err := NewProcessRegex(payload, action, false)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidRegex, err)
+		}
+		return rule, nil
+
+	case TypeProcessPathRegex:
+		rule, err := NewProcessRegex(payload, action, true)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidRegex, err)
+		}
+		return rule, nil
+
+	case TypeIPSuffix:
+		rule, err := NewIPSuffix(payload, action)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidIPCIDR, err)
+		}
+		if noResolve {
+			rule.NoResolve(true)
+		}
+		return rule, nil
+
+	case TypeGeoSite:
+		return NewGeoSite(payload, action), nil
 
 	default:
 		return nil, fmt.Errorf("%w: %s", ErrInvalidRuleType, ruleType)
