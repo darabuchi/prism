@@ -296,7 +296,7 @@ func (w *PrismBinaryWriter) filterRules(ruleList []Rule) []binaryRule {
 
 	for _, rule := range ruleList {
 		ruleType := rule.Type()
-		payload := rule.Payload()
+		payload := rule.Content()
 
 		var bt BinaryRuleType
 		var ok bool

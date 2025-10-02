@@ -324,7 +324,7 @@ func TestParseRule(t *testing.T) {
 			ruleStr: "DOMAIN,google.com,PROXY",
 			wantErr: false,
 			check: func(r Rule) bool {
-				return r.Type() == TypeDomain && r.Action() == ActionProxy && r.Payload() == "google.com"
+				return r.Type() == TypeDomain && r.Action() == ActionProxy && r.Content() == "google.com"
 			},
 		},
 		{

@@ -87,17 +87,17 @@ func (m *RuleMerger) deduplicateDomainRules(byType map[string][]rules.Rule) {
 
 	// 收集所有 DOMAIN-SUFFIX 和 DOMAIN-KEYWORD
 	for _, rule := range byType["DOMAIN-SUFFIX"] {
-		domainSuffixSet[strings.ToLower(rule.Payload())] = true
+		domainSuffixSet[strings.ToLower(rule.Content())] = true
 	}
 	for _, rule := range byType["DOMAIN-KEYWORD"] {
-		domainKeywordSet[strings.ToLower(rule.Payload())] = true
+		domainKeywordSet[strings.ToLower(rule.Content())] = true
 	}
 
 	// 过滤 DOMAIN 规则
 	if len(domainSuffixSet) > 0 || len(domainKeywordSet) > 0 {
 		filtered := make([]rules.Rule, 0, len(byType["DOMAIN"]))
 		for _, rule := range byType["DOMAIN"] {
-			domain := strings.ToLower(rule.Payload())
+			domain := strings.ToLower(rule.Content())
 
 			// 检查是否被 DOMAIN-SUFFIX 覆盖
 			covered := false
@@ -159,7 +159,7 @@ func (m *RuleMerger) mergeCIDRList(cidrRules []rules.Rule) []rules.Rule {
 
 	cidrs := make([]cidrInfo, 0, len(cidrRules))
 	for _, rule := range cidrRules {
-		payload := rule.Payload()
+		payload := rule.Content()
 		// 移除可能的 no-resolve 参数
 		payload = strings.Split(payload, ",")[0]
 

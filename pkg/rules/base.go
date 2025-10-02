@@ -25,7 +25,13 @@ func (b *base) Action() prism.Payload {
 	return b.action
 }
 
-// Payload 返回规则载荷
+// Content 返回规则内容
+func (b *base) Content() string {
+	return b.payload
+}
+
+// Payload 返回规则载荷（已废弃，使用 Content 代替）
+// Deprecated: 使用 Content() 代替
 func (b *base) Payload() string {
 	return b.payload
 }

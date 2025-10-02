@@ -287,7 +287,7 @@ func (c *Collector) getTypePriority(ruleType rules.RuleType) int {
 
 // ruleKey 生成规则唯一键（Type + Payload）
 func (c *Collector) ruleKey(rule rules.Rule) string {
-	return fmt.Sprintf("%s|%s", rule.Type(), rule.Payload())
+	return fmt.Sprintf("%s|%s", rule.Type(), rule.Content())
 }
 
 // actionPriority 返回 Action 的优先级
@@ -468,7 +468,7 @@ func (c *Collector) exportSubconverterList(dir, action string, ruleList []rules.
 	// 写入规则（subconverter 格式：TYPE,PAYLOAD[,no-resolve]）
 	for _, rule := range ruleList {
 		ruleTypeStr := rule.Type().String()
-		payload := rule.Payload()
+		payload := rule.Content()
 
 		// 对于 IP-CIDR 规则，添加 no-resolve 标志
 		if ruleTypeStr == "IP-CIDR" || ruleTypeStr == "IP-CIDR6" || ruleTypeStr == "SRC-IP-CIDR" {

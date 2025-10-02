@@ -12,11 +12,11 @@ type Rule interface {
 	// Match 判断元数据是否匹配规则
 	Match(metadata *Metadata) bool
 
-	// Action 返回规则动作
+	// Action 返回规则动作（目标：DIRECT、PROXY 等）
 	Action() Payload
 
-	// Payload 返回规则载荷（匹配内容）
-	Payload() string
+	// Content 返回规则内容（匹配模式：域名、IP、端口等）
+	Content() string
 
 	// String 返回规则的字符串表示
 	String() string
