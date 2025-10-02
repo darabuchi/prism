@@ -50,15 +50,15 @@ func (m *RuleMerger) mergeGroup(ruleList []rules.Rule) []rules.Rule {
 	geoipRules := make([]rules.Rule, 0) // GEOIP 类型单独存储，不参与合并
 
 	for _, rule := range ruleList {
-		ruleType := string(rule.Type())
+		ruleTypeStr := string(rule.Type())
 
 		// GEOIP 相关类型不参与合并
-		if ruleType == "GEOIP" || ruleType == "GEOSITE" {
+		if ruleTypeStr == "GEOIP" || ruleTypeStr == "GEOSITE" {
 			geoipRules = append(geoipRules, rule)
 			continue
 		}
 
-		byType[ruleType] = append(byType[ruleType], rule)
+		byType[ruleTypeStr] = append(byType[ruleTypeStr], rule)
 	}
 
 	// 处理域名规则去重（DOMAIN 被 DOMAIN-SUFFIX 覆盖）

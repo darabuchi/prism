@@ -469,14 +469,14 @@ func (c *Collector) exportSubconverterList(dir, action string, ruleList []rules.
 
 	// 写入规则（subconverter 格式：TYPE,PAYLOAD[,no-resolve]）
 	for _, rule := range ruleList {
-		ruleType := string(rule.Type())
+		ruleTypeStr := string(rule.Type())
 		payload := rule.Payload()
 
 		// 对于 IP-CIDR 规则，添加 no-resolve 标志
-		if ruleType == "IP-CIDR" || ruleType == "IP-CIDR6" || ruleType == "SRC-IP-CIDR" {
-			fmt.Fprintf(file, "%s,%s,no-resolve\n", ruleType, payload)
+		if ruleTypeStr == "IP-CIDR" || ruleTypeStr == "IP-CIDR6" || ruleTypeStr == "SRC-IP-CIDR" {
+			fmt.Fprintf(file, "%s,%s,no-resolve\n", ruleTypeStr, payload)
 		} else {
-			fmt.Fprintf(file, "%s,%s\n", ruleType, payload)
+			fmt.Fprintf(file, "%s,%s\n", ruleTypeStr, payload)
 		}
 	}
 

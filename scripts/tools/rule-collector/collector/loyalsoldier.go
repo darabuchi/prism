@@ -61,17 +61,17 @@ func (h *LoyalSoldier) Parse(body []byte, payload prism.Payload) ([]rules.Rule, 
 
 // ParseWithType 根据文件类型解析规则
 func (h *LoyalSoldier) ParseWithType(body []byte, payload prism.Payload, filename string) ([]rules.Rule, error) {
-	var ruleType string
+	var ruleTypeStr string
 
 	// 根据文件名判断规则类型
 	switch {
 	case strings.Contains(filename, "cncidr") || strings.Contains(filename, "lancidr"):
-		ruleType = "IP-CIDR"
+		ruleTypeStr = "IP-CIDR"
 	case strings.Contains(filename, "applications"):
-		ruleType = "DOMAIN"
+		ruleTypeStr = "DOMAIN"
 	default:
-		ruleType = "DOMAIN-SUFFIX"
+		ruleTypeStr = "DOMAIN-SUFFIX"
 	}
 
-	return ParseTextRules(body, payload, ruleType)
+	return ParseTextRules(body, payload, ruleTypeStr)
 }

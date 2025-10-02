@@ -144,7 +144,7 @@ func parseClashPayloadLine(line, action string) (rules.Rule, error) {
 }
 
 // ParseTextRules 解析纯文本格式的规则（每行一个域名或 IP）
-func ParseTextRules(body []byte, payload prism.Payload, ruleType string) ([]rules.Rule, error) {
+func ParseTextRules(body []byte, payload prism.Payload, ruleTypeStr string) ([]rules.Rule, error) {
 	// 将 prism.Payload 转换为 string action，用于 pkg/rules
 	action := payload.String()
 	var ruleList []rules.Rule
@@ -161,7 +161,7 @@ func ParseTextRules(body []byte, payload prism.Payload, ruleType string) ([]rule
 
 		// 根据类型创建规则
 		var rule rules.Rule
-		switch strings.ToUpper(ruleType) {
+		switch strings.ToUpper(ruleTypeStr) {
 		case "DOMAIN":
 			rule = rules.NewDomain(line, rules.ActionType(action))
 		case "DOMAIN-SUFFIX":
@@ -196,10 +196,10 @@ func parseRuleLine(line, action string) (rules.Rule, error) {
 		return nil, fmt.Errorf("invalid rule format: %s", line)
 	}
 
-	ruleType := strings.ToUpper(strings.TrimSpace(parts[0]))
+	ruleTypeStr := strings.ToUpper(strings.TrimSpace(parts[0]))
 
 	// MATCH 规则只需要类型
-	if ruleType == "MATCH" {
+	if ruleTypeStr == "MATCH" {
 		return rules.NewMatch(rules.ActionType(action)), nil
 	}
 
@@ -214,8 +214,8 @@ func parseRuleLine(line, action string) (rules.Rule, error) {
 	}
 
 	// 构造完整的规则字符串并使用 pkg/rules 的 ParseRule
-	// 格式：TYPE,PAYLOAD,ACTION
-	ruleStr := fmt.Sprintf("%s,%s,%s", ruleType, payload, action)
+	// 格式: TYPE,PAYLOAD,ACTION
+	ruleStr := fmt.Sprintf("%s,%s,%s", ruleTypeStr, payload, action)
 
 	rule, err := rules.ParseRule(ruleStr)
 	if err != nil {
