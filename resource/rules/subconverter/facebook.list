@@ -1,5 +1,5 @@
 # Prism Rules - FACEBOOK (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:04+08:00
 # Total rules: 570
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,8 @@
 # Example:
 # ruleset=FACEBOOK,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/facebook.list
 
+DOMAIN-KEYWORD,facebook
+DOMAIN-KEYWORD,fbcdn
 IP-CIDR,3.123.36.126/32,no-resolve
 IP-CIDR,31.13.64.0/18,no-resolve
 IP-CIDR,35.157.215.84/32,no-resolve
@@ -575,5 +577,3 @@ DOMAIN-SUFFIX,wwwmfacebook.com
 DOMAIN-SUFFIX,yogalayout.com
 DOMAIN-SUFFIX,zuckerberg.com
 DOMAIN-SUFFIX,zuckerberg.net
-DOMAIN-KEYWORD,facebook
-DOMAIN-KEYWORD,fbcdn

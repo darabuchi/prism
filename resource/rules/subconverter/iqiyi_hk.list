@@ -1,5 +1,5 @@
 # Prism Rules - IQIYI HK (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:04+08:00
 # Total rules: 17
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,13 @@
 # Example:
 # ruleset=IQIYI HK,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/iqiyi_hk.list
 
+PROCESS-NAME,com.iqiyi.i18n
+PROCESS-NAME,com.iqiyi.i18n.tv
+DOMAIN,cache.video.iqiyi.com
+DOMAIN-SUFFIX,inter.iqiyi.com
+DOMAIN-SUFFIX,intl-rcd.iqiyi.com
+DOMAIN-SUFFIX,intl-subscription.iqiyi.com
+DOMAIN-SUFFIX,intl.iqiyi.com
 IP-CIDR,23.59.252.0/24,no-resolve
 IP-CIDR,23.200.145.146/32,no-resolve
 IP-CIDR,23.210.215.186/32,no-resolve
@@ -17,10 +24,3 @@ IP-CIDR,118.26.32.162/32,no-resolve
 IP-CIDR,159.138.102.146/32,no-resolve
 IP-CIDR,184.51.102.0/24,no-resolve
 IP-CIDR,203.80.97.203/32,no-resolve
-PROCESS-NAME,com.iqiyi.i18n
-PROCESS-NAME,com.iqiyi.i18n.tv
-DOMAIN,cache.video.iqiyi.com
-DOMAIN-SUFFIX,inter.iqiyi.com
-DOMAIN-SUFFIX,intl-rcd.iqiyi.com
-DOMAIN-SUFFIX,intl-subscription.iqiyi.com
-DOMAIN-SUFFIX,intl.iqiyi.com

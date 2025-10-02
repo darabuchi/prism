@@ -368,8 +368,14 @@ func (c *Collector) exportPrismBinary(dir string, rulesByAction map[string][]rul
 	}
 	defer file.Close()
 
-	// 使用 collector 包的导出函数
-	err = collector.ExportPrismBinary(file, rulesByAction)
+	// 使用 pkg/rules 包的导出函数（启用所有优化）
+	writer := rules.NewPrismBinaryWriter(file,
+		rules.WithGzip(true),      // 启用 gzip 压缩
+		rules.WithVarint(true),    // 启用变长整数
+		rules.WithIPBinary(true),  // 启用 IP 二进制编码
+	)
+
+	err = writer.Write(rulesByAction)
 	if err != nil {
 		return fmt.Errorf("export binary: %w", err)
 	}
@@ -388,9 +394,10 @@ func (c *Collector) exportPrismBinary(dir string, rulesByAction map[string][]rul
 
 	pterm.Success.Printfln("导出 Prism 二进制规则文件:")
 	pterm.Info.Printfln("  文件: %s", filename)
-	pterm.Info.Printfln("  大小: %.2f KB", float64(fileInfo.Size())/1024)
+	pterm.Info.Printfln("  大小: %.2f MB (压缩后)", float64(fileInfo.Size())/1024/1024)
 	pterm.Info.Printfln("  分类: %d 个", len(rulesByAction))
 	pterm.Info.Printfln("  规则: %d 条", totalRules)
+	pterm.Info.Printfln("  优化: gzip + varint + IP二进制 + 域名字典")
 
 	return nil
 }

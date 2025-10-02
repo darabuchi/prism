@@ -1,5 +1,5 @@
 # Prism Rules - DIRECT (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:05+08:00
 # Total rules: 118312
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,25 @@
 # Example:
 # ruleset=DIRECT,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/direct.list
 
+DOMAIN-REGEX,downloads\.[\w]+?\.jetbrains\.com
+IP-CIDR,0.0.0.0/8,no-resolve
+IP-CIDR,1.12.12.12/32,no-resolve
+IP-CIDR,10.0.0.0/8,no-resolve
+IP-CIDR,100.64.0.0/10,no-resolve
+IP-CIDR,127.0.0.0/8,no-resolve
+IP-CIDR,139.220.243.27/32,no-resolve
+IP-CIDR,169.254.0.0/16,no-resolve
+IP-CIDR,172.16.0.0/12,no-resolve
+IP-CIDR,185.188.32.1/28,no-resolve
+IP-CIDR,192.0.0.0/24,no-resolve
+IP-CIDR,192.0.2.0/24,no-resolve
+IP-CIDR,192.88.99.0/24,no-resolve
+IP-CIDR,192.168.0.0/16,no-resolve
+IP-CIDR,198.18.0.0/15,no-resolve
+IP-CIDR,198.51.100.0/24,no-resolve
+IP-CIDR,203.0.113.0/24,no-resolve
+IP-CIDR,221.226.128.146/32,no-resolve
+IP-CIDR,224.0.0.0/3,no-resolve
 PROCESS-NAME,BaiduNetdisk_mac
 PROCESS-NAME,BitComet
 PROCESS-NAME,ClashX
@@ -530,8 +549,6 @@ DOMAIN,st.dl.bscstorage.net
 DOMAIN,st.dl.eccdnx.com
 DOMAIN,st.dl.pinyuncloud.com
 DOMAIN,steampipe.steamcontent.tnkjmec.com
-DOMAIN-REGEX,downloads\.[\w]+?\.jetbrains\.com
-IP-ASN,132203
 DOMAIN-SUFFIX,dmuqe.art
 DOMAIN-SUFFIX,dam5knr.wiki
 DOMAIN-SUFFIX,dmph5.wiki
@@ -118233,24 +118250,6 @@ DOMAIN-SUFFIX,zhongsou.com
 DOMAIN-SUFFIX,zhuihd.com
 DOMAIN-SUFFIX,cmbchina.com
 DOMAIN-SUFFIX,95516.com
-IP-CIDR,0.0.0.0/8,no-resolve
-IP-CIDR,1.12.12.12/32,no-resolve
-IP-CIDR,10.0.0.0/8,no-resolve
-IP-CIDR,100.64.0.0/10,no-resolve
-IP-CIDR,127.0.0.0/8,no-resolve
-IP-CIDR,139.220.243.27/32,no-resolve
-IP-CIDR,169.254.0.0/16,no-resolve
-IP-CIDR,172.16.0.0/12,no-resolve
-IP-CIDR,185.188.32.1/28,no-resolve
-IP-CIDR,192.0.0.0/24,no-resolve
-IP-CIDR,192.0.2.0/24,no-resolve
-IP-CIDR,192.88.99.0/24,no-resolve
-IP-CIDR,192.168.0.0/16,no-resolve
-IP-CIDR,198.18.0.0/15,no-resolve
-IP-CIDR,198.51.100.0/24,no-resolve
-IP-CIDR,203.0.113.0/24,no-resolve
-IP-CIDR,221.226.128.146/32,no-resolve
-IP-CIDR,224.0.0.0/3,no-resolve
 IP-CIDR6,::/127,no-resolve
 IP-CIDR6,2a0b:b580::/48,no-resolve
 IP-CIDR6,2a0b:b581::/48,no-resolve
@@ -118319,3 +118318,4 @@ DOMAIN-KEYWORD,qhimg
 DOMAIN-KEYWORD,vpimg
 DOMAIN-KEYWORD,xiami
 DOMAIN-KEYWORD,xiaomi
+IP-ASN,132203

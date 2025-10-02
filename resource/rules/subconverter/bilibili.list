@@ -1,5 +1,5 @@
 # Prism Rules - BILIBILI (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:04+08:00
 # Total rules: 130
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,20 +7,6 @@
 # Example:
 # ruleset=BILIBILI,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/bilibili.list
 
-IP-CIDR,106.75.74.76/32,no-resolve
-IP-CIDR,111.206.25.147/32,no-resolve
-IP-CIDR,119.3.238.64/32,no-resolve
-IP-CIDR,120.92.108.182/32,no-resolve
-IP-CIDR,120.92.113.99/32,no-resolve
-IP-CIDR,120.92.153.217/32,no-resolve
-IP-CIDR,134.175.207.130/32,no-resolve
-IP-CIDR,203.107.1.0/24,no-resolve
-PROCESS-NAME,com.bilibili.app.blue
-PROCESS-NAME,com.bilibili.app.in
-PROCESS-NAME,com.bilibili.comic
-PROCESS-NAME,com.bilibili.comic.intl
-PROCESS-NAME,tv.danmaku.bili
-PROCESS-NAME,tv.danmaku.bilibilihd
 DOMAIN,0gr4uqmtt8y41hcjsgrzdrc31.ourdvsss.com
 DOMAIN,0gr4uqmtt8y41hcjsgrzdrc3s.ourdvsss.com
 DOMAIN,0gr4uqmtt8y41hcjsgrzdrc3z.ourdvsss.com
@@ -136,4 +122,18 @@ DOMAIN-SUFFIX,smtcdns.net
 DOMAIN-SUFFIX,upos-hz-mirrorakam.akamaized.net
 DOMAIN-SUFFIX,uposdash-302-bilivideo.yfcdn.net
 DOMAIN-SUFFIX,yo9.com
+IP-CIDR,106.75.74.76/32,no-resolve
+IP-CIDR,111.206.25.147/32,no-resolve
+IP-CIDR,119.3.238.64/32,no-resolve
+IP-CIDR,120.92.108.182/32,no-resolve
+IP-CIDR,120.92.113.99/32,no-resolve
+IP-CIDR,120.92.153.217/32,no-resolve
+IP-CIDR,134.175.207.130/32,no-resolve
+IP-CIDR,203.107.1.0/24,no-resolve
+PROCESS-NAME,com.bilibili.app.blue
+PROCESS-NAME,com.bilibili.app.in
+PROCESS-NAME,com.bilibili.comic
+PROCESS-NAME,com.bilibili.comic.intl
+PROCESS-NAME,tv.danmaku.bili
+PROCESS-NAME,tv.danmaku.bilibilihd
 GEOIP,bilibili

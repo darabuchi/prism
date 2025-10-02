@@ -1,5 +1,5 @@
 # Prism Rules - HULU (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:04+08:00
 # Total rules: 59
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,7 @@
 # Example:
 # ruleset=HULU,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/hulu.list
 
+PROCESS-NAME,com.hulu.plus
 DOMAIN,live-mediashield-ava-hulustream-com.akamaized.net
 DOMAIN-SUFFIX,112263.com
 DOMAIN-SUFFIX,assetshuluimcom-a.akamaihd.net
@@ -65,4 +66,3 @@ DOMAIN-SUFFIX,streaks.jp
 DOMAIN-SUFFIX,thehulubraintrust.com
 DOMAIN-SUFFIX,wwwhuluplus.com
 DOMAIN-SUFFIX,yb.uncn.jp
-PROCESS-NAME,com.hulu.plus

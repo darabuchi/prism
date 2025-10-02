@@ -1,5 +1,5 @@
 # Prism Rules - LINKEDIN (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:04+08:00
 # Total rules: 12
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,9 @@
 # Example:
 # ruleset=LINKEDIN,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/linkedin.list
 
+DOMAIN,e122475.dscg.akamaiedge.net
+DOMAIN,licdn.cn.cdn20.com
+DOMAIN,linkedin.sc.omtrdc.net
 DOMAIN-SUFFIX,bizographics.com
 DOMAIN-SUFFIX,l-0005.dc-msedge.net
 DOMAIN-SUFFIX,l-0005.l-msedge.net
@@ -16,6 +19,3 @@ DOMAIN-SUFFIX,linkedin.at
 DOMAIN-SUFFIX,linkedin.cn
 DOMAIN-SUFFIX,linkedin.com
 DOMAIN-SUFFIX,lnkd.in
-DOMAIN,e122475.dscg.akamaiedge.net
-DOMAIN,licdn.cn.cdn20.com
-DOMAIN,linkedin.sc.omtrdc.net

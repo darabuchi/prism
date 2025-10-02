@@ -1,5 +1,5 @@
 # Prism Rules - NETEASE MUSIC (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:05+08:00
 # Total rules: 28
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,7 @@
 # Example:
 # ruleset=NETEASE MUSIC,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/netease_music.list
 
+DOMAIN,netease.ugcvideoss.ourdvs.com
 DOMAIN-SUFFIX,163yun.com
 DOMAIN-SUFFIX,api.iplay.163.com
 DOMAIN-SUFFIX,hz.netease.com
@@ -34,4 +35,3 @@ IP-CIDR,118.24.63.156/32,no-resolve
 IP-CIDR,182.92.170.253/32,no-resolve
 IP-CIDR,193.112.159.225/32,no-resolve
 IP-CIDR,223.252.192.0/19,no-resolve
-DOMAIN,netease.ugcvideoss.ourdvs.com

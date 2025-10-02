@@ -1,5 +1,5 @@
 # Prism Rules - OPENAI (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:04+08:00
 # Total rules: 31
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,7 @@
 # Example:
 # ruleset=OPENAI,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/openai.list
 
+IP-ASN,20473
 DOMAIN,browser-intake-datadoghq.com
 DOMAIN,static.cloudflareinsights.com
 DOMAIN-SUFFIX,ai.com
@@ -36,5 +37,4 @@ DOMAIN-SUFFIX,turn.livekit.cloud
 DOMAIN-KEYWORD,openai
 IP-CIDR,24.199.123.28/32,no-resolve
 IP-CIDR,64.23.132.171/32,no-resolve
-IP-ASN,20473
 GEOIP,openai

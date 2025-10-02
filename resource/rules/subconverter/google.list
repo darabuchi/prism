@@ -1,5 +1,5 @@
 # Prism Rules - GOOGLE (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:05+08:00
 # Total rules: 700
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,18 @@
 # Example:
 # ruleset=GOOGLE,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/google.list
 
+DOMAIN-KEYWORD,appspot
+DOMAIN-KEYWORD,blogspot
+DOMAIN-KEYWORD,gmail
+DOMAIN-KEYWORD,google
+DOMAIN-KEYWORD,recaptcha
+IP-CIDR,74.125.0.0/16,no-resolve
+IP-CIDR,173.194.0.0/16,no-resolve
+PROCESS-NAME,GoogleDriveFS.exe
+PROCESS-NAME,com.android.vending
+PROCESS-NAME,com.google.android.gms
+PROCESS-NAME,com.google.android.gsf
+PROCESS-NAME,com.google.android.play.games
 DOMAIN-SUFFIX,blog.google
 DOMAIN-SUFFIX,googletraveladservices.com
 DOMAIN-SUFFIX,0emm.com
@@ -694,16 +706,4 @@ DOMAIN-SUFFIX,xplr.co
 DOMAIN-SUFFIX,zukunftswerkstatt.de
 DOMAIN-SUFFIX,zynamics.com
 DOMAIN,voice.telephony.goog
-DOMAIN-KEYWORD,appspot
-DOMAIN-KEYWORD,blogspot
-DOMAIN-KEYWORD,gmail
-DOMAIN-KEYWORD,google
-DOMAIN-KEYWORD,recaptcha
-IP-CIDR,74.125.0.0/16,no-resolve
-IP-CIDR,173.194.0.0/16,no-resolve
-PROCESS-NAME,GoogleDriveFS.exe
-PROCESS-NAME,com.android.vending
-PROCESS-NAME,com.google.android.gms
-PROCESS-NAME,com.google.android.gsf
-PROCESS-NAME,com.google.android.play.games
 GEOIP,google

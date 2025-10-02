@@ -1,5 +1,5 @@
 # Prism Rules - APPLE TV (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:05+08:00
 # Total rules: 8
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,7 @@
 # Example:
 # ruleset=APPLE TV,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/apple_tv.list
 
+PROCESS-NAME,TV
 DOMAIN,hls-amt.itunes.apple.com
 DOMAIN,hls.itunes.apple.com
 DOMAIN,np-edge.itunes.apple.com
@@ -14,4 +15,3 @@ DOMAIN,play-edge.itunes.apple.com
 DOMAIN,tv.applemusic.com
 DOMAIN,uts-api.itunes.apple.com
 DOMAIN-SUFFIX,tv.apple.com
-PROCESS-NAME,TV

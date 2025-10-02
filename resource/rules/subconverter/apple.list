@@ -1,5 +1,5 @@
 # Prism Rules - APPLE (Subconverter Format)
-# Generated at: 2025-10-02T12:48:09+08:00
+# Generated at: 2025-10-02T13:02:04+08:00
 # Total rules: 26
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,17 @@
 # Example:
 # ruleset=APPLE,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/apple.list
 
+PROCESS-NAME,CoreLocationAgent
+PROCESS-NAME,WeatherWidget
+PROCESS-NAME,apsd
+PROCESS-NAME,com.apple.Maps
+PROCESS-NAME,findmydevice-user-agent
+PROCESS-NAME,fmfd
+PROCESS-NAME,mapspushd
+PROCESS-NAME,netbiosd
+PROCESS-NAME,trustd
+PROCESS-NAME,com.apple.geod
+PROCESS-NAME,LookupViewService
 DOMAIN-KEYWORD,buy.itunes.apple.com
 DOMAIN-KEYWORD,apple-support.akadns.net
 DOMAIN-KEYWORD,apple.com.akadns.net
@@ -22,14 +33,3 @@ IP-CIDR,144.178.48.0/20,no-resolve
 IP-CIDR,192.35.50.0/24,no-resolve
 IP-CIDR,198.183.17.0/24,no-resolve
 IP-CIDR,205.180.175.0/24,no-resolve
-PROCESS-NAME,CoreLocationAgent
-PROCESS-NAME,WeatherWidget
-PROCESS-NAME,apsd
-PROCESS-NAME,com.apple.Maps
-PROCESS-NAME,findmydevice-user-agent
-PROCESS-NAME,fmfd
-PROCESS-NAME,mapspushd
-PROCESS-NAME,netbiosd
-PROCESS-NAME,trustd
-PROCESS-NAME,com.apple.geod
-PROCESS-NAME,LookupViewService
