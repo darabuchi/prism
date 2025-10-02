@@ -1,5 +1,5 @@
 # Prism Rules - PRIME VIDEO (Subconverter Format)
-# Generated at: 2025-10-02T12:27:45+08:00
+# Generated at: 2025-10-02T12:48:09+08:00
 # Total rules: 26
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,8 @@
 # Example:
 # ruleset=PRIME VIDEO,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/prime_video.list
 
+DOMAIN-KEYWORD,avoddashs
+PROCESS-NAME,com.amazon.avod.thirdpartyclient
 DOMAIN,d1v5ir2lpwr8os.cloudfront.net
 DOMAIN,d22qjgkvxw22r6.cloudfront.net
 DOMAIN,d25xi40x97liuc.cloudfront.net
@@ -31,5 +33,3 @@ DOMAIN-SUFFIX,primevideo.info
 DOMAIN-SUFFIX,primevideo.org
 DOMAIN-SUFFIX,primevideo.tv
 DOMAIN-SUFFIX,pv-cdn.net
-DOMAIN-KEYWORD,avoddashs
-PROCESS-NAME,com.amazon.avod.thirdpartyclient

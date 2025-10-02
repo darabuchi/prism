@@ -1,5 +1,5 @@
 # Prism Rules - BBC (Subconverter Format)
-# Generated at: 2025-10-02T12:27:45+08:00
+# Generated at: 2025-10-02T12:48:09+08:00
 # Total rules: 19
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,8 @@
 # Example:
 # ruleset=BBC,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/bbc.list
 
+DOMAIN,vod-dash-ww-live.akamaized.net
+DOMAIN,vod-thumb-ww-live.akamaized.net
 DOMAIN-SUFFIX,bbc
 DOMAIN-SUFFIX,bbc.co
 DOMAIN-SUFFIX,bbc.co.uk
@@ -24,5 +26,3 @@ DOMAIN-SUFFIX,bbcverticals.com
 DOMAIN-SUFFIX,bidi.net.uk
 DOMAIN-KEYWORD,bbcfmt
 DOMAIN-KEYWORD,uk-live
-DOMAIN,vod-dash-ww-live.akamaized.net
-DOMAIN,vod-thumb-ww-live.akamaized.net

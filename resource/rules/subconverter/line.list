@@ -1,5 +1,5 @@
 # Prism Rules - LINE (Subconverter Format)
-# Generated at: 2025-10-02T12:27:45+08:00
+# Generated at: 2025-10-02T12:48:09+08:00
 # Total rules: 23
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,14 +7,6 @@
 # Example:
 # ruleset=LINE,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/line.list
 
-DOMAIN-SUFFIX,lin.ee
-DOMAIN-SUFFIX,line-apps.com
-DOMAIN-SUFFIX,line-cdn.net
-DOMAIN-SUFFIX,line-scdn.net
-DOMAIN-SUFFIX,line.me
-DOMAIN-SUFFIX,linecorp.com
-DOMAIN-SUFFIX,naver.jp
-DOMAIN-SUFFIX,nhncorp.jp
 IP-CIDR,103.2.28.0/22,no-resolve
 IP-CIDR,119.235.224.0/21,no-resolve
 IP-CIDR,119.235.232.0/23,no-resolve
@@ -30,3 +22,11 @@ IP-CIDR,203.104.103.0/24,no-resolve
 IP-CIDR,203.104.128.0/19,no-resolve
 IP-CIDR,203.174.66.64/26,no-resolve
 IP-CIDR,203.174.77.0/24,no-resolve
+DOMAIN-SUFFIX,lin.ee
+DOMAIN-SUFFIX,line-apps.com
+DOMAIN-SUFFIX,line-cdn.net
+DOMAIN-SUFFIX,line-scdn.net
+DOMAIN-SUFFIX,line.me
+DOMAIN-SUFFIX,linecorp.com
+DOMAIN-SUFFIX,naver.jp
+DOMAIN-SUFFIX,nhncorp.jp

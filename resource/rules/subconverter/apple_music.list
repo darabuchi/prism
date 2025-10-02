@@ -1,5 +1,5 @@
 # Prism Rules - APPLE MUSIC (Subconverter Format)
-# Generated at: 2025-10-02T12:27:45+08:00
+# Generated at: 2025-10-02T12:48:09+08:00
 # Total rules: 10
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,13 +7,13 @@
 # Example:
 # ruleset=APPLE MUSIC,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/apple_music.list
 
-DOMAIN-SUFFIX,applemusic.com
-DOMAIN-SUFFIX,blobstore.apple.com
-DOMAIN-SUFFIX,music.apple.com
-PROCESS-NAME,Music
 DOMAIN,aod-ssl.itunes.apple.com
 DOMAIN,aod.itunes.apple.com
 DOMAIN,audio-ssl.itunes.apple.com
 DOMAIN,audio.itunes.apple.com
 DOMAIN,mvod.itunes.apple.com
 DOMAIN,streamingaudio.itunes.apple.com
+DOMAIN-SUFFIX,applemusic.com
+DOMAIN-SUFFIX,blobstore.apple.com
+DOMAIN-SUFFIX,music.apple.com
+PROCESS-NAME,Music

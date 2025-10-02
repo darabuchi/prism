@@ -1,5 +1,5 @@
 # Prism Rules - SPOTIFY (Subconverter Format)
-# Generated at: 2025-10-02T12:27:45+08:00
+# Generated at: 2025-10-02T12:48:09+08:00
 # Total rules: 24
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,10 @@
 # Example:
 # ruleset=SPOTIFY,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/spotify.list
 
+DOMAIN-KEYWORD,spotify
+IP-CIDR,35.186.224.47/32,no-resolve
+IP-CIDR,104.154.127.126/32,no-resolve
+PROCESS-NAME,com.spotify.music
 DOMAIN-SUFFIX,audio-ak-spotify-com.akamaized.net
 DOMAIN-SUFFIX,byspotify.com
 DOMAIN-SUFFIX,heads4-ak-spotify-com.akamaized.net
@@ -27,7 +31,3 @@ DOMAIN-SUFFIX,spotifyjobs.com
 DOMAIN-SUFFIX,spotifynewsroom.jp
 DOMAIN-SUFFIX,spotilocal.com
 DOMAIN-SUFFIX,tospotify.com
-DOMAIN-KEYWORD,spotify
-IP-CIDR,35.186.224.47/32,no-resolve
-IP-CIDR,104.154.127.126/32,no-resolve
-PROCESS-NAME,com.spotify.music

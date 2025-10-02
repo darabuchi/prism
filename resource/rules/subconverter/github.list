@@ -1,5 +1,5 @@
 # Prism Rules - GITHUB (Subconverter Format)
-# Generated at: 2025-10-02T12:27:45+08:00
+# Generated at: 2025-10-02T12:48:09+08:00
 # Total rules: 36
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,10 @@
 # Example:
 # ruleset=GITHUB,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/github.list
 
+PROCESS-NAME,copilot-agent-win.exe
+PROCESS-NAME,copilot-agent-macos-arm64
+PROCESS-NAME,copilot-agent-macos
+PROCESS-NAME,copilot-agent-linux
 DOMAIN-SUFFIX,atom.io
 DOMAIN-SUFFIX,dependabot.com
 DOMAIN-SUFFIX,ghcr.io
@@ -38,8 +42,4 @@ DOMAIN-SUFFIX,rawgithub.com
 DOMAIN-SUFFIX,repo.new
 DOMAIN-SUFFIX,thegithubshop.com
 DOMAIN-KEYWORD,github
-PROCESS-NAME,copilot-agent-win.exe
-PROCESS-NAME,copilot-agent-macos-arm64
-PROCESS-NAME,copilot-agent-macos
-PROCESS-NAME,copilot-agent-linux
 GEOIP,github

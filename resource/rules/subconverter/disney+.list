@@ -1,5 +1,5 @@
 # Prism Rules - DISNEY+ (Subconverter Format)
-# Generated at: 2025-10-02T12:27:45+08:00
+# Generated at: 2025-10-02T12:48:09+08:00
 # Total rules: 174
 # Repository: https://github.com/darabuchi/prism
 # Usage: Add this URL to your subconverter ruleset configuration
@@ -7,6 +7,8 @@
 # Example:
 # ruleset=DISNEY+,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/disney+.list
 
+PROCESS-NAME,com.disney.datg.videoplatforms.android.abc
+PROCESS-NAME,com.disney.disneyplus
 DOMAIN-SUFFIX,20thcenturystudios.com.au
 DOMAIN-SUFFIX,20thcenturystudios.com.br
 DOMAIN-SUFFIX,20thcenturystudios.jp
@@ -179,5 +181,3 @@ DOMAIN-SUFFIX,thewaltdisneycompany.com
 DOMAIN-SUFFIX,thisispolaris.com
 DOMAIN-SUFFIX,watchdisneyfe.com
 DOMAIN-SUFFIX,watchespn.com
-PROCESS-NAME,com.disney.datg.videoplatforms.android.abc
-PROCESS-NAME,com.disney.disneyplus
