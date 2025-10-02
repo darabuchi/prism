@@ -467,7 +467,7 @@ func (c *Collector) exportSubconverterList(dir, action string, ruleList []rules.
 
 	// 写入规则（subconverter 格式：TYPE,PAYLOAD[,no-resolve]）
 	for _, rule := range ruleList {
-		ruleTypeStr := string(rule.Type())
+		ruleTypeStr := rule.Type().String()
 		payload := rule.Payload()
 
 		// 对于 IP-CIDR 规则，添加 no-resolve 标志

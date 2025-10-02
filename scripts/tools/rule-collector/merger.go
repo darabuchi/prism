@@ -50,7 +50,7 @@ func (m *RuleMerger) mergeGroup(ruleList []rules.Rule) []rules.Rule {
 	geoipRules := make([]rules.Rule, 0) // GEOIP 类型单独存储，不参与合并
 
 	for _, rule := range ruleList {
-		ruleTypeStr := string(rule.Type())
+		ruleTypeStr := rule.Type().String()
 
 		// GEOIP 相关类型不参与合并
 		if ruleTypeStr == "GEOIP" || ruleTypeStr == "GEOSITE" {
