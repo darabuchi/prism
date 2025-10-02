@@ -711,24 +711,28 @@ func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
 	aiServices := []string{}
 	streamingServices := []string{}
 	socialServices := []string{}
+	devServices := []string{}
 	otherServices := []string{}
 
 	for _, action := range actions {
-		actionUpper := strings.ToUpper(action)
+		// 解析 action 为 Payload
+		payload := prism.ParsePayload(action)
 
 		// 跳过基础动作
-		if actionUpper == "REJECT" || actionUpper == "DIRECT" || actionUpper == "PROXY" {
+		if payload.IsBaseAction() {
 			continue
 		}
 
 		// 分类服务
 		switch {
-		case c.isAIService(actionUpper):
+		case payload.IsAIService():
 			aiServices = append(aiServices, action)
-		case c.isStreamingService(actionUpper):
+		case payload.IsStreamingService():
 			streamingServices = append(streamingServices, action)
-		case c.isSocialService(actionUpper):
+		case payload.IsSocialService():
 			socialServices = append(socialServices, action)
+		case payload.IsDevService():
+			devServices = append(devServices, action)
 		default:
 			otherServices = append(otherServices, action)
 		}
@@ -764,6 +768,16 @@ func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
 		fmt.Fprintf(file, "\n")
 	}
 
+	// 写入开发工具组
+	if len(devServices) > 0 {
+		fmt.Fprintf(file, "; 开发工具\n")
+		for _, action := range devServices {
+			groupName := c.getGroupName(action)
+			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+		}
+		fmt.Fprintf(file, "\n")
+	}
+
 	// 写入其他服务组
 	if len(otherServices) > 0 {
 		fmt.Fprintf(file, "; 其他服务\n")
@@ -773,41 +787,6 @@ func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
 		}
 		fmt.Fprintf(file, "\n")
 	}
-}
-
-// isAIService 判断是否为 AI 服务
-func (c *Collector) isAIService(action string) bool {
-	aiServices := map[string]bool{
-		"OPENAI": true, "CLAUDE": true, "GEMINI": true, "COPILOT": true,
-		"BING": true, "PERPLEXITY": true, "CHARACTER.AI": true, "CHARACTERAI": true,
-		"MIDJOURNEY": true, "STABLE DIFFUSION": true, "HUGGING FACE": true,
-		"COHERE": true, "MISTRAL": true, "POE": true, "NOTION AI": true,
-		"JASPER": true, "CHATGPT": true, "BARD": true, "LLAMA": true,
-		"REPLICATE": true, "RUNWAYML": true,
-	}
-	return aiServices[action]
-}
-
-// isStreamingService 判断是否为流媒体服务
-func (c *Collector) isStreamingService(action string) bool {
-	streamingServices := map[string]bool{
-		"YOUTUBE": true, "NETFLIX": true, "DISNEY": true, "SPOTIFY": true,
-		"TIKTOK": true, "BILIBILI": true, "BILIBILIINTL": true, "BILIBILI HK": true,
-		"IQIYI": true, "IQIYI HK": true, "TENCENT VIDEO": true, "APPLE TV": true,
-		"APPLE MUSIC": true, "PRIME VIDEO": true, "HBO": true, "HULU": true,
-		"TWITCH": true, "SOUNDCLOUD": true,
-	}
-	return streamingServices[action]
-}
-
-// isSocialService 判断是否为社交平台
-func (c *Collector) isSocialService(action string) bool {
-	socialServices := map[string]bool{
-		"TELEGRAM": true, "TWITTER": true, "FACEBOOK": true,
-		"INSTAGRAM": true, "DISCORD": true, "WHATSAPP": true,
-		"LINE": true, "WECHAT": true, "REDDIT": true,
-	}
-	return socialServices[action]
 }
 
 // getGroupName 获取友好的分组名称

@@ -757,3 +757,94 @@ func getPayloadNames() map[string]map[Payload]string {
 		},
 	}
 }
+
+// PayloadCategory 服务类别
+type PayloadCategory int
+
+const (
+	CategoryUnknown    PayloadCategory = 0
+	CategoryBase       PayloadCategory = 1 // 基础动作（Direct、Reject、Proxy）
+	CategoryAI         PayloadCategory = 2 // AI 服务
+	CategoryStreaming  PayloadCategory = 3 // 流媒体服务
+	CategorySocial     PayloadCategory = 4 // 社交平台
+	CategoryDev        PayloadCategory = 5 // 开发工具
+	CategoryGaming     PayloadCategory = 6 // 游戏平台
+	CategoryNews       PayloadCategory = 7 // 新闻资讯
+	CategoryFinance    PayloadCategory = 8 // 金融服务
+	CategoryEducation  PayloadCategory = 9 // 教育学术
+	CategoryOther      PayloadCategory = 10 // 其他服务
+)
+
+// Category 返回 Payload 的服务类别
+func (p Payload) Category() PayloadCategory {
+	switch {
+	// 基础动作
+	case p >= PayloadUnknown && p <= PayloadProxy:
+		return CategoryBase
+
+	// AI 服务 (100-119)
+	case p >= PayloadOpenAI && p <= PayloadRunwayML:
+		return CategoryAI
+
+	// 流媒体服务 (200-309)
+	case p >= PayloadYouTube && p <= PayloadYouku:
+		return CategoryStreaming
+
+	// 社交平台 (400-409)
+	case p >= PayloadTelegram && p <= PayloadReddit:
+		return CategorySocial
+
+	// 开发工具 (500-509)
+	case p >= PayloadGitHub && p <= PayloadVercel:
+		return CategoryDev
+
+	// 游戏平台 (600-609)
+	case p >= PayloadSteam && p <= PayloadRoblox:
+		return CategoryGaming
+
+	// 新闻资讯 (700-709)
+	case p >= PayloadBloomberg && p <= PayloadNYTimes:
+		return CategoryNews
+
+	// 金融服务 (800-809)
+	case p >= PayloadBinance && p <= PayloadCryptocurrency:
+		return CategoryFinance
+
+	// 教育学术 (900-909)
+	case p >= PayloadScholar:
+		return CategoryEducation
+
+	default:
+		return CategoryOther
+	}
+}
+
+// IsAIService 判断是否为 AI 服务
+func (p Payload) IsAIService() bool {
+	return p.Category() == CategoryAI
+}
+
+// IsStreamingService 判断是否为流媒体服务
+func (p Payload) IsStreamingService() bool {
+	return p.Category() == CategoryStreaming
+}
+
+// IsSocialService 判断是否为社交平台
+func (p Payload) IsSocialService() bool {
+	return p.Category() == CategorySocial
+}
+
+// IsDevService 判断是否为开发工具
+func (p Payload) IsDevService() bool {
+	return p.Category() == CategoryDev
+}
+
+// IsGamingService 判断是否为游戏平台
+func (p Payload) IsGamingService() bool {
+	return p.Category() == CategoryGaming
+}
+
+// IsBaseAction 判断是否为基础动作
+func (p Payload) IsBaseAction() bool {
+	return p.Category() == CategoryBase
+}
