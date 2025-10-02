@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/darabuchi/prism"
 	"github.com/darabuchi/prism/pkg/rules"
 )
 
@@ -50,16 +51,16 @@ func (h *LoyalSoldier) Download(path string) ([]byte, error) {
 // Loyalsoldier 规则格式：
 // - YAML 列表格式：使用 "- '域名'" 格式
 // - 根据文件名判断规则类型
-func (h *LoyalSoldier) Parse(body []byte, action string) ([]rules.Rule, error) {
+func (h *LoyalSoldier) Parse(body []byte, payload prism.Payload) ([]rules.Rule, error) {
 	// Loyalsoldier 使用 YAML 列表格式，需要使用 Clash 解析器
-	return ParseClashRules(body, action)
+	return ParseClashRules(body, payload)
 }
 
 // NeedUpdate 判断缓存是否需要更新
 // 使用基类实现
 
 // ParseWithType 根据文件类型解析规则
-func (h *LoyalSoldier) ParseWithType(body []byte, action, filename string) ([]rules.Rule, error) {
+func (h *LoyalSoldier) ParseWithType(body []byte, payload prism.Payload, filename string) ([]rules.Rule, error) {
 	var ruleType string
 
 	// 根据文件名判断规则类型
@@ -72,5 +73,5 @@ func (h *LoyalSoldier) ParseWithType(body []byte, action, filename string) ([]ru
 		ruleType = "DOMAIN-SUFFIX"
 	}
 
-	return ParseTextRules(body, action, ruleType)
+	return ParseTextRules(body, payload, ruleType)
 }

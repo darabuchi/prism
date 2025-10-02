@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/darabuchi/prism"
 	"github.com/darabuchi/prism/pkg/rules"
 )
 
@@ -46,8 +47,8 @@ func (h *BlackMatrix7) Download(path string) ([]byte, error) {
 }
 
 // Parse 解析规则数据
-func (h *BlackMatrix7) Parse(body []byte, action string) ([]rules.Rule, error) {
-	return ParseClashRules(body, action)
+func (h *BlackMatrix7) Parse(body []byte, payload prism.Payload) ([]rules.Rule, error) {
+	return ParseClashRules(body, payload)
 }
 
 // NeedUpdate 判断缓存是否需要更新

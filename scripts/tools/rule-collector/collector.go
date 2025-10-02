@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/darabuchi/prism"
 	"github.com/darabuchi/prism/pkg/rules"
 	"github.com/darabuchi/prism/scripts/tools/rule-collector/collector"
 	"github.com/pterm/pterm"
@@ -111,13 +112,13 @@ func (c *Collector) SetSourcePriority(source string, priority int) {
 }
 
 // Parse 解析指定数据源的规则
-func (c *Collector) Parse(source, path, action string, priority int) error {
+func (c *Collector) Parse(source, path string, payload prism.Payload, priority int) error {
 	handler, ok := c.handlers[source]
 	if !ok {
 		return fmt.Errorf("unknown source: %s", source)
 	}
 
-	pterm.Info.Printfln("解析 %s/%s (动作: %s, 优先级: %d)", source, path, action, priority)
+	pterm.Info.Printfln("解析 %s/%s (动作: %s, 优先级: %d)", source, path, payload.String(), priority)
 
 	// 设置数据源优先级
 	if priority > 0 {
@@ -133,7 +134,7 @@ func (c *Collector) Parse(source, path, action string, priority int) error {
 	pterm.Info.Printfln("已下载 %s/%s (%d 字节)", source, path, len(body))
 
 	// 解析规则
-	ruleList, err := handler.Parse(body, action)
+	ruleList, err := handler.Parse(body, payload)
 	if err != nil {
 		return fmt.Errorf("parse failed: %w", err)
 	}

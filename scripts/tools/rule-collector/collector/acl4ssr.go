@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/darabuchi/prism"
 	"github.com/darabuchi/prism/pkg/rules"
 )
 
@@ -47,8 +48,8 @@ func (h *ACL4SSR) Download(path string) ([]byte, error) {
 
 // Parse 解析规则数据
 // ACL4SSR 规则使用 Clash 格式
-func (h *ACL4SSR) Parse(body []byte, action string) ([]rules.Rule, error) {
-	return ParseClashRules(body, action)
+func (h *ACL4SSR) Parse(body []byte, payload prism.Payload) ([]rules.Rule, error) {
+	return ParseClashRules(body, payload)
 }
 
 // NeedUpdate 判断缓存是否需要更新

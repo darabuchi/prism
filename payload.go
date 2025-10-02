@@ -248,6 +248,119 @@ const (
 	PayloadScholar Payload = 1110
 )
 
+// ParsePayload 从字符串解析 Payload
+// 支持从规则配置文件中的字符串转换为 Payload 枚举
+func ParsePayload(s string) Payload {
+	payloadMap := map[string]Payload{
+		// 基础动作
+		"UNKNOWN":      PayloadUnknown,
+		"DIRECT":       PayloadDirect,
+		"REJECT":       PayloadReject,
+		"REJECT-DROP":  PayloadRejectDrop,
+		"PROXY":        PayloadProxy,
+
+		// AI 服务
+		"OPENAI":       PayloadOpenAI,
+		"CLAUDE":       PayloadClaude,
+		"GEMINI":       PayloadGemini,
+
+		// 国际流媒体
+		"YOUTUBE":      PayloadYouTube,
+		"NETFLIX":      PayloadNetflix,
+		"DISNEY":       PayloadDisney,
+		"SPOTIFY":      PayloadSpotify,
+		"TIKTOK":       PayloadTikTok,
+		"TWITCH":       PayloadTwitch,
+		"HBO":          PayloadHBO,
+		"HULU":         PayloadHulu,
+		"PRIME-VIDEO":  PayloadPrimeVideo,
+		"PANDORA":      PayloadPandora,
+		"SOUNDCLOUD":   PayloadSoundCloud,
+		"DAZN":         PayloadDAZN,
+		"VIMEO":        PayloadVimeo,
+
+		// 国内流媒体
+		"BILIBILI":     PayloadBilibili,
+		"BILIBILI-HK":  PayloadBilibiliHK,
+		"IQIYI":        PayloadIQIYI,
+		"IQIYI-HK":     PayloadIQIYIHK,
+		"TENCENT-VIDEO": PayloadTencentVideo,
+		"YOUKU":        PayloadYouku,
+		"NETEASE-MUSIC": PayloadNeteaseMusic,
+		"CCTV":         PayloadCCTV,
+		"DOUYU":        PayloadDouyu,
+		"HIMALAYA":     PayloadHimalaya,
+
+		// 苹果服务
+		"APP-STORE":    PayloadAppStore,
+		"ICLOUD":       PayloadICloud,
+		"APPLE-TV":     PayloadAppleTV,
+		"APPLE-MUSIC":  PayloadAppleMusic,
+		"TESTFLIGHT":   PayloadTestFlight,
+		"APPLE":        PayloadApple,
+
+		// 云存储
+		"ONEDRIVE":     PayloadOneDrive,
+		"GDRIVE":       PayloadGoogleDrive,
+		"DROPBOX":      PayloadDropbox,
+
+		// 科技公司
+		"GOOGLE":       PayloadGoogle,
+		"MICROSOFT":    PayloadMicrosoft,
+		"AMAZON":       PayloadAmazon,
+		"FACEBOOK":     PayloadFacebook,
+		"ADOBE":        PayloadAdobe,
+
+		// 开发工具/VPS
+		"GITHUB":       PayloadGitHub,
+		"GITLAB":       PayloadGitLab,
+		"DOCKER":       PayloadDocker,
+		"HEROKU":       PayloadHeroku,
+		"DIGITALOCEAN": PayloadDigitalOcean,
+		"VERCEL":       PayloadVercel,
+		"CLOUDFLARE":   PayloadCloudflare,
+
+		// 交易所
+		"BINANCE":      PayloadBinance,
+		"OKX":          PayloadOKX,
+		"CRYPTO":       PayloadCrypto,
+		"CRYPTOCURRENCY": PayloadCryptocurrency,
+
+		// 支付
+		"PAYPAL":       PayloadPayPal,
+
+		// 社交平台
+		"TELEGRAM":     PayloadTelegram,
+		"TWITTER":      PayloadTwitter,
+		"INSTAGRAM":    PayloadInstagram,
+		"WHATSAPP":     PayloadWhatsApp,
+		"DISCORD":      PayloadDiscord,
+		"LINE":         PayloadLine,
+		"THREADS":      PayloadThreads,
+		"REDDIT":       PayloadReddit,
+		"LINKEDIN":     PayloadLinkedIn,
+
+		// 其他服务
+		"WIKIPEDIA":    PayloadWikipedia,
+		"STEAM":        PayloadSteam,
+		"EPIC":         PayloadEpic,
+		"PLAYSTATION":  PayloadPlayStation,
+		"EBAY":         PayloadEbay,
+		"SHOPIFY":      PayloadShopify,
+		"BBC":          PayloadBBC,
+		"CNN":          PayloadCNN,
+		"BLOOMBERG":    PayloadBloomberg,
+		"NYTIMES":      PayloadNYTimes,
+		"SCHOLAR":      PayloadScholar,
+	}
+
+	if payload, ok := payloadMap[s]; ok {
+		return payload
+	}
+
+	return PayloadUnknown
+}
+
 // IsDirect 判断是否为直连动作
 func (p Payload) IsDirect() bool {
 	return p == PayloadDirect

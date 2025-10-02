@@ -7,6 +7,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/darabuchi/prism"
 	"github.com/darabuchi/prism/pkg/rules"
 	"gopkg.in/yaml.v3"
 )
@@ -20,7 +21,9 @@ import (
 // - IP-CIDR6,2001:db8::/32
 // - GEOIP,CN
 // - MATCH
-func ParseClashRules(body []byte, action string) ([]rules.Rule, error) {
+func ParseClashRules(body []byte, payload prism.Payload) ([]rules.Rule, error) {
+	// 将 prism.Payload 转换为 string action，用于 pkg/rules
+	action := payload.String()
 	var ruleList []rules.Rule
 
 	// 尝试使用 YAML 解析（Clash YAML 格式）
@@ -141,7 +144,9 @@ func parseClashPayloadLine(line, action string) (rules.Rule, error) {
 }
 
 // ParseTextRules 解析纯文本格式的规则（每行一个域名或 IP）
-func ParseTextRules(body []byte, action string, ruleType string) ([]rules.Rule, error) {
+func ParseTextRules(body []byte, payload prism.Payload, ruleType string) ([]rules.Rule, error) {
+	// 将 prism.Payload 转换为 string action，用于 pkg/rules
+	action := payload.String()
 	var ruleList []rules.Rule
 
 	scanner := bufio.NewScanner(bytes.NewReader(body))

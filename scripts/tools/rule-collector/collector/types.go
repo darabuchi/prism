@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/darabuchi/prism"
 	"github.com/darabuchi/prism/pkg/rules"
 )
 
@@ -14,7 +15,7 @@ type Handler interface {
 	Download(path string) ([]byte, error)
 
 	// Parse 解析规则数据
-	Parse(body []byte, action string) ([]rules.Rule, error)
+	Parse(body []byte, payload prism.Payload) ([]rules.Rule, error)
 
 	// NeedUpdate 判断缓存是否需要更新
 	NeedUpdate(info os.FileInfo, cacheDays int) bool
