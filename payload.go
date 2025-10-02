@@ -30,6 +30,57 @@ const (
 	// PayloadGemini Google Gemini 服务
 	PayloadGemini Payload = 102
 
+	// PayloadCopilot GitHub Copilot 服务
+	PayloadCopilot Payload = 103
+
+	// PayloadBing Bing AI / Copilot 服务
+	PayloadBing Payload = 104
+
+	// PayloadPerplexity Perplexity AI 服务
+	PayloadPerplexity Payload = 105
+
+	// PayloadCharacterAI Character.AI 服务
+	PayloadCharacterAI Payload = 106
+
+	// PayloadMidjourney Midjourney AI 绘图
+	PayloadMidjourney Payload = 107
+
+	// PayloadStableDiffusion Stable Diffusion AI 绘图
+	PayloadStableDiffusion Payload = 108
+
+	// PayloadHuggingFace Hugging Face AI 平台
+	PayloadHuggingFace Payload = 109
+
+	// PayloadCohere Cohere AI 服务
+	PayloadCohere Payload = 110
+
+	// PayloadMistralAI Mistral AI 服务
+	PayloadMistralAI Payload = 111
+
+	// PayloadPoe Poe AI 聚合平台
+	PayloadPoe Payload = 112
+
+	// PayloadNotionAI Notion AI 服务
+	PayloadNotionAI Payload = 113
+
+	// PayloadJasper Jasper AI 写作助手
+	PayloadJasper Payload = 114
+
+	// PayloadChatGPT ChatGPT 服务（独立于 OpenAI）
+	PayloadChatGPT Payload = 115
+
+	// PayloadBard Google Bard 服务（已合并到 Gemini）
+	PayloadBard Payload = 116
+
+	// PayloadLlama Meta Llama AI 服务
+	PayloadLlama Payload = 117
+
+	// PayloadReplicate Replicate AI 平台
+	PayloadReplicate Payload = 118
+
+	// PayloadRunwayML Runway ML AI 视频生成
+	PayloadRunwayML Payload = 119
+
 	// ========== 流媒体 - 国际 ==========
 	// PayloadYouTube YouTube 视频服务
 	PayloadYouTube Payload = 200
@@ -260,9 +311,30 @@ func ParsePayload(s string) Payload {
 		"PROXY":        PayloadProxy,
 
 		// AI 服务
-		"OPENAI":       PayloadOpenAI,
-		"CLAUDE":       PayloadClaude,
-		"GEMINI":       PayloadGemini,
+		"OPENAI":           PayloadOpenAI,
+		"CLAUDE":           PayloadClaude,
+		"GEMINI":           PayloadGemini,
+		"COPILOT":          PayloadCopilot,
+		"BING":             PayloadBing,
+		"PERPLEXITY":       PayloadPerplexity,
+		"CHARACTER-AI":     PayloadCharacterAI,
+		"CHARACTERAI":      PayloadCharacterAI,
+		"MIDJOURNEY":       PayloadMidjourney,
+		"STABLE-DIFFUSION": PayloadStableDiffusion,
+		"HUGGINGFACE":      PayloadHuggingFace,
+		"COHERE":           PayloadCohere,
+		"MISTRAL":          PayloadMistralAI,
+		"MISTRAL-AI":       PayloadMistralAI,
+		"POE":              PayloadPoe,
+		"NOTION-AI":        PayloadNotionAI,
+		"NOTIONAI":         PayloadNotionAI,
+		"JASPER":           PayloadJasper,
+		"CHATGPT":          PayloadChatGPT,
+		"BARD":             PayloadBard,
+		"LLAMA":            PayloadLlama,
+		"REPLICATE":        PayloadReplicate,
+		"RUNWAY":           PayloadRunwayML,
+		"RUNWAYML":         PayloadRunwayML,
 
 		// 国际流媒体
 		"YOUTUBE":      PayloadYouTube,
@@ -439,6 +511,23 @@ func getPayloadNames() map[string]map[Payload]string {
 			PayloadOpenAI:          "OpenAI",
 			PayloadClaude:          "Claude",
 			PayloadGemini:          "Gemini",
+			PayloadCopilot:         "Copilot",
+			PayloadBing:            "Bing AI",
+			PayloadPerplexity:      "Perplexity",
+			PayloadCharacterAI:     "Character.AI",
+			PayloadMidjourney:      "Midjourney",
+			PayloadStableDiffusion: "Stable Diffusion",
+			PayloadHuggingFace:     "Hugging Face",
+			PayloadCohere:          "Cohere",
+			PayloadMistralAI:       "Mistral AI",
+			PayloadPoe:             "Poe",
+			PayloadNotionAI:        "Notion AI",
+			PayloadJasper:          "Jasper",
+			PayloadChatGPT:         "ChatGPT",
+			PayloadBard:            "Bard",
+			PayloadLlama:           "Llama",
+			PayloadReplicate:       "Replicate",
+			PayloadRunwayML:        "Runway ML",
 			PayloadYouTube:         "YouTube",
 			PayloadNetflix:         "Netflix",
 			PayloadDisney:          "Disney+",
@@ -518,6 +607,23 @@ func getPayloadNames() map[string]map[Payload]string {
 			PayloadOpenAI:          "OpenAI",
 			PayloadClaude:          "Claude",
 			PayloadGemini:          "Gemini",
+			PayloadCopilot:         "Copilot",
+			PayloadBing:            "必应AI",
+			PayloadPerplexity:      "Perplexity",
+			PayloadCharacterAI:     "Character.AI",
+			PayloadMidjourney:      "Midjourney",
+			PayloadStableDiffusion: "Stable Diffusion",
+			PayloadHuggingFace:     "Hugging Face",
+			PayloadCohere:          "Cohere",
+			PayloadMistralAI:       "Mistral AI",
+			PayloadPoe:             "Poe",
+			PayloadNotionAI:        "Notion AI",
+			PayloadJasper:          "Jasper",
+			PayloadChatGPT:         "ChatGPT",
+			PayloadBard:            "Bard",
+			PayloadLlama:           "Llama",
+			PayloadReplicate:       "Replicate",
+			PayloadRunwayML:        "Runway ML",
 			PayloadYouTube:         "YouTube",
 			PayloadNetflix:         "Netflix",
 			PayloadDisney:          "Disney+",
