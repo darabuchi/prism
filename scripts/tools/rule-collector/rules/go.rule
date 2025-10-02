@@ -1,0 +1,5 @@
+DOMAIN,go.dev,develop
+DOMAIN-SUFFIX,go.dev,develop
+DOMAIN-SUFFIX,stackoverflow.com,develop
+DOMAIN-SUFFIX,goproxy.cn,direct
+DOMAIN-SUFFIX,goproxy.io,direct

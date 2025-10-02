@@ -1,0 +1,20 @@
+# 针对 geoip 的过滤
+GEOIP,youtube,youtube
+GEOIP,netflix,netflix
+GEOIP,disney,disney
+GEOIP,openai,openai
+GEOIP,telegram,telegram
+GEOIP,iqiyi,iqiyi
+GEOIP,iqiyiintl,iqiyiintl
+GEOIP,bilibili,bilibili
+GEOIP,bilibiliintl,bilibiliintl
+GEOIP,develop,develop
+GEOIP,github,github
+GEOIP,oracle,oracle
+GEOIP,game,game
+GEOIP,steam,steam
+GEOIP,steamcn,steamcn
+GEOIP,epic,epic
+GEOIP,wikipedia,wikipedia
+GEOIP,twitter,twitter
+GEOIP,google,google

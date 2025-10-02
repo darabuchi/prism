@@ -1,0 +1,19 @@
+# 腾讯
+DST-IP,119.29.29.29,direct
+DST-IP,1.12.12.12,direct
+DOMAIN,dot.pub,direct
+DOMAIN,doh.pub,direct
+# 阿里云
+DST-IP,223.5.5.5,direct
+DOMAIN,dns.alidns.com,direct
+# 字节跳动
+DST-IP,180.184.1.1,direct
+# Level3
+DST-IP,209.244.0.3,direct
+DST-IP,209.244.0.4,direct
+DST-IP,4.2.2.1,direct
+DST-IP,4.2.2.2,direct
+DST-IP,4.2.2.3,direct
+DST-IP,4.2.2.4,direct
+DST-IP,4.2.2.5,direct
+DST-IP,4.2.2.6,direct

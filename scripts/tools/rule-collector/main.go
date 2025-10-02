@@ -104,6 +104,14 @@ func main() {
 		{ACL4SSR, "Clash/ChinaDomain.list", "DIRECT"}, // 国内域名
 	}
 
+	// 加载自定义规则（在上游规则之前）
+	pterm.Info.Printfln("加载自定义规则...")
+	err = c.LoadRulesFromDirectory("rules")
+	if err != nil {
+		pterm.Warning.Printfln("加载自定义规则失败: %v", err)
+		// 继续处理，不中断
+	}
+
 	// 执行规则解析
 	pterm.Info.Printfln("开始收集规则...")
 	for _, cfg := range parseList {

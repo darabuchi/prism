@@ -47,8 +47,17 @@ func (m *RuleMerger) Merge() []rules.Rule {
 func (m *RuleMerger) mergeGroup(ruleList []rules.Rule) []rules.Rule {
 	// 按规则类型分组
 	byType := make(map[string][]rules.Rule)
+	geoipRules := make([]rules.Rule, 0) // GEOIP 类型单独存储，不参与合并
+
 	for _, rule := range ruleList {
 		ruleType := string(rule.Type())
+
+		// GEOIP 相关类型不参与合并
+		if ruleType == "GEOIP" || ruleType == "GEOSITE" {
+			geoipRules = append(geoipRules, rule)
+			continue
+		}
+
 		byType[ruleType] = append(byType[ruleType], rule)
 	}
 
@@ -63,6 +72,9 @@ func (m *RuleMerger) mergeGroup(ruleList []rules.Rule) []rules.Rule {
 	for _, rules := range byType {
 		result = append(result, rules...)
 	}
+
+	// 添加 GEOIP 规则（不经过合并处理）
+	result = append(result, geoipRules...)
 
 	return result
 }

@@ -24,8 +24,8 @@ type Collector struct {
 	// 收集的规则列表
 	rules []rules.Rule
 
-	// 规则去重映射（用于快速查找）
-	ruleMap map[string]bool
+	// 规则去重映射（Type|Payload -> rules 数组索引）
+	ruleMap map[string]int
 }
 
 // NewCollector 创建新的收集器
@@ -34,7 +34,7 @@ func NewCollector(cfg *Config) *Collector {
 		cfg:      cfg,
 		handlers: make(map[string]collector.Handler),
 		rules:    make([]rules.Rule, 0),
-		ruleMap:  make(map[string]bool),
+		ruleMap:  make(map[string]int),
 	}
 }
 
@@ -125,26 +125,52 @@ func (c *Collector) downloadWithCache(source, path string, handler collector.Han
 	return data, nil
 }
 
-// addRule 添加规则（带去重）
+// addRule 添加规则（带去重和优先级处理）
 func (c *Collector) addRule(rule rules.Rule) bool {
-	// 生成规则唯一键
+	// 生成规则唯一键（不含 Action）
 	key := c.ruleKey(rule)
 
 	// 检查是否已存在
-	if c.ruleMap[key] {
+	if existingIdx, exists := c.ruleMap[key]; exists {
+		// 已存在，比较优先级
+		existingRule := c.rules[existingIdx]
+		if c.actionPriority(rule.Action()) > c.actionPriority(existingRule.Action()) {
+			// 新规则优先级更高，替换旧规则
+			c.rules[existingIdx] = rule
+			return true
+		}
 		return false
 	}
 
-	// 添加规则
+	// 添加新规则
+	idx := len(c.rules)
 	c.rules = append(c.rules, rule)
-	c.ruleMap[key] = true
+	c.ruleMap[key] = idx
 
 	return true
 }
 
-// ruleKey 生成规则唯一键
+// ruleKey 生成规则唯一键（Type + Payload）
 func (c *Collector) ruleKey(rule rules.Rule) string {
-	return fmt.Sprintf("%s|%s|%s", rule.Type(), rule.Payload(), rule.Action())
+	return fmt.Sprintf("%s|%s", rule.Type(), rule.Payload())
+}
+
+// actionPriority 返回 Action 的优先级
+// 优先级从低到高：reject(1) < direct(2) < proxy(3) < 其他服务(4)
+func (c *Collector) actionPriority(action rules.ActionType) int {
+	actionStr := strings.ToUpper(string(action))
+
+	switch actionStr {
+	case "REJECT":
+		return 1
+	case "DIRECT":
+		return 2
+	case "PROXY":
+		return 3
+	default:
+		// 其他服务（OPENAI, NETFLIX, YOUTUBE 等）都是高优先级
+		return 4
+	}
 }
 
 // Export 导出规则

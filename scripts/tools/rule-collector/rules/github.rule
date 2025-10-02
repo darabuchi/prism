@@ -1,0 +1,4 @@
+PROCESS-NAME,copilot-agent-win.exe,github
+PROCESS-NAME,copilot-agent-macos-arm64,github
+PROCESS-NAME,copilot-agent-macos,github
+PROCESS-NAME,copilot-agent-linux,github
