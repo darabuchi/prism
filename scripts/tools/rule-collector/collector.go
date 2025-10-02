@@ -357,6 +357,12 @@ func (c *Collector) Export() error {
 		return fmt.Errorf("failed to export all rules: %w", err)
 	}
 
+	// 导出 subconverter 格式
+	err = c.exportSubconverter(outputDir, rulesByAction)
+	if err != nil {
+		return fmt.Errorf("failed to export subconverter files: %w", err)
+	}
+
 	return nil
 }
 
@@ -405,6 +411,186 @@ func (c *Collector) exportAllRules(dir string, ruleList []rules.Rule) error {
 	}
 
 	pterm.Success.Printfln("导出 %d 条规则到 %s", len(ruleList), filename)
+	return nil
+}
+
+// exportSubconverter 导出 subconverter 兼容格式
+func (c *Collector) exportSubconverter(baseDir string, rulesByAction map[string][]rules.Rule) error {
+	// 创建 subconverter 子目录
+	subconverterDir := filepath.Join(baseDir, "subconverter")
+	err := os.MkdirAll(subconverterDir, 0755)
+	if err != nil {
+		return fmt.Errorf("failed to create subconverter directory: %w", err)
+	}
+
+	pterm.Info.Println("导出 subconverter 格式...")
+
+	// 为每个 action 导出 .list 文件
+	for action, ruleList := range rulesByAction {
+		err := c.exportSubconverterList(subconverterDir, action, ruleList)
+		if err != nil {
+			return fmt.Errorf("failed to export subconverter list for %s: %w", action, err)
+		}
+	}
+
+	// 生成 subconverter 配置示例
+	err = c.exportSubconverterConfig(subconverterDir, rulesByAction)
+	if err != nil {
+		return fmt.Errorf("failed to export subconverter config: %w", err)
+	}
+
+	pterm.Success.Printfln("subconverter 格式导出完成: %s", subconverterDir)
+	return nil
+}
+
+// exportSubconverterList 导出单个 subconverter .list 文件
+func (c *Collector) exportSubconverterList(dir, action string, ruleList []rules.Rule) error {
+	filename := filepath.Join(dir, fmt.Sprintf("%s.list", strings.ToLower(action)))
+
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 写入文件头（注释）
+	fmt.Fprintf(file, "# Prism Rules - %s (Subconverter Format)\n", action)
+	fmt.Fprintf(file, "# Generated at: %s\n", time.Now().Format(time.RFC3339))
+	fmt.Fprintf(file, "# Total rules: %d\n", len(ruleList))
+	fmt.Fprintf(file, "# Repository: https://github.com/darabuchi/prism\n")
+	fmt.Fprintf(file, "# Usage: Add this URL to your subconverter ruleset configuration\n")
+	fmt.Fprintf(file, "#\n")
+	fmt.Fprintf(file, "# Example:\n")
+	fmt.Fprintf(file, "# ruleset=%s,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list\n",
+		action, strings.ToLower(action))
+	fmt.Fprintf(file, "\n")
+
+	// 写入规则（subconverter 格式：TYPE,PAYLOAD[,no-resolve]）
+	for _, rule := range ruleList {
+		ruleType := string(rule.Type())
+		payload := rule.Payload()
+
+		// 对于 IP-CIDR 规则，添加 no-resolve 标志
+		if ruleType == "IP-CIDR" || ruleType == "IP-CIDR6" || ruleType == "SRC-IP-CIDR" {
+			fmt.Fprintf(file, "%s,%s,no-resolve\n", ruleType, payload)
+		} else {
+			fmt.Fprintf(file, "%s,%s\n", ruleType, payload)
+		}
+	}
+
+	return nil
+}
+
+// exportSubconverterConfig 导出 subconverter 配置示例
+func (c *Collector) exportSubconverterConfig(dir string, rulesByAction map[string][]rules.Rule) error {
+	filename := filepath.Join(dir, "README.md")
+
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 写入 README
+	fmt.Fprintf(file, "# Prism Rules for Subconverter\n\n")
+	fmt.Fprintf(file, "本目录包含适用于 [subconverter](https://github.com/tindy2013/subconverter) 的规则集文件。\n\n")
+	fmt.Fprintf(file, "## 使用方法\n\n")
+	fmt.Fprintf(file, "在 subconverter 的配置文件中添加以下规则集：\n\n")
+	fmt.Fprintf(file, "```ini\n")
+	fmt.Fprintf(file, "[custom]\n")
+	fmt.Fprintf(file, "; 启用规则生成\n")
+	fmt.Fprintf(file, "enable_rule_generator=true\n")
+	fmt.Fprintf(file, "overwrite_original_rules=true\n\n")
+
+	// 按 action 排序以保持一致性
+	actions := make([]string, 0, len(rulesByAction))
+	for action := range rulesByAction {
+		actions = append(actions, action)
+	}
+	// 简单排序：REJECT, DIRECT, PROXY, 其他服务
+	sortActions := func(actions []string) {
+		order := map[string]int{
+			"Reject": 1,
+			"Direct": 2,
+			"Proxy":  3,
+		}
+		for i := 0; i < len(actions); i++ {
+			for j := i + 1; j < len(actions); j++ {
+				orderI := order[actions[i]]
+				orderJ := order[actions[j]]
+				if orderI == 0 {
+					orderI = 100
+				}
+				if orderJ == 0 {
+					orderJ = 100
+				}
+				if orderI > orderJ || (orderI == orderJ && actions[i] > actions[j]) {
+					actions[i], actions[j] = actions[j], actions[i]
+				}
+			}
+		}
+	}
+	sortActions(actions)
+
+	// 写入规则集配置
+	for _, action := range actions {
+		ruleCount := len(rulesByAction[action])
+
+		// 生成友好的分组名称
+		groupName := action
+		switch action {
+		case "Reject":
+			groupName = "🛡️ 广告拦截"
+		case "Direct":
+			groupName = "🎯 全球直连"
+		case "Proxy":
+			groupName = "🚀 节点选择"
+		default:
+			// 对于服务名称，添加表情符号
+			groupName = fmt.Sprintf("📺 %s", action)
+		}
+
+		fmt.Fprintf(file, "; %s (%d 条规则)\n", action, ruleCount)
+		fmt.Fprintf(file, "ruleset=%s,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list\n",
+			groupName, strings.ToLower(action))
+	}
+
+	fmt.Fprintf(file, "\n; GEOIP 规则\n")
+	fmt.Fprintf(file, "ruleset=🎯 全球直连,[]GEOIP,CN\n")
+	fmt.Fprintf(file, "ruleset=🐟 漏网之鱼,[]FINAL\n")
+	fmt.Fprintf(file, "```\n\n")
+
+	// 写入规则列表
+	fmt.Fprintf(file, "## 可用规则集\n\n")
+	fmt.Fprintf(file, "| 规则集 | 规则数量 | 下载链接 |\n")
+	fmt.Fprintf(file, "|--------|----------|----------|\n")
+
+	for _, action := range actions {
+		ruleCount := len(rulesByAction[action])
+		downloadURL := fmt.Sprintf("https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list",
+			strings.ToLower(action))
+		fmt.Fprintf(file, "| %s | %d | [下载](%s) |\n", action, ruleCount, downloadURL)
+	}
+
+	fmt.Fprintf(file, "\n## 规则格式\n\n")
+	fmt.Fprintf(file, "所有规则文件遵循 subconverter 的 `.list` 格式：\n\n")
+	fmt.Fprintf(file, "```\n")
+	fmt.Fprintf(file, "DOMAIN,example.com\n")
+	fmt.Fprintf(file, "DOMAIN-SUFFIX,example.com\n")
+	fmt.Fprintf(file, "DOMAIN-KEYWORD,keyword\n")
+	fmt.Fprintf(file, "IP-CIDR,192.168.0.0/16,no-resolve\n")
+	fmt.Fprintf(file, "IP-CIDR6,2001:db8::/32,no-resolve\n")
+	fmt.Fprintf(file, "```\n\n")
+
+	fmt.Fprintf(file, "## 更新频率\n\n")
+	fmt.Fprintf(file, "规则集每日自动更新，来源于：\n")
+	fmt.Fprintf(file, "- [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)\n")
+	fmt.Fprintf(file, "- [Loyalsoldier/clash-rules](https://github.com/Loyalsoldier/clash-rules)\n")
+	fmt.Fprintf(file, "- [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)\n\n")
+
+	fmt.Fprintf(file, "## 许可证\n\n")
+	fmt.Fprintf(file, "本项目采用 GPL-3.0 许可证。详见 [LICENSE](../../LICENSE) 文件。\n")
+
 	return nil
 }
 
