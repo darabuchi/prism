@@ -1,0 +1,35 @@
+# Prism Rules - OPENAI
+# Generated at: 2025-10-02T12:27:44+08:00
+# Total rules: 31
+
+DOMAIN,browser-intake-datadoghq.com,OPENAI
+DOMAIN,static.cloudflareinsights.com,OPENAI
+DOMAIN-SUFFIX,ai.com,OPENAI
+DOMAIN-SUFFIX,algolia.net,OPENAI
+DOMAIN-SUFFIX,api.statsig.com,OPENAI
+DOMAIN-SUFFIX,auth0.com,OPENAI
+DOMAIN-SUFFIX,chatgpt.com,OPENAI
+DOMAIN-SUFFIX,chatgpt.livekit.cloud,OPENAI
+DOMAIN-SUFFIX,client-api.arkoselabs.com,OPENAI
+DOMAIN-SUFFIX,events.statsigapi.net,OPENAI
+DOMAIN-SUFFIX,featuregates.org,OPENAI
+DOMAIN-SUFFIX,host.livekit.cloud,OPENAI
+DOMAIN-SUFFIX,identrust.com,OPENAI
+DOMAIN-SUFFIX,intercom.io,OPENAI
+DOMAIN-SUFFIX,intercomcdn.com,OPENAI
+DOMAIN-SUFFIX,launchdarkly.com,OPENAI
+DOMAIN-SUFFIX,oaistatic.com,OPENAI
+DOMAIN-SUFFIX,oaiusercontent.com,OPENAI
+DOMAIN-SUFFIX,observeit.net,OPENAI
+DOMAIN-SUFFIX,openai.com,OPENAI
+DOMAIN-SUFFIX,openaiapi-site.azureedge.net,OPENAI
+DOMAIN-SUFFIX,openaicom.imgix.net,OPENAI
+DOMAIN-SUFFIX,segment.io,OPENAI
+DOMAIN-SUFFIX,sentry.io,OPENAI
+DOMAIN-SUFFIX,stripe.com,OPENAI
+DOMAIN-SUFFIX,turn.livekit.cloud,OPENAI
+DOMAIN-KEYWORD,openai,OPENAI
+IP-CIDR,24.199.123.28/32,OPENAI
+IP-CIDR,64.23.132.171/32,OPENAI
+IP-ASN,20473,OPENAI
+GEOIP,openai,OPENAI

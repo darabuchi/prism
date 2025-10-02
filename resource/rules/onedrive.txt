@@ -1,0 +1,21 @@
+# Prism Rules - ONEDRIVE
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 17
+
+DOMAIN-SUFFIX,1drv.com,ONEDRIVE
+DOMAIN-SUFFIX,livefilestore.com,ONEDRIVE
+DOMAIN-SUFFIX,oneclient.sfx.ms,ONEDRIVE
+DOMAIN-SUFFIX,onedrive.com,ONEDRIVE
+DOMAIN-SUFFIX,onedrive.live.com,ONEDRIVE
+DOMAIN-SUFFIX,photos.live.com,ONEDRIVE
+DOMAIN-SUFFIX,sharepoint.com,ONEDRIVE
+DOMAIN-SUFFIX,sharepointonline.com,ONEDRIVE
+DOMAIN-SUFFIX,skydrive.wns.windows.com,ONEDRIVE
+DOMAIN-SUFFIX,spoprod-a.akamaihd.net,ONEDRIVE
+DOMAIN-SUFFIX,storage.live.com,ONEDRIVE
+DOMAIN-SUFFIX,storage.msn.com,ONEDRIVE
+DOMAIN-KEYWORD,1drv,ONEDRIVE
+DOMAIN-KEYWORD,onedrive,ONEDRIVE
+DOMAIN-KEYWORD,skydrive,ONEDRIVE
+PROCESS-NAME,OneDrive,ONEDRIVE
+PROCESS-NAME,OneDriveUpdater,ONEDRIVE

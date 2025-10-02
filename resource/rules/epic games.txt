@@ -1,0 +1,18 @@
+# Prism Rules - EPIC GAMES
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 14
+
+DOMAIN-SUFFIX,battlebreakers.com,EPIC GAMES
+DOMAIN-SUFFIX,eac-cdn.com,EPIC GAMES
+DOMAIN-SUFFIX,easy.ac,EPIC GAMES
+DOMAIN-SUFFIX,easyanticheat.net,EPIC GAMES
+DOMAIN-SUFFIX,epicgames.com,EPIC GAMES
+DOMAIN-SUFFIX,epicgames.dev,EPIC GAMES
+DOMAIN-SUFFIX,fortnite.com,EPIC GAMES
+DOMAIN-SUFFIX,paragon.com,EPIC GAMES
+DOMAIN-SUFFIX,playparagon.com,EPIC GAMES
+DOMAIN-SUFFIX,roborecall.com,EPIC GAMES
+DOMAIN-SUFFIX,shadowcomplex.com,EPIC GAMES
+DOMAIN-SUFFIX,spyjinx.com,EPIC GAMES
+DOMAIN-SUFFIX,unrealengine.com,EPIC GAMES
+DOMAIN-SUFFIX,unrealtournament.com,EPIC GAMES

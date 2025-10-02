@@ -1,0 +1,26 @@
+# Prism Rules - BLOOMBERG
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 22
+
+DOMAIN-SUFFIX,bloomberg.co.kr,BLOOMBERG
+DOMAIN-SUFFIX,bloomberg.com,BLOOMBERG
+DOMAIN-SUFFIX,bloomberg.com.br,BLOOMBERG
+DOMAIN-SUFFIX,bloomberg.fm,BLOOMBERG
+DOMAIN-SUFFIX,bloomberg.tv,BLOOMBERG
+DOMAIN-SUFFIX,bloombergapps.com,BLOOMBERG
+DOMAIN-SUFFIX,bloombergarcade.com,BLOOMBERG
+DOMAIN-SUFFIX,bloombergbeta.com,BLOOMBERG
+DOMAIN-SUFFIX,blpprofessional.com,BLOOMBERG
+DOMAIN-SUFFIX,bmia.org,BLOOMBERG
+DOMAIN-SUFFIX,bnef.com,BLOOMBERG
+DOMAIN-SUFFIX,businessweek.com,BLOOMBERG
+DOMAIN-SUFFIX,businessweekmag.com,BLOOMBERG
+DOMAIN-SUFFIX,bwbx.io,BLOOMBERG
+DOMAIN-SUFFIX,citylab.com,BLOOMBERG
+DOMAIN-SUFFIX,gotraffic.net,BLOOMBERG
+DOMAIN-SUFFIX,londonmithraeum.com,BLOOMBERG
+DOMAIN-SUFFIX,neweconomyforum.com,BLOOMBERG
+DOMAIN-SUFFIX,newenergyfinance.com,BLOOMBERG
+DOMAIN-SUFFIX,quicktake.video,BLOOMBERG
+DOMAIN-SUFFIX,techatbloomberg.com,BLOOMBERG
+DOMAIN-SUFFIX,tictoc.video,BLOOMBERG

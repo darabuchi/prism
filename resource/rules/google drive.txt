@@ -1,0 +1,10 @@
+# Prism Rules - GOOGLE DRIVE
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 6
+
+DOMAIN,www.googleapis.com,GOOGLE DRIVE
+DOMAIN-SUFFIX,docs.google.com,GOOGLE DRIVE
+DOMAIN-SUFFIX,drive.google.com,GOOGLE DRIVE
+DOMAIN-SUFFIX,googledrive.com,GOOGLE DRIVE
+DOMAIN-SUFFIX,googleusercontent.com,GOOGLE DRIVE
+PROCESS-NAME,BackupandSync,GOOGLE DRIVE

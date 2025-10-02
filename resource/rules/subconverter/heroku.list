@@ -1,0 +1,21 @@
+# Prism Rules - HEROKU (Subconverter Format)
+# Generated at: 2025-10-02T12:27:45+08:00
+# Total rules: 12
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=HEROKU,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/heroku.list
+
+DOMAIN-SUFFIX,codei.sh
+DOMAIN-SUFFIX,codeish.co
+DOMAIN-SUFFIX,codeish.io
+DOMAIN-SUFFIX,heroku-app.com
+DOMAIN-SUFFIX,heroku-charge.com
+DOMAIN-SUFFIX,heroku.co
+DOMAIN-SUFFIX,heroku.com
+DOMAIN-SUFFIX,heroku.me
+DOMAIN-SUFFIX,herokuapp.com
+DOMAIN-SUFFIX,herokucdn.com
+DOMAIN-SUFFIX,herokucharge.com
+DOMAIN-SUFFIX,herokussl.com

@@ -1,0 +1,20 @@
+# Prism Rules - DAZN
+# Generated at: 2025-10-02T12:27:44+08:00
+# Total rules: 16
+
+DOMAIN-SUFFIX,control.kochava.com,DAZN
+DOMAIN-SUFFIX,d151l6v8er5bdm.cloudfront.net,DAZN
+DOMAIN-SUFFIX,d1sgwhnao7452x.cloudfront.net,DAZN
+DOMAIN-SUFFIX,dazn-api.com,DAZN
+DOMAIN-SUFFIX,dazn.com,DAZN
+DOMAIN-SUFFIX,dazndn.com,DAZN
+DOMAIN-SUFFIX,dc2-vodhls-perform.secure.footprint.net,DAZN
+DOMAIN-SUFFIX,dca-ll-livedazn-dznlivejp.s.llnwi.net,DAZN
+DOMAIN-SUFFIX,dca-ll-voddazn-dznvodjp.s.llnwi.net,DAZN
+DOMAIN-SUFFIX,dcalivedazn.akamaized.net,DAZN
+DOMAIN-SUFFIX,dcblivedazn.akamaized.net,DAZN
+DOMAIN-SUFFIX,indazn.com,DAZN
+DOMAIN-SUFFIX,indaznlab.com,DAZN
+DOMAIN-SUFFIX,logx.optimizely.com,DAZN
+DOMAIN-SUFFIX,s.yimg.jp,DAZN
+DOMAIN-KEYWORD,voddazn,DAZN

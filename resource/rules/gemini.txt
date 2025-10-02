@@ -1,0 +1,17 @@
+# Prism Rules - GEMINI
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 13
+
+DOMAIN,ai.google.dev,GEMINI
+DOMAIN,alkalimakersuite-pa.clients6.google.com,GEMINI
+DOMAIN,makersuite.google.com,GEMINI
+DOMAIN-SUFFIX,bard.google.com,GEMINI
+DOMAIN-SUFFIX,deepmind.com,GEMINI
+DOMAIN-SUFFIX,deepmind.google,GEMINI
+DOMAIN-SUFFIX,gemini.google.com,GEMINI
+DOMAIN-SUFFIX,generativeai.google,GEMINI
+DOMAIN-SUFFIX,proactivebackend-pa.googleapis.com,GEMINI
+DOMAIN-SUFFIX,apis.google.com,GEMINI
+DOMAIN-KEYWORD,colab,GEMINI
+DOMAIN-KEYWORD,developerprofiles,GEMINI
+DOMAIN-KEYWORD,generativelanguage,GEMINI

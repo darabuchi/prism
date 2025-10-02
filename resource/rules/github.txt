@@ -1,0 +1,40 @@
+# Prism Rules - GITHUB
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 36
+
+DOMAIN-SUFFIX,atom.io,GITHUB
+DOMAIN-SUFFIX,dependabot.com,GITHUB
+DOMAIN-SUFFIX,ghcr.io,GITHUB
+DOMAIN-SUFFIX,git.io,GITHUB
+DOMAIN-SUFFIX,github-atom-io-herokuapp-com.freetls.fastly.net,GITHUB
+DOMAIN-SUFFIX,github-avatars.oss-cn-hongkong.aliyuncs.com,GITHUB
+DOMAIN-SUFFIX,github-cloud.s3.amazonaws.com,GITHUB
+DOMAIN-SUFFIX,github.blog,GITHUB
+DOMAIN-SUFFIX,github.com,GITHUB
+DOMAIN-SUFFIX,github.community,GITHUB
+DOMAIN-SUFFIX,github.dev,GITHUB
+DOMAIN-SUFFIX,github.io,GITHUB
+DOMAIN-SUFFIX,githubapp.com,GITHUB
+DOMAIN-SUFFIX,githubassets.com,GITHUB
+DOMAIN-SUFFIX,githubcopilot.com,GITHUB
+DOMAIN-SUFFIX,githubhackathon.com,GITHUB
+DOMAIN-SUFFIX,githubnext.com,GITHUB
+DOMAIN-SUFFIX,githubpreview.dev,GITHUB
+DOMAIN-SUFFIX,githubstatus.com,GITHUB
+DOMAIN-SUFFIX,githubuniverse.com,GITHUB
+DOMAIN-SUFFIX,githubusercontent.com,GITHUB
+DOMAIN-SUFFIX,myoctocat.com,GITHUB
+DOMAIN-SUFFIX,npm.community,GITHUB
+DOMAIN-SUFFIX,npmjs.com,GITHUB
+DOMAIN-SUFFIX,npmjs.org,GITHUB
+DOMAIN-SUFFIX,opensource.guide,GITHUB
+DOMAIN-SUFFIX,rawgit.com,GITHUB
+DOMAIN-SUFFIX,rawgithub.com,GITHUB
+DOMAIN-SUFFIX,repo.new,GITHUB
+DOMAIN-SUFFIX,thegithubshop.com,GITHUB
+DOMAIN-KEYWORD,github,GITHUB
+PROCESS-NAME,copilot-agent-win.exe,GITHUB
+PROCESS-NAME,copilot-agent-macos-arm64,GITHUB
+PROCESS-NAME,copilot-agent-macos,GITHUB
+PROCESS-NAME,copilot-agent-linux,GITHUB
+GEOIP,github,GITHUB

@@ -1,0 +1,21 @@
+# Prism Rules - DROPBOX
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 17
+
+DOMAIN-SUFFIX,db.tt,DROPBOX
+DOMAIN-SUFFIX,dropbox-dns.com,DROPBOX
+DOMAIN-SUFFIX,dropbox.com,DROPBOX
+DOMAIN-SUFFIX,dropbox.tech,DROPBOX
+DOMAIN-SUFFIX,dropbox.zendesk.com,DROPBOX
+DOMAIN-SUFFIX,dropboxapi.com,DROPBOX
+DOMAIN-SUFFIX,dropboxbusiness.com,DROPBOX
+DOMAIN-SUFFIX,dropboxcaptcha.com,DROPBOX
+DOMAIN-SUFFIX,dropboxforum.com,DROPBOX
+DOMAIN-SUFFIX,dropboxforums.com,DROPBOX
+DOMAIN-SUFFIX,dropboxinsiders.com,DROPBOX
+DOMAIN-SUFFIX,dropboxmail.com,DROPBOX
+DOMAIN-SUFFIX,dropboxpartners.com,DROPBOX
+DOMAIN-SUFFIX,dropboxstatic.com,DROPBOX
+DOMAIN-SUFFIX,dropboxusercontent.com,DROPBOX
+DOMAIN-SUFFIX,getdropbox.com,DROPBOX
+DOMAIN-SUFFIX,paper-attachments.s3.amazonaws.com,DROPBOX

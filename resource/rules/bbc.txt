@@ -1,0 +1,23 @@
+# Prism Rules - BBC
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 19
+
+DOMAIN-SUFFIX,bbc,BBC
+DOMAIN-SUFFIX,bbc.co,BBC
+DOMAIN-SUFFIX,bbc.co.uk,BBC
+DOMAIN-SUFFIX,bbc.com,BBC
+DOMAIN-SUFFIX,bbc.in,BBC
+DOMAIN-SUFFIX,bbc.net.uk,BBC
+DOMAIN-SUFFIX,bbcchinese.com,BBC
+DOMAIN-SUFFIX,bbcfmt.hs.llnwd.net,BBC
+DOMAIN-SUFFIX,bbcfmt.s.llnwi.net,BBC
+DOMAIN-SUFFIX,bbci.co,BBC
+DOMAIN-SUFFIX,bbci.co.uk,BBC
+DOMAIN-SUFFIX,bbcmedia.co.uk,BBC
+DOMAIN-SUFFIX,bbcpersian.com,BBC
+DOMAIN-SUFFIX,bbcverticals.com,BBC
+DOMAIN-SUFFIX,bidi.net.uk,BBC
+DOMAIN-KEYWORD,bbcfmt,BBC
+DOMAIN-KEYWORD,uk-live,BBC
+DOMAIN,vod-dash-ww-live.akamaized.net,BBC
+DOMAIN,vod-thumb-ww-live.akamaized.net,BBC

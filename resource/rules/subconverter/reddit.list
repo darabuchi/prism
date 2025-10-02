@@ -1,0 +1,17 @@
+# Prism Rules - REDDIT (Subconverter Format)
+# Generated at: 2025-10-02T12:27:45+08:00
+# Total rules: 8
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=REDDIT,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/reddit.list
+
+DOMAIN-SUFFIX,redd.it
+DOMAIN-SUFFIX,reddit.com
+DOMAIN-SUFFIX,redditmail.com
+DOMAIN-SUFFIX,redditmedia.com
+DOMAIN-SUFFIX,redditstatic.com
+DOMAIN-SUFFIX,reddituploads.com
+DOMAIN-SUFFIX,reddituploads.com.cdn-cf.behance.net
+DOMAIN-SUFFIX,reddituploads.com.cdn-cf.dropbox.com

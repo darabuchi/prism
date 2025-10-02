@@ -1,0 +1,26 @@
+# Prism Rules - ONEDRIVE (Subconverter Format)
+# Generated at: 2025-10-02T12:27:44+08:00
+# Total rules: 17
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=ONEDRIVE,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/onedrive.list
+
+DOMAIN-SUFFIX,1drv.com
+DOMAIN-SUFFIX,livefilestore.com
+DOMAIN-SUFFIX,oneclient.sfx.ms
+DOMAIN-SUFFIX,onedrive.com
+DOMAIN-SUFFIX,onedrive.live.com
+DOMAIN-SUFFIX,photos.live.com
+DOMAIN-SUFFIX,sharepoint.com
+DOMAIN-SUFFIX,sharepointonline.com
+DOMAIN-SUFFIX,skydrive.wns.windows.com
+DOMAIN-SUFFIX,spoprod-a.akamaihd.net
+DOMAIN-SUFFIX,storage.live.com
+DOMAIN-SUFFIX,storage.msn.com
+DOMAIN-KEYWORD,1drv
+DOMAIN-KEYWORD,onedrive
+DOMAIN-KEYWORD,skydrive
+PROCESS-NAME,OneDrive
+PROCESS-NAME,OneDriveUpdater

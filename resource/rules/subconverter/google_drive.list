@@ -1,0 +1,15 @@
+# Prism Rules - GOOGLE DRIVE (Subconverter Format)
+# Generated at: 2025-10-02T12:27:45+08:00
+# Total rules: 6
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=GOOGLE DRIVE,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/google_drive.list
+
+DOMAIN,www.googleapis.com
+DOMAIN-SUFFIX,docs.google.com
+DOMAIN-SUFFIX,drive.google.com
+DOMAIN-SUFFIX,googledrive.com
+DOMAIN-SUFFIX,googleusercontent.com
+PROCESS-NAME,BackupandSync

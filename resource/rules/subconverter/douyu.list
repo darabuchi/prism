@@ -1,0 +1,22 @@
+# Prism Rules - DOUYU (Subconverter Format)
+# Generated at: 2025-10-02T12:27:45+08:00
+# Total rules: 13
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=DOUYU,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/douyu.list
+
+DOMAIN-SUFFIX,bytefcdnrd.com
+DOMAIN-SUFFIX,douyu.com
+DOMAIN-SUFFIX,douyu.tv
+DOMAIN-SUFFIX,douyuba.cn
+DOMAIN-SUFFIX,douyucdn.cn
+DOMAIN-SUFFIX,douyucdn2.cn
+DOMAIN-SUFFIX,douyupcdn.cn
+DOMAIN-SUFFIX,douyuscdn.com
+DOMAIN-SUFFIX,douyutv.com
+DOMAIN-SUFFIX,doyonoc.com
+DOMAIN-SUFFIX,edgesrv.com
+DOMAIN-SUFFIX,guguyuyin.com
+DOMAIN-SUFFIX,oywtv.com

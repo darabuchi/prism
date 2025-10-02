@@ -1,0 +1,11 @@
+# Prism Rules - APP STORE (Subconverter Format)
+# Generated at: 2025-10-02T12:27:44+08:00
+# Total rules: 2
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=APP STORE,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/app_store.list
+
+DOMAIN,itunes.apple.com
+DOMAIN,apps.apple.com

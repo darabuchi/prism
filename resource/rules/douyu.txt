@@ -1,0 +1,17 @@
+# Prism Rules - DOUYU
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 13
+
+DOMAIN-SUFFIX,bytefcdnrd.com,DOUYU
+DOMAIN-SUFFIX,douyu.com,DOUYU
+DOMAIN-SUFFIX,douyu.tv,DOUYU
+DOMAIN-SUFFIX,douyuba.cn,DOUYU
+DOMAIN-SUFFIX,douyucdn.cn,DOUYU
+DOMAIN-SUFFIX,douyucdn2.cn,DOUYU
+DOMAIN-SUFFIX,douyupcdn.cn,DOUYU
+DOMAIN-SUFFIX,douyuscdn.com,DOUYU
+DOMAIN-SUFFIX,douyutv.com,DOUYU
+DOMAIN-SUFFIX,doyonoc.com,DOUYU
+DOMAIN-SUFFIX,edgesrv.com,DOUYU
+DOMAIN-SUFFIX,guguyuyin.com,DOUYU
+DOMAIN-SUFFIX,oywtv.com,DOUYU

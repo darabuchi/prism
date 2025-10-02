@@ -1,0 +1,20 @@
+# Prism Rules - VIMEO
+# Generated at: 2025-10-02T12:27:43+08:00
+# Total rules: 16
+
+DOMAIN-SUFFIX,livestream.com,VIMEO
+DOMAIN-SUFFIX,vhx.tv,VIMEO
+DOMAIN-SUFFIX,vhxqa1.com,VIMEO
+DOMAIN-SUFFIX,vhxqa2.com,VIMEO
+DOMAIN-SUFFIX,vhxqa3.com,VIMEO
+DOMAIN-SUFFIX,vhxqa4.com,VIMEO
+DOMAIN-SUFFIX,vhxqa6.com,VIMEO
+DOMAIN-SUFFIX,vimeo-staging.com,VIMEO
+DOMAIN-SUFFIX,vimeo-staging2.com,VIMEO
+DOMAIN-SUFFIX,vimeo.com,VIMEO
+DOMAIN-SUFFIX,vimeo.fr,VIMEO
+DOMAIN-SUFFIX,vimeobusiness.com,VIMEO
+DOMAIN-SUFFIX,vimeocdn.com,VIMEO
+DOMAIN-SUFFIX,vimeogoods.com,VIMEO
+DOMAIN-SUFFIX,vimeoondemand.com,VIMEO
+DOMAIN-SUFFIX,vimeostatus.com,VIMEO

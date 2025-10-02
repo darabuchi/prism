@@ -1,0 +1,15 @@
+# Prism Rules - GITLAB (Subconverter Format)
+# Generated at: 2025-10-02T12:27:45+08:00
+# Total rules: 6
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=GITLAB,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/gitlab.list
+
+DOMAIN-SUFFIX,gitlab-assets.oss-cn-hongkong.aliyuncs.com
+DOMAIN-SUFFIX,gitlab-static.net
+DOMAIN-SUFFIX,gitlab.com
+DOMAIN-SUFFIX,gitlab.net
+DOMAIN-SUFFIX,gitter-static.net
+DOMAIN-SUFFIX,gitter.im
