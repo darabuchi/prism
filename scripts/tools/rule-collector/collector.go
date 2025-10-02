@@ -337,7 +337,7 @@ func (c *Collector) Export() error {
 	// 按 action 分组规则
 	rulesByAction := make(map[string][]rules.Rule)
 	for _, rule := range ruleList {
-		action := string(rule.Action())
+		action := rule.Action().String()
 		rulesByAction[action] = append(rulesByAction[action], rule)
 	}
 

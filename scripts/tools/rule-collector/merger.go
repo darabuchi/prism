@@ -29,7 +29,7 @@ func (m *RuleMerger) Merge() []rules.Rule {
 	// 按 Action 分组
 	groupedRules := make(map[string][]rules.Rule)
 	for _, rule := range m.rules {
-		action := string(rule.Action())
+		action := rule.Action().String()
 		groupedRules[action] = append(groupedRules[action], rule)
 	}
 
