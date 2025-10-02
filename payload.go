@@ -6,246 +6,246 @@ type Payload int
 
 const (
 	// PayloadUnknown 未知类型
-	PayloadUnknown Payload = iota
+	PayloadUnknown Payload = 0
 
 	// PayloadDirect 直连
-	PayloadDirect
+	PayloadDirect Payload = 1
 
 	// PayloadReject 拒绝连接
-	PayloadReject
+	PayloadReject Payload = 2
 
 	// PayloadRejectDrop 拒绝连接并丢弃数据包
-	PayloadRejectDrop
+	PayloadRejectDrop Payload = 3
 
 	// PayloadProxy 使用代理
-	PayloadProxy
+	PayloadProxy Payload = 4
 
 	// ========== AI 服务 ==========
 	// PayloadOpenAI OpenAI 服务
-	PayloadOpenAI
+	PayloadOpenAI Payload = 100
 
 	// PayloadClaude Claude 服务
-	PayloadClaude
+	PayloadClaude Payload = 101
 
 	// PayloadGemini Google Gemini 服务
-	PayloadGemini
+	PayloadGemini Payload = 102
 
 	// ========== 流媒体 - 国际 ==========
 	// PayloadYouTube YouTube 视频服务
-	PayloadYouTube
+	PayloadYouTube Payload = 200
 
 	// PayloadNetflix Netflix 流媒体
-	PayloadNetflix
+	PayloadNetflix Payload = 201
 
 	// PayloadDisney Disney+ 流媒体
-	PayloadDisney
+	PayloadDisney Payload = 202
 
 	// PayloadSpotify Spotify 音乐服务
-	PayloadSpotify
+	PayloadSpotify Payload = 203
 
 	// PayloadTikTok TikTok 短视频
-	PayloadTikTok
+	PayloadTikTok Payload = 204
 
 	// PayloadTwitch Twitch 直播平台
-	PayloadTwitch
+	PayloadTwitch Payload = 205
 
 	// PayloadHBO HBO 流媒体
-	PayloadHBO
+	PayloadHBO Payload = 206
 
 	// PayloadHulu Hulu 流媒体
-	PayloadHulu
+	PayloadHulu Payload = 207
 
 	// PayloadPrimeVideo Amazon Prime Video
-	PayloadPrimeVideo
+	PayloadPrimeVideo Payload = 208
 
 	// PayloadPandora Pandora 音乐
-	PayloadPandora
+	PayloadPandora Payload = 209
 
 	// PayloadSoundCloud SoundCloud 音乐
-	PayloadSoundCloud
+	PayloadSoundCloud Payload = 210
 
 	// PayloadDAZN DAZN 体育流媒体
-	PayloadDAZN
+	PayloadDAZN Payload = 211
 
 	// PayloadVimeo Vimeo 视频平台
-	PayloadVimeo
+	PayloadVimeo Payload = 212
 
 	// ========== 流媒体 - 国内 ==========
 	// PayloadBilibili 哔哩哔哩
-	PayloadBilibili
+	PayloadBilibili Payload = 300
 
 	// PayloadBilibiliHK 哔哩哔哩港澳台
-	PayloadBilibiliHK
+	PayloadBilibiliHK Payload = 301
 
 	// PayloadIQIYI 爱奇艺
-	PayloadIQIYI
+	PayloadIQIYI Payload = 302
 
 	// PayloadIQIYIHK 爱奇艺港澳台
-	PayloadIQIYIHK
+	PayloadIQIYIHK Payload = 303
 
 	// PayloadTencentVideo 腾讯视频
-	PayloadTencentVideo
+	PayloadTencentVideo Payload = 304
 
 	// PayloadYouku 优酷
-	PayloadYouku
+	PayloadYouku Payload = 305
 
 	// PayloadNeteaseMusic 网易云音乐
-	PayloadNeteaseMusic
+	PayloadNeteaseMusic Payload = 306
 
 	// PayloadCCTV CCTV
-	PayloadCCTV
+	PayloadCCTV Payload = 307
 
 	// PayloadDouyu 斗鱼
-	PayloadDouyu
+	PayloadDouyu Payload = 308
 
 	// PayloadHimalaya 喜马拉雅
-	PayloadHimalaya
+	PayloadHimalaya Payload = 309
 
 	// ========== 苹果服务 ==========
 	// PayloadAppStore App Store
-	PayloadAppStore
+	PayloadAppStore Payload = 400
 
 	// PayloadICloud iCloud
-	PayloadICloud
+	PayloadICloud Payload = 401
 
 	// PayloadAppleTV Apple TV
-	PayloadAppleTV
+	PayloadAppleTV Payload = 402
 
 	// PayloadAppleMusic Apple Music
-	PayloadAppleMusic
+	PayloadAppleMusic Payload = 403
 
 	// PayloadTestFlight TestFlight
-	PayloadTestFlight
+	PayloadTestFlight Payload = 404
 
 	// PayloadApple Apple 其他服务
-	PayloadApple
+	PayloadApple Payload = 405
 
 	// ========== 云存储 ==========
 	// PayloadOneDrive OneDrive
-	PayloadOneDrive
+	PayloadOneDrive Payload = 500
 
 	// PayloadGoogleDrive Google Drive
-	PayloadGoogleDrive
+	PayloadGoogleDrive Payload = 501
 
 	// PayloadDropbox Dropbox
-	PayloadDropbox
+	PayloadDropbox Payload = 502
 
 	// ========== 科技公司 ==========
 	// PayloadGoogle Google
-	PayloadGoogle
+	PayloadGoogle Payload = 600
 
 	// PayloadMicrosoft Microsoft
-	PayloadMicrosoft
+	PayloadMicrosoft Payload = 601
 
 	// PayloadAmazon Amazon
-	PayloadAmazon
+	PayloadAmazon Payload = 602
 
 	// PayloadFacebook Facebook
-	PayloadFacebook
+	PayloadFacebook Payload = 603
 
 	// PayloadAdobe Adobe
-	PayloadAdobe
+	PayloadAdobe Payload = 604
 
 	// ========== 开发工具/VPS ==========
 	// PayloadGitHub GitHub
-	PayloadGitHub
+	PayloadGitHub Payload = 700
 
 	// PayloadGitLab GitLab
-	PayloadGitLab
+	PayloadGitLab Payload = 701
 
 	// PayloadDocker Docker Hub
-	PayloadDocker
+	PayloadDocker Payload = 702
 
 	// PayloadHeroku Heroku
-	PayloadHeroku
+	PayloadHeroku Payload = 703
 
 	// PayloadDigitalOcean DigitalOcean
-	PayloadDigitalOcean
+	PayloadDigitalOcean Payload = 704
 
 	// PayloadVercel Vercel
-	PayloadVercel
+	PayloadVercel Payload = 705
 
 	// PayloadCloudflare Cloudflare
-	PayloadCloudflare
+	PayloadCloudflare Payload = 706
 
 	// ========== 交易所 ==========
 	// PayloadBinance Binance 币安
-	PayloadBinance
+	PayloadBinance Payload = 800
 
 	// PayloadOKX OKX 交易所
-	PayloadOKX
+	PayloadOKX Payload = 801
 
 	// PayloadCrypto Crypto.com
-	PayloadCrypto
+	PayloadCrypto Payload = 802
 
 	// PayloadCryptocurrency 加密货币综合
-	PayloadCryptocurrency
+	PayloadCryptocurrency Payload = 803
 
 	// ========== 支付 ==========
 	// PayloadPayPal PayPal
-	PayloadPayPal
+	PayloadPayPal Payload = 900
 
 	// ========== 社交平台 ==========
 	// PayloadTelegram Telegram
-	PayloadTelegram
+	PayloadTelegram Payload = 1000
 
 	// PayloadTwitter Twitter
-	PayloadTwitter
+	PayloadTwitter Payload = 1001
 
 	// PayloadInstagram Instagram
-	PayloadInstagram
+	PayloadInstagram Payload = 1002
 
 	// PayloadWhatsApp WhatsApp
-	PayloadWhatsApp
+	PayloadWhatsApp Payload = 1003
 
 	// PayloadDiscord Discord
-	PayloadDiscord
+	PayloadDiscord Payload = 1004
 
 	// PayloadLine Line
-	PayloadLine
+	PayloadLine Payload = 1005
 
 	// PayloadThreads Threads
-	PayloadThreads
+	PayloadThreads Payload = 1006
 
 	// PayloadReddit Reddit
-	PayloadReddit
+	PayloadReddit Payload = 1007
 
 	// PayloadLinkedIn LinkedIn
-	PayloadLinkedIn
+	PayloadLinkedIn Payload = 1008
 
 	// ========== 其他服务 ==========
 	// PayloadWikipedia Wikipedia
-	PayloadWikipedia
+	PayloadWikipedia Payload = 1100
 
 	// PayloadSteam Steam
-	PayloadSteam
+	PayloadSteam Payload = 1101
 
 	// PayloadEpic Epic Games
-	PayloadEpic
+	PayloadEpic Payload = 1102
 
 	// PayloadPlayStation PlayStation
-	PayloadPlayStation
+	PayloadPlayStation Payload = 1103
 
 	// PayloadEbay eBay
-	PayloadEbay
+	PayloadEbay Payload = 1104
 
 	// PayloadShopify Shopify
-	PayloadShopify
+	PayloadShopify Payload = 1105
 
 	// PayloadBBC BBC
-	PayloadBBC
+	PayloadBBC Payload = 1106
 
 	// PayloadCNN CNN
-	PayloadCNN
+	PayloadCNN Payload = 1107
 
 	// PayloadBloomberg Bloomberg
-	PayloadBloomberg
+	PayloadBloomberg Payload = 1108
 
 	// PayloadNYTimes New York Times
-	PayloadNYTimes
+	PayloadNYTimes Payload = 1109
 
 	// PayloadScholar 学术/政府资源
-	PayloadScholar
+	PayloadScholar Payload = 1110
 )
 
 // IsDirect 判断是否为直连动作
