@@ -1,0 +1,17 @@
+# Prism Rules - Shopify (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 8
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=Shopify,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/shopify.list
+
+DOMAIN-SUFFIX,myshopify.com
+DOMAIN-SUFFIX,shop.app
+DOMAIN-SUFFIX,shopify.com
+DOMAIN-SUFFIX,shopify.dev
+DOMAIN-SUFFIX,shopifycdn.com
+DOMAIN-SUFFIX,shopifycloud.com
+DOMAIN-SUFFIX,shopifystatus.com
+DOMAIN-SUFFIX,shopifysvc.com

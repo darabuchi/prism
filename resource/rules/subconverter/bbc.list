@@ -1,0 +1,28 @@
+# Prism Rules - BBC (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 19
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=BBC,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/bbc.list
+
+DOMAIN,vod-dash-ww-live.akamaized.net
+DOMAIN,vod-thumb-ww-live.akamaized.net
+DOMAIN-SUFFIX,bbc
+DOMAIN-SUFFIX,bbc.co
+DOMAIN-SUFFIX,bbc.co.uk
+DOMAIN-SUFFIX,bbc.com
+DOMAIN-SUFFIX,bbc.in
+DOMAIN-SUFFIX,bbc.net.uk
+DOMAIN-SUFFIX,bbcchinese.com
+DOMAIN-SUFFIX,bbcfmt.hs.llnwd.net
+DOMAIN-SUFFIX,bbcfmt.s.llnwi.net
+DOMAIN-SUFFIX,bbci.co
+DOMAIN-SUFFIX,bbci.co.uk
+DOMAIN-SUFFIX,bbcmedia.co.uk
+DOMAIN-SUFFIX,bbcpersian.com
+DOMAIN-SUFFIX,bbcverticals.com
+DOMAIN-SUFFIX,bidi.net.uk
+DOMAIN-KEYWORD,bbcfmt
+DOMAIN-KEYWORD,uk-live

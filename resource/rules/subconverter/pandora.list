@@ -1,0 +1,11 @@
+# Prism Rules - Pandora (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 2
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=Pandora,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/pandora.list
+
+DOMAIN-SUFFIX,p-cdn.us
+DOMAIN-SUFFIX,pandora.com

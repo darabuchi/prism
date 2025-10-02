@@ -1,0 +1,13 @@
+# Prism Rules - Claude (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 4
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=Claude,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/claude.list
+
+DOMAIN,cdn.usefathom.com
+DOMAIN,servd-anthropic-website.b-cdn.net
+DOMAIN-SUFFIX,anthropic.com
+DOMAIN-SUFFIX,claude.ai

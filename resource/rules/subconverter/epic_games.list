@@ -1,0 +1,10 @@
+# Prism Rules - Epic Games (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 1
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=Epic Games,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/epic_games.list
+
+GEOIP,epic

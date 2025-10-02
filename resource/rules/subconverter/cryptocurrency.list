@@ -1,0 +1,13 @@
+# Prism Rules - Cryptocurrency (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 4
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=Cryptocurrency,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/cryptocurrency.list
+
+DOMAIN-SUFFIX,binance.cc
+DOMAIN-SUFFIX,binance.im
+DOMAIN-SUFFIX,binance.us
+DOMAIN-SUFFIX,huobi.com

@@ -1,0 +1,13 @@
+# Prism Rules - DigitalOcean (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 4
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=DigitalOcean,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/digitalocean.list
+
+DOMAIN-SUFFIX,digitalocean.com
+DOMAIN-SUFFIX,digitaloceanspaces.com
+DOMAIN-SUFFIX,do.co
+DOMAIN-SUFFIX,nginxconfig.io

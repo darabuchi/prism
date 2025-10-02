@@ -1,0 +1,36 @@
+# Prism Rules - Vercel (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 27
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=Vercel,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/vercel.list
+
+DOMAIN-SUFFIX,err.sh
+DOMAIN-SUFFIX,hyper.is
+DOMAIN-SUFFIX,nextjs.org
+DOMAIN-SUFFIX,now.sh
+DOMAIN-SUFFIX,static.fun
+DOMAIN-SUFFIX,title.sh
+DOMAIN-SUFFIX,turborepo.org
+DOMAIN-SUFFIX,vercel-analytics.com
+DOMAIN-SUFFIX,vercel-dns.com
+DOMAIN-SUFFIX,vercel-insights.com
+DOMAIN-SUFFIX,vercel-status.com
+DOMAIN-SUFFIX,vercel.app
+DOMAIN-SUFFIX,vercel.blog
+DOMAIN-SUFFIX,vercel.com
+DOMAIN-SUFFIX,vercel.events
+DOMAIN-SUFFIX,vercel.link
+DOMAIN-SUFFIX,vercel.live
+DOMAIN-SUFFIX,vercel.pub
+DOMAIN-SUFFIX,vercel.sh
+DOMAIN-SUFFIX,vercel.store
+DOMAIN-SUFFIX,zeit-world.co.uk
+DOMAIN-SUFFIX,zeit-world.com
+DOMAIN-SUFFIX,zeit-world.net
+DOMAIN-SUFFIX,zeit-world.org
+DOMAIN-SUFFIX,zeit.co
+DOMAIN-SUFFIX,zeit.sh
+DOMAIN-SUFFIX,zeitworld.com

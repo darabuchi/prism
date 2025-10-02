@@ -1,0 +1,15 @@
+# Prism Rules - CNN (Subconverter Format)
+# Generated at: 2025-10-02T13:59:29+08:00
+# Total rules: 6
+# Repository: https://github.com/darabuchi/prism
+# Usage: Add this URL to your subconverter ruleset configuration
+#
+# Example:
+# ruleset=CNN,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/cnn.list
+
+DOMAIN-SUFFIX,cnn.com
+DOMAIN-SUFFIX,cnn.io
+DOMAIN-SUFFIX,cnn.it
+DOMAIN-SUFFIX,cnnarabic.com
+DOMAIN-SUFFIX,cnnlabs.com
+DOMAIN-SUFFIX,cnnmoney.ch
