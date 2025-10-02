@@ -439,10 +439,16 @@ func (c *Collector) exportSubconverter(baseDir string, rulesByAction map[string]
 		return fmt.Errorf("failed to export subconverter config: %w", err)
 	}
 
-	// 生成实际的 INI 配置文件
-	err = c.exportSubconverterINI(subconverterDir, rulesByAction)
+	// 生成完整版 INI 配置文件
+	err = c.exportSubconverterINI(subconverterDir, rulesByAction, false)
 	if err != nil {
 		return fmt.Errorf("failed to export subconverter INI: %w", err)
+	}
+
+	// 生成 Mini 版 INI 配置文件
+	err = c.exportSubconverterINI(subconverterDir, rulesByAction, true)
+	if err != nil {
+		return fmt.Errorf("failed to export subconverter mini INI: %w", err)
 	}
 
 	pterm.Success.Printfln("subconverter 格式导出完成: %s", subconverterDir)
@@ -597,8 +603,11 @@ func (c *Collector) exportSubconverterConfig(dir string, rulesByAction map[strin
 }
 
 // exportSubconverterINI 导出实际的 INI 配置文件
-func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][]rules.Rule) error {
+func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][]rules.Rule, mini bool) error {
 	filename := filepath.Join(dir, "prism.ini")
+	if mini {
+		filename = filepath.Join(dir, "prism_mini.ini")
+	}
 
 	file, err := os.Create(filename)
 	if err != nil {
@@ -608,14 +617,25 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 
 	// 写入 INI 文件头部
 	fmt.Fprintf(file, "[custom]\n")
-	fmt.Fprintf(file, "; Prism Rules Configuration for Subconverter\n")
+	if mini {
+		fmt.Fprintf(file, "; Prism Rules Mini Configuration for Subconverter\n")
+		fmt.Fprintf(file, "; 精简版配置 - 仅包含基础策略组和常用服务\n")
+	} else {
+		fmt.Fprintf(file, "; Prism Rules Configuration for Subconverter\n")
+		fmt.Fprintf(file, "; 完整版配置 - 包含所有服务和策略组\n")
+	}
 	fmt.Fprintf(file, "; Generated at: %s\n", time.Now().Format(time.RFC3339))
 	fmt.Fprintf(file, "; Repository: https://github.com/darabuchi/prism\n")
 	fmt.Fprintf(file, ";\n")
 	fmt.Fprintf(file, "; 使用方法：\n")
 	fmt.Fprintf(file, "; 1. 将此文件放到 subconverter 的 base 目录下\n")
-	fmt.Fprintf(file, "; 2. 在订阅转换时使用 &config=prism 参数引用此配置\n")
-	fmt.Fprintf(file, "; 3. 示例: https://your-subconverter.com/sub?target=clash&url=<订阅链接>&config=prism\n")
+	if mini {
+		fmt.Fprintf(file, "; 2. 在订阅转换时使用 &config=prism_mini 参数引用此配置\n")
+		fmt.Fprintf(file, "; 3. 示例: https://your-subconverter.com/sub?target=clash&url=<订阅链接>&config=prism_mini\n")
+	} else {
+		fmt.Fprintf(file, "; 2. 在订阅转换时使用 &config=prism 参数引用此配置\n")
+		fmt.Fprintf(file, "; 3. 示例: https://your-subconverter.com/sub?target=clash&url=<订阅链接>&config=prism\n")
+	}
 	fmt.Fprintf(file, ";\n\n")
 
 	// 基础配置
@@ -623,10 +643,18 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 	fmt.Fprintf(file, "; 启用规则生成器\n")
 	fmt.Fprintf(file, "enable_rule_generator=true\n")
 	fmt.Fprintf(file, "; 覆盖原有规则\n")
-	fmt.Fprintf(file, "overwrite_original_rules=true\n\n")
+	fmt.Fprintf(file, "overwrite_original_rules=true\n")
+	fmt.Fprintf(file, "; 跳过证书验证\n")
+	fmt.Fprintf(file, "skip_cert_verify_flag=false\n")
+	fmt.Fprintf(file, "; UDP 支持\n")
+	fmt.Fprintf(file, "udp_flag=true\n")
+	fmt.Fprintf(file, "; TCP Fast Open\n")
+	fmt.Fprintf(file, "tcp_fast_open_flag=true\n\n")
 
 	fmt.Fprintf(file, "; Clash 配置基础模板（可选）\n")
-	fmt.Fprintf(file, "; clash_rule_base=https://raw.githubusercontent.com/darabuchi/prism/main/config/clash_base.yaml\n\n")
+	fmt.Fprintf(file, "; clash_rule_base=https://raw.githubusercontent.com/darabuchi/prism/main/config/clash_base.yaml\n")
+	fmt.Fprintf(file, "; Quantumult X 配置基础模板（可选）\n")
+	fmt.Fprintf(file, "; quanx_rule_base=https://raw.githubusercontent.com/darabuchi/prism/main/config/quanx_base.conf\n\n")
 
 	// 按 action 排序
 	actions := make([]string, 0, len(rulesByAction))
@@ -660,22 +688,47 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 	// 生成策略组配置
 	fmt.Fprintf(file, "; ============ 策略组配置 ============\n\n")
 
-	// 主选择组
-	fmt.Fprintf(file, "; 主节点选择\n")
-	fmt.Fprintf(file, "custom_proxy_group=🚀 节点选择`select`[]♻️ 自动选择`[]DIRECT`.*\n")
-	fmt.Fprintf(file, "; 自动选择最优节点\n")
-	fmt.Fprintf(file, "custom_proxy_group=♻️ 自动选择`url-test`.*`http://www.gstatic.com/generate_204`300,,50\n\n")
+	if mini {
+		// Mini 版本：简化的策略组
+		fmt.Fprintf(file, "; 主节点选择\n")
+		fmt.Fprintf(file, "custom_proxy_group=🚀 节点选择`select`[]♻️ 自动选择`[]DIRECT`.*\n")
+		fmt.Fprintf(file, "; 自动选择\n")
+		fmt.Fprintf(file, "custom_proxy_group=♻️ 自动选择`url-test`.*`http://www.gstatic.com/generate_204`300,,50\n\n")
+	} else {
+		// 完整版本：多种策略选择
+		fmt.Fprintf(file, "; 主节点选择 - 提供多种策略选择\n")
+		fmt.Fprintf(file, "custom_proxy_group=🚀 节点选择`select`[]♻️ 自动选择`[]🔀 负载均衡`[]🔄 故障转移`[]📌 手动切换`[]DIRECT`[]REJECT\n")
+		fmt.Fprintf(file, "; 自动选择 - URL 测试选择最低延迟节点\n")
+		fmt.Fprintf(file, "custom_proxy_group=♻️ 自动选择`url-test`.*`http://www.gstatic.com/generate_204`300,,50\n")
+		fmt.Fprintf(file, "; 负载均衡 - 多节点负载均衡\n")
+		fmt.Fprintf(file, "custom_proxy_group=🔀 负载均衡`load-balance`.*`http://www.gstatic.com/generate_204`300,,50\n")
+		fmt.Fprintf(file, "; 故障转移 - 自动切换到可用节点\n")
+		fmt.Fprintf(file, "custom_proxy_group=🔄 故障转移`fallback`.*`http://www.gstatic.com/generate_204`300,,50\n")
+		fmt.Fprintf(file, "; 手动切换 - 手动选择节点\n")
+		fmt.Fprintf(file, "custom_proxy_group=📌 手动切换`select`.*`http://www.gstatic.com/generate_204`300,,1\n\n")
+	}
 
 	// 为收集的规则生成对应的策略组
-	c.writeProxyGroups(file, actions)
+	c.writeProxyGroups(file, actions, mini)
 
 	// 最终策略
-	fmt.Fprintf(file, "; 全球直连\n")
-	fmt.Fprintf(file, "custom_proxy_group=🎯 全球直连`select`[]DIRECT`[]🚀 节点选择\n")
-	fmt.Fprintf(file, "; 广告拦截\n")
-	fmt.Fprintf(file, "custom_proxy_group=🛡️ 广告拦截`select`[]REJECT`[]DIRECT\n")
-	fmt.Fprintf(file, "; 漏网之鱼\n")
-	fmt.Fprintf(file, "custom_proxy_group=🐟 漏网之鱼`select`[]🚀 节点选择`[]DIRECT\n\n")
+	if mini {
+		fmt.Fprintf(file, "; 全球直连\n")
+		fmt.Fprintf(file, "custom_proxy_group=🎯 全球直连`select`[]DIRECT`[]🚀 节点选择\n")
+		fmt.Fprintf(file, "; 广告拦截\n")
+		fmt.Fprintf(file, "custom_proxy_group=🛡️ 广告拦截`select`[]REJECT`[]DIRECT\n")
+		fmt.Fprintf(file, "; 漏网之鱼\n")
+		fmt.Fprintf(file, "custom_proxy_group=🐟 漏网之鱼`select`[]🚀 节点选择`[]DIRECT\n\n")
+	} else {
+		fmt.Fprintf(file, "; 全球直连\n")
+		fmt.Fprintf(file, "custom_proxy_group=🎯 全球直连`select`[]DIRECT`[]🚀 节点选择`[]♻️ 自动选择`[]📌 手动切换\n")
+		fmt.Fprintf(file, "; 广告拦截\n")
+		fmt.Fprintf(file, "custom_proxy_group=🛡️ 广告拦截`select`[]REJECT`[]DIRECT`[]🚀 节点选择\n")
+		fmt.Fprintf(file, "; 隐私保护\n")
+		fmt.Fprintf(file, "custom_proxy_group=🔒 隐私保护`select`[]REJECT`[]DIRECT`[]🚀 节点选择\n")
+		fmt.Fprintf(file, "; 漏网之鱼\n")
+		fmt.Fprintf(file, "custom_proxy_group=🐟 漏网之鱼`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`[]📌 手动切换\n\n")
+	}
 
 	// 写入规则集配置
 	fmt.Fprintf(file, "; ============ 规则集配置 ============\n\n")
@@ -696,17 +749,76 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 
 	// 添加 GEOIP 和 FINAL 规则
 	fmt.Fprintf(file, "; ============ 最终规则 ============\n\n")
-	fmt.Fprintf(file, "; GEOIP 规则\n")
-	fmt.Fprintf(file, "ruleset=🎯 全球直连,[]GEOIP,CN\n\n")
+	fmt.Fprintf(file, "; LAN 局域网直连\n")
+	fmt.Fprintf(file, "ruleset=🎯 全球直连,[]GEOIP,LAN\n")
+	fmt.Fprintf(file, "; 中国 IP 直连\n")
+	fmt.Fprintf(file, "ruleset=🎯 全球直连,[]GEOIP,CN\n")
 	fmt.Fprintf(file, "; 兜底规则\n")
-	fmt.Fprintf(file, "ruleset=🐟 漏网之鱼,[]FINAL\n")
+	fmt.Fprintf(file, "ruleset=🐟 漏网之鱼,[]FINAL\n\n")
+
+	// Emoji 配置
+	fmt.Fprintf(file, "; ============ Emoji 配置 ============\n\n")
+	fmt.Fprintf(file, "; 启用 Emoji\n")
+	fmt.Fprintf(file, "add_emoji=true\n")
+	fmt.Fprintf(file, "; 移除旧 Emoji\n")
+	fmt.Fprintf(file, "remove_old_emoji=true\n\n")
+
+	// 地区 Emoji 规则
+	c.writeEmojiRules(file)
+
+	// Rename 规则
+	fmt.Fprintf(file, "\n; ============ 节点重命名规则 ============\n\n")
+	fmt.Fprintf(file, "; 倍率标识规则\n")
+	fmt.Fprintf(file, "rename=\\(?((x|X)?(\\d+)(\\.?\\d+)?)(\\s?倍率?|(x|X))\\)?@$1x\n")
 
 	pterm.Success.Printfln("已生成 INI 配置文件: %s", filename)
 	return nil
 }
 
+// writeEmojiRules 写入 Emoji 规则
+func (c *Collector) writeEmojiRules(file *os.File) {
+	emojiRules := map[string]string{
+		"(流量|时间|应急|过期|Bandwidth|expire)":                         "🏳️‍🌈",
+		"(HK|HongKong|Hong Kong|香港|深港|沪港|呼港|HKT|HKBN|HGC|WTT|CMI|穗港|京港|港)": "🇭🇰",
+		"(TW|Taiwan|台湾|台北|台中|新北|彰化|CHT|台|HINET)":                    "🇨🇳",
+		"(SG|Singapore|新加坡|狮城|沪新|京新|泉新|穗新|深新|杭新)":                     "🇸🇬",
+		"(JP|Japan|日本|东京|大阪|埼玉|沪日|穗日|川日|中日|泉日|杭日)":                   "🇯🇵",
+		"(US|America|United States|美国|美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|沪美)": "🇺🇸",
+		"(KR|Korea|KOR|韩国|首尔|韩|韓)":                "🇰🇷",
+		"(UK|England|United Kingdom|英国|英|伦敦)": "🇬🇧",
+		"(FR|France|法国|巴黎)":                    "🇫🇷",
+		"(DE|Germany|德国|法兰克福|德)":               "🇩🇪",
+		"(CA|Canada|加拿大|蒙特利尔|温哥华|枫叶|楓葉)":       "🇨🇦",
+		"(AU|Australia|Sydney|澳大利亚|澳洲|悉尼)":   "🇦🇺",
+		"(RU|Russia|俄罗斯|伯力|莫斯科|圣彼得堡|西伯利亚|新西伯利亚|京俄|杭俄)": "🇷🇺",
+		"(IN|India|印度|孟买)":                    "🇮🇳",
+		"(TR|Turkey|土耳其|伊斯坦布尔)":              "🇹🇷",
+		"(AR|阿根廷)":                           "🇦🇷",
+		"(BR|Brazil|巴西|圣保罗)":                 "🇧🇷",
+		"(NL|Netherlands|荷兰|阿姆斯特丹)":          "🇳🇱",
+		"(TH|Thailand|泰国|曼谷)":                "🇹🇭",
+		"(VN|Vietnam|越南)":                     "🇻🇳",
+		"(PH|Philippines|菲律宾)":               "🇵🇭",
+		"(MY|Malaysia|马来西亚)":                 "🇲🇾",
+		"(ID|Indonesia|印尼|印度尼西亚|雅加达)":        "🇮🇩",
+		"(IT|Italy|意大利|米兰)":                  "🇮🇹",
+		"(ES|Spain|西班牙)":                     "🇪🇸",
+		"(MO|Macao|澳门|CTM)":                  "🇲🇴",
+		"(ZA|南非)":                            "🇿🇦",
+		"(IE|Ireland|爱尔兰|都柏林)":              "🇮🇪",
+		"(FI|Finland|芬兰|赫尔辛基)":              "🇫🇮",
+		"(CH|瑞士|苏黎世)":                        "🇨🇭",
+		"(AT|奥地利|维也纳)":                       "🇦🇹",
+		"(CN|China|回国|中国|江苏|北京|上海|广州|深圳|杭州|常州|徐州|青岛|宁波|镇江|back)": "🇨🇳",
+	}
+
+	for pattern, emoji := range emojiRules {
+		fmt.Fprintf(file, "rule=%s,%s\n", pattern, emoji)
+	}
+}
+
 // writeProxyGroups 写入策略组配置
-func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
+func (c *Collector) writeProxyGroups(file *os.File, actions []string, mini bool) {
 	// 收集不同类型的服务
 	aiServices := []string{}
 	streamingServices := []string{}
@@ -738,12 +850,27 @@ func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
 		}
 	}
 
+	// Mini 版本只包含热门服务
+	popularServices := map[string]bool{
+		"OPENAI": true, "CLAUDE": true, "GEMINI": true,
+		"YOUTUBE": true, "NETFLIX": true, "DISNEY": true,
+		"TELEGRAM": true, "TWITTER": true,
+		"GITHUB": true,
+	}
+
 	// 写入 AI 服务组
 	if len(aiServices) > 0 {
 		fmt.Fprintf(file, "; AI 服务\n")
 		for _, action := range aiServices {
+			if mini && !popularServices[strings.ToUpper(action)] {
+				continue
+			}
 			groupName := c.getGroupName(action)
-			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+			if mini {
+				fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]DIRECT`.*\n", groupName)
+			} else {
+				fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]🔄 故障转移`[]📌 手动切换`[]DIRECT`.*\n", groupName)
+			}
 		}
 		fmt.Fprintf(file, "\n")
 	}
@@ -752,8 +879,15 @@ func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
 	if len(streamingServices) > 0 {
 		fmt.Fprintf(file, "; 流媒体服务\n")
 		for _, action := range streamingServices {
+			if mini && !popularServices[strings.ToUpper(action)] {
+				continue
+			}
 			groupName := c.getGroupName(action)
-			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+			if mini {
+				fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]DIRECT`.*\n", groupName)
+			} else {
+				fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]🔄 故障转移`[]📌 手动切换`[]DIRECT`.*\n", groupName)
+			}
 		}
 		fmt.Fprintf(file, "\n")
 	}
@@ -762,28 +896,35 @@ func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
 	if len(socialServices) > 0 {
 		fmt.Fprintf(file, "; 社交平台\n")
 		for _, action := range socialServices {
+			if mini && !popularServices[strings.ToUpper(action)] {
+				continue
+			}
 			groupName := c.getGroupName(action)
-			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+			if mini {
+				fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]DIRECT`.*\n", groupName)
+			} else {
+				fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]🔄 故障转移`[]📌 手动切换`[]DIRECT`.*\n", groupName)
+			}
 		}
 		fmt.Fprintf(file, "\n")
 	}
 
 	// 写入开发工具组
-	if len(devServices) > 0 {
+	if len(devServices) > 0 && !mini {
 		fmt.Fprintf(file, "; 开发工具\n")
 		for _, action := range devServices {
 			groupName := c.getGroupName(action)
-			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]🔄 故障转移`[]📌 手动切换`[]DIRECT`.*\n", groupName)
 		}
 		fmt.Fprintf(file, "\n")
 	}
 
 	// 写入其他服务组
-	if len(otherServices) > 0 {
+	if len(otherServices) > 0 && !mini {
 		fmt.Fprintf(file, "; 其他服务\n")
 		for _, action := range otherServices {
 			groupName := c.getGroupName(action)
-			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]🔄 故障转移`[]📌 手动切换`[]DIRECT`.*\n", groupName)
 		}
 		fmt.Fprintf(file, "\n")
 	}
