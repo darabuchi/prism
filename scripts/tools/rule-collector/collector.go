@@ -451,7 +451,9 @@ func (c *Collector) exportSubconverter(baseDir string, rulesByAction map[string]
 
 // exportSubconverterList 导出单个 subconverter .list 文件
 func (c *Collector) exportSubconverterList(dir, action string, ruleList []rules.Rule) error {
-	filename := filepath.Join(dir, fmt.Sprintf("%s.list", strings.ToLower(action)))
+	// 将空格替换为下划线
+	filenameNormalized := strings.ReplaceAll(strings.ToLower(action), " ", "_")
+	filename := filepath.Join(dir, fmt.Sprintf("%s.list", filenameNormalized))
 
 	file, err := os.Create(filename)
 	if err != nil {
@@ -468,7 +470,7 @@ func (c *Collector) exportSubconverterList(dir, action string, ruleList []rules.
 	fmt.Fprintf(file, "#\n")
 	fmt.Fprintf(file, "# Example:\n")
 	fmt.Fprintf(file, "# ruleset=%s,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list\n",
-		action, strings.ToLower(action))
+		action, filenameNormalized)
 	fmt.Fprintf(file, "\n")
 
 	// 写入规则（subconverter 格式：TYPE,PAYLOAD[,no-resolve]）
@@ -547,10 +549,10 @@ func (c *Collector) exportSubconverterConfig(dir string, rulesByAction map[strin
 
 		fmt.Fprintf(file, "; %s (%d 条规则)\n", action, ruleCount)
 
-		// 将文件名中的空格替换为 %20
-		filenameEncoded := strings.ReplaceAll(strings.ToLower(action), " ", "%20")
+		// 将文件名中的空格替换为下划线
+		filenameNormalized := strings.ReplaceAll(strings.ToLower(action), " ", "_")
 		fmt.Fprintf(file, "ruleset=%s,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list\n",
-			groupName, filenameEncoded)
+			groupName, filenameNormalized)
 	}
 
 	fmt.Fprintf(file, "\n; GEOIP 规则\n")
@@ -565,10 +567,10 @@ func (c *Collector) exportSubconverterConfig(dir string, rulesByAction map[strin
 
 	for _, action := range actions {
 		ruleCount := len(rulesByAction[action])
-		// 将文件名中的空格替换为 %20
-		filenameEncoded := strings.ReplaceAll(strings.ToLower(action), " ", "%20")
+		// 将文件名中的空格替换为下划线
+		filenameNormalized := strings.ReplaceAll(strings.ToLower(action), " ", "_")
 		downloadURL := fmt.Sprintf("https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list",
-			filenameEncoded)
+			filenameNormalized)
 		fmt.Fprintf(file, "| %s | %d | [下载](%s) |\n", action, ruleCount, downloadURL)
 	}
 
@@ -613,12 +615,18 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 	fmt.Fprintf(file, "; 使用方法：\n")
 	fmt.Fprintf(file, "; 1. 将此文件放到 subconverter 的 base 目录下\n")
 	fmt.Fprintf(file, "; 2. 在订阅转换时使用 &config=prism 参数引用此配置\n")
+	fmt.Fprintf(file, "; 3. 示例: https://your-subconverter.com/sub?target=clash&url=<订阅链接>&config=prism\n")
 	fmt.Fprintf(file, ";\n\n")
 
-	// 启用规则生成
-	fmt.Fprintf(file, "; 启用规则生成\n")
+	// 基础配置
+	fmt.Fprintf(file, "; ============ 基础配置 ============\n\n")
+	fmt.Fprintf(file, "; 启用规则生成器\n")
 	fmt.Fprintf(file, "enable_rule_generator=true\n")
+	fmt.Fprintf(file, "; 覆盖原有规则\n")
 	fmt.Fprintf(file, "overwrite_original_rules=true\n\n")
+
+	fmt.Fprintf(file, "; Clash 配置基础模板（可选）\n")
+	fmt.Fprintf(file, "; clash_rule_base=https://raw.githubusercontent.com/darabuchi/prism/main/config/clash_base.yaml\n\n")
 
 	// 按 action 排序
 	actions := make([]string, 0, len(rulesByAction))
@@ -649,6 +657,26 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 	}
 	sortActions(actions)
 
+	// 生成策略组配置
+	fmt.Fprintf(file, "; ============ 策略组配置 ============\n\n")
+
+	// 主选择组
+	fmt.Fprintf(file, "; 主节点选择\n")
+	fmt.Fprintf(file, "custom_proxy_group=🚀 节点选择`select`[]♻️ 自动选择`[]DIRECT`.*\n")
+	fmt.Fprintf(file, "; 自动选择最优节点\n")
+	fmt.Fprintf(file, "custom_proxy_group=♻️ 自动选择`url-test`.*`http://www.gstatic.com/generate_204`300,,50\n\n")
+
+	// 为收集的规则生成对应的策略组
+	c.writeProxyGroups(file, actions)
+
+	// 最终策略
+	fmt.Fprintf(file, "; 全球直连\n")
+	fmt.Fprintf(file, "custom_proxy_group=🎯 全球直连`select`[]DIRECT`[]🚀 节点选择\n")
+	fmt.Fprintf(file, "; 广告拦截\n")
+	fmt.Fprintf(file, "custom_proxy_group=🛡️ 广告拦截`select`[]REJECT`[]DIRECT\n")
+	fmt.Fprintf(file, "; 漏网之鱼\n")
+	fmt.Fprintf(file, "custom_proxy_group=🐟 漏网之鱼`select`[]🚀 节点选择`[]DIRECT\n\n")
+
 	// 写入规则集配置
 	fmt.Fprintf(file, "; ============ 规则集配置 ============\n\n")
 
@@ -660,10 +688,10 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 
 		fmt.Fprintf(file, "; %s (%d 条规则)\n", action, ruleCount)
 
-		// 将文件名中的空格替换为 %20
-		filenameEncoded := strings.ReplaceAll(strings.ToLower(action), " ", "%20")
+		// 将文件名中的空格替换为下划线
+		filenameNormalized := strings.ReplaceAll(strings.ToLower(action), " ", "_")
 		fmt.Fprintf(file, "ruleset=%s,https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list\n\n",
-			groupName, filenameEncoded)
+			groupName, filenameNormalized)
 	}
 
 	// 添加 GEOIP 和 FINAL 规则
@@ -675,6 +703,111 @@ func (c *Collector) exportSubconverterINI(dir string, rulesByAction map[string][
 
 	pterm.Success.Printfln("已生成 INI 配置文件: %s", filename)
 	return nil
+}
+
+// writeProxyGroups 写入策略组配置
+func (c *Collector) writeProxyGroups(file *os.File, actions []string) {
+	// 收集不同类型的服务
+	aiServices := []string{}
+	streamingServices := []string{}
+	socialServices := []string{}
+	otherServices := []string{}
+
+	for _, action := range actions {
+		actionUpper := strings.ToUpper(action)
+
+		// 跳过基础动作
+		if actionUpper == "REJECT" || actionUpper == "DIRECT" || actionUpper == "PROXY" {
+			continue
+		}
+
+		// 分类服务
+		switch {
+		case c.isAIService(actionUpper):
+			aiServices = append(aiServices, action)
+		case c.isStreamingService(actionUpper):
+			streamingServices = append(streamingServices, action)
+		case c.isSocialService(actionUpper):
+			socialServices = append(socialServices, action)
+		default:
+			otherServices = append(otherServices, action)
+		}
+	}
+
+	// 写入 AI 服务组
+	if len(aiServices) > 0 {
+		fmt.Fprintf(file, "; AI 服务\n")
+		for _, action := range aiServices {
+			groupName := c.getGroupName(action)
+			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+		}
+		fmt.Fprintf(file, "\n")
+	}
+
+	// 写入流媒体服务组
+	if len(streamingServices) > 0 {
+		fmt.Fprintf(file, "; 流媒体服务\n")
+		for _, action := range streamingServices {
+			groupName := c.getGroupName(action)
+			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+		}
+		fmt.Fprintf(file, "\n")
+	}
+
+	// 写入社交平台组
+	if len(socialServices) > 0 {
+		fmt.Fprintf(file, "; 社交平台\n")
+		for _, action := range socialServices {
+			groupName := c.getGroupName(action)
+			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+		}
+		fmt.Fprintf(file, "\n")
+	}
+
+	// 写入其他服务组
+	if len(otherServices) > 0 {
+		fmt.Fprintf(file, "; 其他服务\n")
+		for _, action := range otherServices {
+			groupName := c.getGroupName(action)
+			fmt.Fprintf(file, "custom_proxy_group=%s`select`[]🚀 节点选择`[]♻️ 自动选择`[]DIRECT`.*\n", groupName)
+		}
+		fmt.Fprintf(file, "\n")
+	}
+}
+
+// isAIService 判断是否为 AI 服务
+func (c *Collector) isAIService(action string) bool {
+	aiServices := map[string]bool{
+		"OPENAI": true, "CLAUDE": true, "GEMINI": true, "COPILOT": true,
+		"BING": true, "PERPLEXITY": true, "CHARACTER.AI": true, "CHARACTERAI": true,
+		"MIDJOURNEY": true, "STABLE DIFFUSION": true, "HUGGING FACE": true,
+		"COHERE": true, "MISTRAL": true, "POE": true, "NOTION AI": true,
+		"JASPER": true, "CHATGPT": true, "BARD": true, "LLAMA": true,
+		"REPLICATE": true, "RUNWAYML": true,
+	}
+	return aiServices[action]
+}
+
+// isStreamingService 判断是否为流媒体服务
+func (c *Collector) isStreamingService(action string) bool {
+	streamingServices := map[string]bool{
+		"YOUTUBE": true, "NETFLIX": true, "DISNEY": true, "SPOTIFY": true,
+		"TIKTOK": true, "BILIBILI": true, "BILIBILIINTL": true, "BILIBILI HK": true,
+		"IQIYI": true, "IQIYI HK": true, "TENCENT VIDEO": true, "APPLE TV": true,
+		"APPLE MUSIC": true, "PRIME VIDEO": true, "HBO": true, "HULU": true,
+		"TWITCH": true, "SOUNDCLOUD": true,
+	}
+	return streamingServices[action]
+}
+
+// isSocialService 判断是否为社交平台
+func (c *Collector) isSocialService(action string) bool {
+	socialServices := map[string]bool{
+		"TELEGRAM": true, "TWITTER": true, "FACEBOOK": true,
+		"INSTAGRAM": true, "DISCORD": true, "WHATSAPP": true,
+		"LINE": true, "WECHAT": true, "REDDIT": true,
+	}
+	return socialServices[action]
 }
 
 // getGroupName 获取友好的分组名称
