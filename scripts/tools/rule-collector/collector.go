@@ -565,8 +565,10 @@ func (c *Collector) exportSubconverterConfig(dir string, rulesByAction map[strin
 
 	for _, action := range actions {
 		ruleCount := len(rulesByAction[action])
+		// 将文件名中的空格替换为 %20
+		filenameEncoded := strings.ReplaceAll(strings.ToLower(action), " ", "%20")
 		downloadURL := fmt.Sprintf("https://raw.githubusercontent.com/darabuchi/prism/main/rules/subconverter/%s.list",
-			strings.ToLower(action))
+			filenameEncoded)
 		fmt.Fprintf(file, "| %s | %d | [下载](%s) |\n", action, ruleCount, downloadURL)
 	}
 
